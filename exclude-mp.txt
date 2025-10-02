@@ -1,0 +1,12 @@
+Graphics/hud
+Lua
+Maps/MAPKZ.wad
+SOC/SOC_KILLBOX.txt
+Sounds
+Sprites
+CREDIT_MAIN.txt
+DOCUMENTATION.txt
+init.lua
+LICENSE.gpl.txt
+LICENSE.txt
+TRNSLATE.txt

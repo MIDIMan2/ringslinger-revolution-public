@@ -1,0 +1,20 @@
+Lump RSRTMZ
+Title = Techno_Madness
+AltTitle = crisis_project
+Authors = Kevin_Newman_(TECHRAP.MID),_Xaser,_MIDIMan_(MIDI)
+Soundtestpage = 1
+BPM = 140
+
+Lump RSRBRK
+Title = VS_Cybrak_2016
+AltTitle = Razorback_(Remix)
+Authors = Peter_"Skaven"_Hajba,_Necto_Ulin_(Remix),_MIDIMan_(MIDI)
+Soundtestpage = 1
+BPM = 150
+
+Lump CBDALT
+Title = VS_Cybrak_2016_(Alt)
+AltTitle = Razorback_(Unreal_Mix)
+Authors = Peter_"Skaven"_Hajba,_MIDIMan_(MIDI)
+Soundtestpage = 1
+BPM = 150

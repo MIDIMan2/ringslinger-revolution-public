@@ -1,0 +1,6 @@
+Lua/rsr/freeslots/main.lua
+Lua/rsr/freeslots.lua
+Sounds/main
+Sounds
+CREDIT_MAIN.txt
+CREDIT.txt

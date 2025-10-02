@@ -1,0 +1,12 @@
+Graphics/Level Select Pictures/mp
+Graphics/Level Select Pictures
+Maps/mp
+Maps
+Music/mp
+Music
+SOC/SOC_MPLEVELS.txt
+SOC/SOC_LVLHEADERS.txt
+MUSICDEF_MP.txt
+MUSICDEF.txt
+CREDIT_MP.txt
+CREDIT.txt

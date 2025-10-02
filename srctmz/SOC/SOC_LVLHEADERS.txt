@@ -1,0 +1,55 @@
+# Special Stages
+
+Level 50
+LevelName = Rumble Rift
+Act = 0
+Music = RR1W1
+SkyboxScale = 4
+SkyNum = 700
+TypeOfLevel = Singleplayer,Co-op
+Lua.RingslingerRev = true
+Lua.RSRWavesTags = 1,601,721,2
+
+Level 60
+LevelName = Rumble Rift
+Act = 0
+Music = RR1W1
+SkyboxScale = 4
+SkyNum = 700
+TypeOfLevel = Singleplayer,Co-op
+Lua.RingslingerRev = true
+Lua.RSRWavesTags = 1,601,721,2
+
+# Techno Madness
+
+Level S0
+LevelName = Techno Madness
+Act = 0
+TypeOfLevel = Singleplayer,Co-op
+Keywords = TMZ
+BonusType = None
+SkyNum = 8
+SkyboxScale = 10
+Weather = PRECIP_STORM
+Music = None
+RecordAttack = true
+LevelSelect = 1
+NextLevel = TITLE
+Lua.RingslingerRev = true
+
+Level S1
+LevelName = Legacy Madness
+SubTitle = RSR Legacy: Techno Madness
+Act = 0
+TypeOfLevel = Singleplayer,Co-op
+Keywords = OTMZ
+BonusType = None
+SkyNum = 7
+Weather = PRECIP_STORM
+RecordAttack = true
+Music = RSRTMZ
+LevelSelect = 2
+SelectHeading = Classic
+Unlockable = 6
+NextLevel = TITLE
+Lua.RingslingerRev = true

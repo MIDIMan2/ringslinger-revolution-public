@@ -1,0 +1,13 @@
+MIDIMan: mod author, MIDI sequencing, map design
+orbitalviolet: primary mapper
+
+Othius: polishing pass on Rumble Rift, initial playtesting
+GomaTheMascar: initial playtesting
+
+=== EXTERNAL MUSIC CREDITS ===
+Skaven, ToxicxEternity: "Razorback" and associated cover (Unreal Tournament)
+Isao Kasai, Tomohiko Sato, MIDIMan: "Big Snowman" and associated cover (Snowboard Kids)
+Aaron Cherof: "Self-Defense" (Cobalt Core)
+Krabs: Meadow Match CTF music
+
+All mod-exclusive MIDIs by MIDIMan

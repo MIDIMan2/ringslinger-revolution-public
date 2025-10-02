@@ -1,0 +1,82 @@
+MainCfg
+SpStage_Start = S0
+SStage_Start = 50
+GameData = rsr_s_technomadness-v2.dat
+NumDemos = 0
+IntroToPlay = -1
+CustomVersion = v2.0
+
+Clear Unlockables
+Clear Emblems
+Clear ExtraEmblems
+Clear ConditionSets
+
+# Complete Techno Madness
+ConditionSet 1
+Condition1 = MapBeaten S0
+
+Unlockable 1
+Name = Play as Fang
+ConditionSet = -1
+Type = Skin
+Var = fang
+NoChecklist = true
+
+Unlockable 2
+Name = Play as Metal Sonic
+ConditionSet = -1
+Type = Skin
+Var = metalsonic
+NoChecklist = true
+
+Unlockable 3
+Name = Secret Levels
+Objective = Unlock a secret level
+Height = 30
+ConditionSet = 1
+Type = LevelSelect
+Var = 2
+NoCecho = true
+
+Unlockable 4
+Name = Play as Amy
+ConditionSet = -1
+Type = Skin
+Var = amy
+NoChecklist = true
+
+Unlockable 5
+Name = Techno Madness Zone
+Objective = Welcome to Ringslinger Revolution!
+ConditionSet = -1
+Type = Warp
+Var = S0
+
+Unlockable 6
+Name = Techno Madness Zone (Legacy)
+Objective = Complete Techno Madness Zone
+ConditionSet = 1
+Type = Warp
+Var = S1
+
+Unlockable 7
+Name = Record Attack
+Type = RecordAttack
+ConditionSet = -1
+NoChecklist = true
+
+Unlockable 8
+Name = Level Select
+Objective = Complete Techno Madness Zone
+Height = 20
+ConditionSet = 1
+Type = LevelSelect
+Var = 1
+
+# Techno Madness emblem
+Emblem
+Type = Time
+Var = 210*TICRATE
+MapNum = S0
+Sprite = T
+Color = SKINCOLOR_GREY

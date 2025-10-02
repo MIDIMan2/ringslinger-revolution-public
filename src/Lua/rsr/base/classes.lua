@@ -1,0 +1,185 @@
+-- Ringslinger Revolution - Classes
+-- This is meant to make RSR's custom variables and tables easier to keep track of in Visual Studio Code.
+-- Therefore, it is completely ignored by init.lua.
+
+-- --------------------------------
+-- NEW CLASSES
+-- --------------------------------
+
+---@class rsrinfo_t
+---@field health integer Current amount of health for the player.
+---@field armor integer Current amount of armor for the player.
+---@field hurtByEnemy tic_t|integer Timer for damage taken by enemies/Object-based hazards.
+---@field hurtByMelee tic_t|integer Timer for damage taken by player melee.
+---@field hurtByMap tic_t|integer Timer for damage taken by level geometry.
+---@field attackKnockback boolean Whether the player was hurt while attempting to melee another player.
+---@field hitSound integer Plays a hitsound using RSR.HITSOUND_ constants.
+---@field deathFlags integer Hack for MobjDeath (uses RSR.DEATH_ constants).
+---@field attackerInfo rsrattackerinfo_t[] List of attackers and their damage dealt to the player.
+---@field knockedByAttacker boolean Whether the player was knocked off of the level or not.
+---@field forceInflictorType mobjtype_t|nil Type of inflictor when the player has a Force Shield.
+---@field forceInflictorReflected boolean|nil Whether inflictor was reflected when the player has a Force Shield.
+---@field weapons boolean[] An array containing weapons in the player's inventory.
+---@field ammo integer[] An array containing ammo amounts of each type in the player's inventory.
+---@field readyWeapon integer The player's current held weapon (Should be an RSR.WEAPON_ constant).
+---@field pendingWeapon integer The player's currently pending weapon (Should be an RSR.WEAPON_ constant).
+---@field weaponDelay integer Cooldown for the currently held weapon.
+---@field weaponDelayOrig integer Initial cooldown for the currently held weapon.
+---@field powerups rsrpowerup_t[] An array containing powerups in the player's inventory.
+---@field hype integer The player's current "hype" value, for their super form.
+---@field starpostData rsrstarpostdata_t An array containing weapons, ammo, and powerups in the player's inventory when they reached the last starpost.
+---@field starpostNum integer The number of the last starpost passed by the player.
+---@field bob table XY coordinates for the bobbing motion of the player's weapon.
+---@field screenFade rsrscreenfade_t Determines the current properties of the player's screen fade.
+---@field homing integer Equivalent of player.homing, except for other players.
+---@field homingThreshold integer The player's homing threshold before they are knocked out of a homing attack.
+---@field basicCharge integer|nil Determines the current "charge" of the Red Ring's altfire.
+---@field basicChargeSound integer|nil Counter for the Red Ring's altfire's "charge" sound.
+---@field basicChargeDontTakeAmmo boolean|nil Determines if the Charge Shot shouldn't take ammo.
+---@field scatterFlak mobj_t|nil A reference to the player's last Mass Slug ring fired.
+---@field bounceMega mobj_t|nil A reference to the player's last Goldburster ring fired.
+---@field waspTime integer|nil Timer for the Homing Ring's altfire.
+---@field lastbuttons UINT16 Buttons (BT_ constants) held on the last game tic.
+---@field lastexiting tic_t Value of player.exiting on the last game tic.
+---@field lastemeralds UINT16 Value of player.powers[pw_emeralds] on the last game tic.
+---@field boostNormalspeed boolean Determines if normalspeed should be boosted or not (UNUSED).
+---@field useZoom boolean Determines if the weapon zoom should be active or not.
+---@field fovZoom integer Timer for the weapon zoom (max is 14).
+
+---@class rsrmobjinfo_t
+---@field health integer Health of the mobj.
+---@field damage integer Damage dealt to the player on contact.
+---@field knockback fixed_t Knockback scale dealt to the player on contact.
+---@field nothomable boolean Makes the mobj not homable.
+---@field fulldamage integer Maximum damage dealt to the player from splash damage.
+---@field thrustdamage integer Knockback dealt to the player from splash damage.
+---@field aimthrust boolean Makes splash damage thrust the source mobj in the direction they're facing.
+---@field dontreflect boolean Makes the projectile non-reflectable by the Force shields.
+---@field explosive boolean Projectile is explosive.
+---@field railring boolean Projectile is a rail ring.
+---@field sparklestate mobjtype_t State to use in place of the NiGHTS sparkle when exploding.
+---@field poweritem boolean Object is a power item (takes 1.5x the normal time to respawn).
+---@field nopainstate boolean Prevents the enemy from using their painstate defined by mobjinfo.
+---@field painchance integer|nil Makes the enemy use their painstate in a chance out of 255. Only use for Doom-style enemies. Default is nil.
+---@field killfeedIcon string Graphic to use for the mobj type in the killfeed.
+---@field killfeedName string Name to use for the mobj type in the killfeed.
+---@field killfeedObituary string Death message to use for the mobj type in the killfeed.
+
+---@class rsrammoinfo_t
+---@field amount integer Amount of ammo to give the player.
+---@field maxamount integer Maximum amount of ammo that a player can hold.
+---@field motype mobjtype_t Pickup mobj type delegated to the ammo type (MT_RSR_PICKUP_YOURNAMEHERE).
+
+---@class rsrweaponstates_t
+---@field draw string State for bringing up the weapon.
+---@field ready string Idle state.
+---@field holster string State for lowering the weapon (UNUSED).
+---@field attack string Attack state.
+---@field attackalt string Alternate attack state.
+
+---@class rsrweaponinfo_t
+---@field ammotype integer Type of ammo to use for this weapon. Use RSR.AddAmmo to add a new type.
+---@field ammoamount integer Amount of ammo to give.
+---@field ammoalt integer Amount of ammo used for the altfire.
+---@field altzoom boolean Lets the player "zoom in" with this weapon by holding "Fire Normal".
+---@field canbepanel boolean Determines whether the weapon can be a panel or note (Default is true).
+---@field class integer Determines class of the weapon (Only 1 through 7).
+---@field classpriority integer Determines which weapon in its class gets chosen first (lower number equals higher priority).
+---@field delay integer Recovery time for the weapon.
+---@field delayspeed integer Recovery time for the weapon while the player has super sneakers.
+---@field delayalt integer Recovery time for the weapon's altfire.
+---@field delayaltspeed integer Recovery time for the weapon's altfire while the player has super sneakers.
+---@field emerald integer Constant for emerald that gives this weapon an altfire (EMERALD1 = Green, EMERALD2 = Pink, etc.).
+---@field icon string Graphic to use for the weapon bar on the HUD.
+---@field name string Name of the weapon.
+---@field namealt string Name of the weapon's altfire.
+---@field pickup mobjtype_t Pickup object for the weapon.
+---@field powerweapon boolean Prevents the weapon from showing up on the HUD if the player has no ammo for it (Default is false).
+---@field slot integer "Slot" of the weapon in its class. This is automatically assigned by RSR.AddWeapon.
+---@field states rsrweaponstates_t A table containing states for the given weapon (see rsrweaponstates_t above for more details).
+
+---@class rsrattackerinfo_t
+---@field player player_t The attacker.
+---@field damage integer Total damage dealt by the attacker.
+
+---@class rsrpowerup_t
+---@field powerup integer Powerup in the player's inventory (uses POWERUP_ constants).
+---@field tics integer Timer for the powerup.
+
+---@class rsrpowerupinfo_t
+---@field icon string Icon for the powerup.
+---@field power integer Power to set for player_t.powers (uses pw_ constants).
+---@field tics integer Time limit for the powerup.
+
+---@class rsrstarpostdata_t
+---@field ammo integer[] An array containing ammo amounts of each type in the player's inventory when they passed the last starpost.
+---@field weapons boolean[] An array containing weapons in the player's inventory when they passed the last starpost.
+---@field readyWeapon integer The player's held weapon when they passed the last starpost.
+---@field shields integer|nil The player's shield when they passed the last starpost.
+
+---@class rsrscreenfade_t
+---@field tics tic_t Timer for the current screen fade in tics.
+---@field origTics tic_t Initial number of tics to countdown from.
+---@field color integer Color of the screen fade (palette index).
+---@field strength integer Strength of the screen fade (0 to FRCAUNIT).
+
+---@class rsrskinhooks_t
+---@field touchWeapon function Determines what happens when the player picks up a weapon. Uses three parameters: special, toucher, and weaponType.
+---@field touchPowerup function Determines what happens when the player picks up a powerup. Uses three parameters: special, toucher, and powerupType.
+---@field touchHealth function Determines what happens when the player picks up health. Uses three parameters: special, toucher, and health.
+---@field touchArmor function Determines what happens when the player picks up armor. Uses three parameters: special, toucher, and armor.
+
+---@class rsrskininfo_t
+---@field noweapons boolean Disables RSR's weapon system for this character/skin.
+---@field nodamage boolean Disables RSR's player damage system for this character/skin.
+---@field noenemydamage boolean Disables RSR's enemy damage system for this character/skin.
+---@field nohud boolean Disables RSR's HUD for this character/skin.
+---@field hooks rsrskinhooks_t Table of functions for overriding RSR behaviors for this character/skin.
+---@field meleeicon string Name of the graphic to use for the melee killfeed icon for this character/skin.
+---@field meleename string Name to use for the melee killfeed text for this character/skin.
+
+-- --------------------------------
+-- CLASS ADDITIONS
+-- --------------------------------
+
+---@class player_t
+---@field rsrinfo rsrinfo_t A table containing RSR info for the player.
+---@field psprites psprite_t[] An array containing PSprites for the PSprite system.
+---@field rsrStarpostData rsrstarpostdata_t|nil A copy of rsrinfo.starpostData used for when the player goes to a non-RSR Special Stage.
+---@field rsrPrevSkin integer The player's previous skin number. Used for automatically toggling the character's HUD.
+
+---@class mobj_t
+---@field rsrProjectile boolean|nil If true, the Object uses its type's Damage property for P_DamageMobj.
+---@field rsrRealDamage boolean|nil If true, this Object can deal a precise damage value with P_DamageMobj.
+---@field rsrDamage integer|nil If set to a number, this Object will deal that amount of damage with P_DamageMobj.
+---@field rsrDontThrust boolean|nil If true, this Object doesn't cause damaged Objects to be thrusted back.
+---@field rsrForceReflected boolean|nil If true, this Object won't be reflected by a player's Force Shield.
+---@field rsrIsThinker boolean|nil Whether the Object is in the RSR.ENEMY_THINKERS table.
+---@field rsrEnemyBlink integer|nil If set to a number, this Object will "blink" until the variable reaches 0.
+---@field rsrHealth integer|nil Current health value of the enemy in RSR gamemodes; Automatically set when the enemy first takes damage.
+---@field rsrSpawnHealth integer|nil Spawn health value of the enemy in RSR gamemodes; Automatically set when the enemy first takes damage.
+---@field rsrKilled boolean|nil Automatically set to true when the enemy is killed in RSR gamemodes.
+---@field rsrGhostTimer integer|nil Timer for spawning a ghost from a projectile.
+---@field rsrIsPanel boolean|nil Determines if the weapon pickup is a panel.
+---@field rsrAmmoAmount integer|nil Custom amount for the ammo pickup.
+---@field rsrDontDespawn boolean|nil Makes the item not disappear when collected in co-op.
+---@field rsrFloatOffset angle_t|nil Angle offset for the item's "floating" animation.
+---@field rsrSpawner mobj_t|nil Spawner of the item.
+---@field rsrOrigScale fixed_t|nil Scale of the Object when it was spawned. Used by Goldburster and Mass Slug when spawning smaller projectiles.
+---@field rsrBounced integer|nil Bounce counter for the Bounce ring.
+---@field rsrPrevMomX fixed_t|nil Previous X momentum of the Object.
+---@field rsrPrevMomY fixed_t|nil Previous Y momentum of the Object.
+---@field rsrPrevMomZ fixed_t|nil Previous Z momentum of the Object.
+---@field rsrLockOnSound boolean|nil Prevents the Homing ring lock on sound from playing more than once.
+---@field rsrRailHitList boolean[] Table of Objects the rail ring has hit.
+---@field rsrRailHitCount integer|nil Player hit count for the rail ring.
+---@field rsrStrongBoxIcon mobj_t|nil Icon to display for the strong random monitor.
+---@field rsrInfernoFire boolean|nil Used by the player's spindust to check if they have a Flame Shield.
+
+---@class mapheader_t
+---@field ringslingerrev string If true, the map is a Ringslinger Revolution map.
+---@field rsrkeepinv string If true, players will keep their weapons across levels in co-op.
+---@field rsrweaponstart string Determines what weapons the player starts with and how much ammo each weapon has.
+---@field rsrloseinvondeath string If true, players will lose their weapons upon death.
+---@field rsrwaves string If true, the map is a "Waves" map.
+---@field rsrwavestags string Determines what linedef tags are executed in specific waves in a "Waves" map.

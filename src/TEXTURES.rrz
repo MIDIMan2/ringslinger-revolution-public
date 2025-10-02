@@ -1,0 +1,73 @@
+// Ringslinger Revolution - Rumble Rift Zone Sky
+
+WallTexture "SKY700", 1024, 512
+{
+	Patch "DSSK2SKY", 0, 0
+	Patch "DSSK2SKY", 0, 384
+	{
+		FlipY
+	}
+	Patch "RRSK2SK2", 0, 128
+	Patch "RRSK2SK2", 0, 256
+	{
+		FlipY
+	}
+	Patch "DSSK2SKY", 512, 0
+	Patch "DSSK2SKY", 512, 384
+	{
+		FlipY
+	}
+	Patch "RRSK2SK2", 512, 128
+	Patch "RRSK2SK2", 512, 256
+	{
+		FlipY
+	}
+	Patch "DSSK2SKY", 256, 0
+	Patch "DSSK2SKY", 256, 384
+	{
+		FlipY
+	}
+	Patch "RRSK2SK2", 256, 128
+	Patch "RRSK2SK2", 256, 256
+	{
+		FlipY
+	}
+	Patch "DSSK2SKY", 768, 0
+	Patch "DSSK2SKY", 768, 384
+	{
+		FlipY
+	}
+	Patch "RRSK2SK2", 768, 128
+	Patch "RRSK2SK2", 768, 256
+	{
+		FlipY
+	}
+	Patch "RRSK2SKL", 256, 240
+	Patch "RRSK2SKL", 512, 240
+	Patch "RRSMOON2", 256, 64
+	{
+		Alpha 0.70
+		Style Translucent
+	}
+	Patch "RRSMOON2", 512, 64
+	{
+		FlipX
+		Alpha 0.70
+		Style Translucent
+	}
+	Patch "DSSK2CLF", 0, 256
+	{
+		FlipY
+	}
+	Patch "DSSK2CLF", 0, 155
+	Patch "DSSK2CLF", 628, 155
+	{
+		FlipX
+	}
+	Patch "DSSK2CLF", 628, 256
+	{
+		FlipX
+		FlipY
+	}
+	Patch "RRSMOON", 496, 192
+}

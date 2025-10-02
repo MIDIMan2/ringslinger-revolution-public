@@ -1,0 +1,473 @@
+#Declutter the multiplayer menu by hiding all of the vanilla Match maps.
+
+Level M0
+Hidden = true
+
+Level M1
+Hidden = true
+
+Level M2
+Hidden = true
+
+Level M3
+Hidden = true
+
+Level M4
+Hidden = true
+
+Level M5
+Hidden = true
+
+Level M6
+Hidden = true
+
+Level M7
+Hidden = true
+
+Level M8
+Hidden = true
+
+Level M9
+Hidden = true
+
+Level MA
+Hidden = true
+
+Level MB
+Hidden = true
+
+Level MC
+Hidden = true
+
+Level MD
+Hidden = true
+
+Level ME
+Hidden = true
+
+Level MF
+Hidden = true
+
+Level MG
+Hidden = true
+
+Level MH
+Hidden = true
+
+Level N0
+Hidden = true
+
+Level N1
+Hidden = true
+
+Level N2
+Hidden = true
+
+Level F0
+Hidden = true
+
+Level F1
+Hidden = true
+
+Level F2
+Hidden = true
+
+Level F3
+Hidden = true
+
+Level F4
+Hidden = true
+
+Level F5
+Hidden = true
+
+Level F6
+Hidden = true
+
+Level F7
+Hidden = true
+
+Level F8
+Hidden = true
+
+Level F9
+Hidden = true
+
+Level FA
+Hidden = true
+
+Level FB
+Hidden = true
+
+Level G0
+Hidden = true
+
+Level G1
+Hidden = true
+
+Level G2
+Hidden = true
+
+# Now onto the REAL maps!
+
+Level O0
+LevelName = Jade Valley
+Music = MP_SUN
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O1
+SkyNum = 1
+
+Level O1
+LevelName = Noxious Factory
+Music = THZ1
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O2
+SkyNum = 4
+
+Level O2
+LevelName = Tidal Palace
+Music = DSZ2
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O3
+SkyNum = 7
+
+Level O3
+LevelName = Thunder Citadel
+Music = CEZ2
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O4
+Weather = 1
+SkyNum = 10
+
+Level O4
+LevelName = Desolate Twilight
+Music = MP_DES
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O5
+SkyNum = 101
+SkyboxScale = 64
+
+Level O5
+LevelName = Frigid Mountain
+Music = MP_IC2
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O6
+SkyNum = 6
+Weather = 2
+
+Level O6
+LevelName = Orbital Hangar
+Music = MP_DOM
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O7
+SkyNum = 22
+
+Level O7
+LevelName = Sapphire Falls
+Music = MP_GHZ
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O8
+SkyboxScale = 64
+SkyNum = 502
+
+Level O8
+LevelName = Diamond Blizzard
+Music = MP_AIR
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O9
+Weather = 2
+SkyNum = 55
+
+Level O9
+LevelName = Celestial Sanctuary
+Music = MP_FOR
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = OA
+Weather = 3
+SkyboxScaleZ = 16
+SkyNum = 230
+
+Level OA
+LevelName = Frost Columns
+Music = MP_WT3
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = OB
+Weather = 2
+SkyNum = 6
+
+Level OB
+LevelName = Meadow Match
+Music = MP_MED
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = OC
+SkyNum = 2
+
+Level OC
+Levelname = Granite Lake
+Music = MP_GLZ
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = OD
+SkyNum = 16
+SkyboxScale = 32
+SelectHeading = RSR Standard
+
+Level OD
+LevelName = Summit Showdown
+Music = SMSHDN
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = OE
+Weather = PRECIP_SNOW
+SkyNum = 17
+SkyboxScaleX = 64
+SkyboxScaleY = 64
+SelectHeading = RSR Standard
+
+Level OE
+Levelname = Silver Shiver
+Music = MP_WT3
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = OF
+SkyNum = 20
+Weather = PRECIP_SNOW
+SelectHeading = RSR Standard
+
+Level OF
+LevelName = Uncharted Badlands
+Music = SPEC5
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = OG
+SkyNum = 11
+SkyboxScale = 64
+
+Level OG
+LevelName = Pristine Shores
+Music = MP_GHZ
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = OH
+SkyNum = 76
+Skyboxscale = 32
+
+Level OH
+LevelName = Crystalline Heights
+Music = MP_CHZ
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = OI
+SkyNum = 69
+Skyboxscale = 256
+
+Level OI
+LevelName = Rumble Rift
+NoZone = true
+Music = RUMBLE
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O0
+SkyNum = 700
+Skyboxscale = 4
+
+Level P0
+LevelName = Starlit Warehouse
+Music = DCZ
+NextLevel = P1
+TypeOfLevel = RSRMatch,RSRTag
+SkyNum = 21
+SelectHeading = RSR Classic
+
+Level P1
+LevelName = Midnight Abyss
+Music = MP_DM2
+NextLevel = P2
+TypeOfLevel = RSRMatch,RSRTag
+SkyNum = 22
+SelectHeading = RSR Classic
+
+Level P2
+LevelName = Airborne Temple
+Music = MP_AI2
+NextLevel = P3
+TypeOfLevel = RSRMatch,RSRTag
+SkyNum = 2
+SelectHeading = RSR Classic
+
+Level P3
+LevelName = Infernal Cavern
+Music = FDEMO7
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = P4
+SkyNum = 7
+SelectHeading = RSR Classic
+
+Level P4
+LevelName = Blizzard Fortress
+SubTitle = RSR Legacy: Summit Showdown
+Music = BLZFRT
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = P5
+Weather = PRECIP_SNOW
+SkyNum = 17
+SkyboxScale = 0
+SelectHeading = RSR Classic
+
+Level P5
+LevelName = Legacy Factory
+SubTitle = RSR Legacy: Noxious Factory
+Music = THZ1
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = P6
+SkyNum = 4
+SelectHeading = RSR Classic
+
+Level P6
+LevelName = GET 180 RINGS!
+SubTitle = RSR Legacy: Rumble Rift
+NoZone = true
+Music = 20SP1
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = P0
+SkyNum = 50
+SelectHeading = RSR Classic
+
+Level H0
+Levelname = Lime Forest
+Music = GFZALT
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = H1
+SkyNum = 1
+
+Level H1
+Levelname = Lost Palace
+Music = AGZALT
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = H2
+SkyNum = 8
+SkyBoxScale = 32
+
+Level H2
+Levelname = Silver Cascade
+Music = MP_WTR
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = H3
+Weather = 3
+SkyNum = 23
+SkyboxScale = 16
+
+Level H3
+Levelname = Icicle Falls
+Music = MP_ICE
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = H4
+Skynum = 55
+
+Level H4
+LevelName = Twisted Terminal
+Music = ERZ2
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = H5
+SkyNum = 22
+
+Level H5
+Levelname = Clockwork Towers
+Music = MP_RAI
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = H6
+Weather = 1
+SkyNum = 20
+
+Level H6
+Levelname = Iron Turret
+Music = THZ1
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = H7
+SkyNum = 4
+
+Level H7
+Levelname = Dual Fortress
+Music = CEZ1
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = H8
+Weather = 1
+SkyNum = 11
+
+Level H8
+Levelname = Nimbus Ruins
+Music = MP_AIR
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = H9
+SkyNum = 68
+SkyboxScaleX = 64
+SkyboxScaleY = 64
+
+Level H9
+Levelname = Blazing Precipice
+Music = RVZ1
+SkyboxScaleZ = 32
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = HA
+SkyNum = 159
+
+Level HA
+LevelName = Meadow Match
+Music = MEDCTF
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = HB
+SkyNum = 2
+
+Level HB
+Levelname = Sapphire Rapids
+Music = MP_GHZ
+TypeOfLevel = RSRCTF
+SelectHeading = RSR Standard
+NextLevel = H0
+SkyboxScale = 64
+SkyNum = 502
+
+Level I0
+LevelName = Metal Star
+Music = MP_MN2
+NextLevel = I1
+TypeOfLevel = RSRCTF
+SkyNum = 21
+SelectHeading = RSR Classic
+
+Level I1
+LevelName = Conveyor Conflict
+Music = THZALT
+NextLevel = I2
+TypeOfLevel = RSRCTF
+SkyNum = 2
+SelectHeading = RSR Classic
+
+Level I2
+LevelName = Isolated Canyon
+Act = 0
+Music = MP_GL2
+NextLevel = I0
+TypeOfLevel = RSRCTF
+SkyNum = 2
+SelectHeading = RSR Classic

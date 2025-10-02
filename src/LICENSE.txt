@@ -1,0 +1,8 @@
+The GPLv3 license only applies to the bits of code translated from Snap the Sentinel v3.1's ZScript.
+These bits are marked with a comment saying "Based off of Snap the Sentinel v3.1's code"
+
+This includes the following scripts:
+- Lua/rsr/player.lua
+- Lua/rsr/base/utilities.lua
+
+Everything else is subject to the Message Board's Open Assets guidelines.

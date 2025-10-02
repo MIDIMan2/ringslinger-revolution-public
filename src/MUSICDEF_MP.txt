@@ -1,0 +1,23 @@
+Lump BLZFRT
+Title = Blizzard_Fortress
+Alttitle = Big_Snowman_(Snowboard_Kids)
+Authors = Isao_Kasai,_Tomohiko_Sato,_MIDIMan_(Cover)
+Soundtestpage = 1
+Soundtestcond = 0
+BPM = 156
+
+Lump SMSHDN
+Title = Summit_Showdown
+AltTitle = Razorback_(METAL_COVER)
+Authors = Peter_"Skaven"_Hajba,_ToxicxEternity_(Cover)
+Soundtestpage = 1
+Soundtestcond = 0
+BPM = 150
+
+Lump RUMBLE
+Title = Rumble_Rift
+AltTitle = Self-Defense_(Cobalt_Core)
+Authors = Aaron_Cherof
+Soundtestpage = 1
+Soundtestcond = 0
+BPM = 150

@@ -1,0 +1,11 @@
+Level KZ
+LevelName = The Killbox
+Act = 0
+NextLevel = S0
+Keywords = TKZ
+BonusType = None
+SkyNum = 8
+SkyboxScale = 10
+Weather = PRECIP_STORM
+Music = None
+Lua.RingslingerRev = true

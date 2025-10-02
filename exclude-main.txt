@@ -1,0 +1,9 @@
+Graphics/Level Select Pictures
+Maps/mp
+Music
+Patches
+SOC/SOC_MPLEVELS.txt
+DOCUMENTATION.txt
+CREDIT_MP.txt
+MUSICDEF_MP.txt
+TEXTURES.rrz

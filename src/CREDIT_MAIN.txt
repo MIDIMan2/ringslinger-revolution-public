@@ -1,0 +1,9 @@
+MIDIMan: mod author, primary programmer, graphic design, gameplay direction
+orbitalviolet: primary sound designer, programming, graphic design, gameplay direction
+
+Othius: initial playtesting
+GomaTheMascar: initial playtesting
+Sylve: programming help and allowing reuse of a few Lua scripts
+Snu: the "Hook Library" addon used for RSR's hook system
+Lunewulff, Skydusk: the "WorldToScreen" library used for the enemy radar in "Waves" maps
+TehRealSalt: the "Custom HUD" library used for drawing the HUD, some code borrowed from Snap the Sentinel v3.1

@@ -1,0 +1,295 @@
+-----------------------------------------------------------------
+| DO NOT INCLUDE THIS IN THE PK3! IT IS HORRIBLY OUT OF DATE!!! |
+-----------------------------------------------------------------
+
+Ringslinger Revolution - Documentation
+TODO: Put all of this information on the SRB2 wiki instead
+
+This text document serves as a reference guide for this mod's inner workings.
+
+1. Freeslots
+2. Base
+	2.1. Globals
+	2.2. Utilities
+	2.3. Mobj
+	2.4. Mobj Info
+3. CVars
+4. PSprites
+	4.1. PSprites
+	4.2. Actions
+5. Items
+	5.1. Functions
+	5.2. Health
+	5.3. Powerups
+	5.4. Actions
+	5.5. Powerups
+6. Enemy
+	6.1. Thinkers
+	6.2. Damage
+	6.3. Cybrak 2016
+7. Player
+	7.1. Chasecam
+	7.2. Damage
+	7.3. Weapon Choice
+	7.4. Starpost
+	7.5. Powerups
+	7.6. Homing
+	7.7. Ghostbusters
+	7.8. Screen Fade
+8. HUD
+	8.1. Functions
+	8.2. Time
+	8.3. Emeralds
+	8.4. Powerups
+	8.5. PSprites
+	8.6. Screen Fade
+	8.7. Weapon Bar
+	8.8. Boss Health
+	8.9. Killfeed
+9. NetVars
+
+-- 1. Freeslots (freeslots.lua) --
+
+Contains every single freeslot needed for the base mod. This includes sound 
+effects, sprites, objects, and states.
+
+-- 2. Base (base.lua) --
+
+Runs a bunch of base scripts for Ringslinger Revolution.
+
+--- 2.1. Globals (base/globals.lua) ---
+
+Initializes a few variables and functions needed for the mod:
+
+RingslingerRev - The main table used for the mod. Every variable and function 
+related to Ringslinger Revolution is contained in this table. "RSR" is always 
+used for shorthand.
+
+RSR.MAX_HEALTH - Maximum health that can be given to a player (100).
+
+RSR.MAX_ARMOR - Maximum armor that can be given to a player (100).
+
+RSR.MAX_HEALTH_BONUS - Maximum bonus health that can be given to a player (200). 
+Only used by extra life monitors.
+
+RSR.MAX_ARMOR_BONUS - Maximum bonus armor that can be given to a player (200). 
+Only used by extra life monitors.
+
+RSR.GamemodeActive() - Returns true if the current map is a Ringslinger Revolution 
+map. Use this function if your code is only meant to run in an RSR map!
+
+RSR.AddEnum(prefix, name, startAtZero) - Adds an enum with a given prefix and name. 
+Ex. prefix = "WEAPON", name = "NONE", enum is "WEAPON_NONE". If startAtZero is 
+true, the first value in the enum is 0.
+
+RSR.WEAPON_STATES - A table containing states for the PSprites system (See 4. PSprites 
+for more details).
+
+RSR.WEAPON_STATE_ACTIONS - A table containing actions for the PSprites system.
+
+--- 2.2. Utilities (base/utilities.lua) ---
+
+Initializes some functions for RSR:
+
+Valid(thing) - Returns true if the Object passed in exists and is valid. Essentially 
+a shorter way of writing "mo and mo.valid", "line and line.valid", etc.
+
+P_RandomFixedRange(a, b) - Returns a random fixed-point value between "a" and "b".
+
+RSR.DeepCopy(table) - Returns a copy of the given table without pointing to the 
+original table.
+
+RSR.AngleTowardsAngle(angle, destAngle, maxTurn) - Returns the result of an angle 
+being turned to the destAngle by the value given in maxTurn.
+
+RSR.MoveMissile(missile, angle, slope) - Makes the given Object move in the 
+direction of the given angle and slope/pitch, using a speed defined by the Object's 
+SOC configuration (mobjinfo).
+
+RSR.ColorTeamMissile(missile, player) - Makes the given missile Object's color 
+match that of the player's current team in CTF.
+
+RSR.SpawnPlayerMissile(source, missileType, angle, slope, reflected) - Spawns a 
+missile Object at the value of its "Speed" Object type property, assuming "source" 
+is a player. "angle" and "slope" set what direction to fire the missile in. 
+
+RSR.CheckFriendlyFire() - Returns true if friendlyfire is enabled or the current 
+gametype's rules allow friendly fire.
+
+RSR.PlayersAreTeammates(player, player2) - Returns true if the given players are 
+in a co-op gametype, are on the same team in a team gametype (ex. CTF), or are 
+both "it" in a Tag gametype.
+
+--- 2.3. Mobj (base/mobj.lua) ---
+
+Initializes a few mobj-related functions and states:
+
+RSR.Explode(mo, bombDist, thrustDist, bombDamage, fullDist) - Damages all damageable 
+Objects in the blockmap around "mo", with "mo.target" being the Object that "mo" 
+came from. "bombDist" is the distance limit around "mo" to damage other Objects in, 
+which will automatically be scaled with "mo"'s scale. "thrustDist" is the distance 
+limit around "mo" to push other Objects away; The closer to "mo" they are, the farther 
+back they'll be pushed away. "bombDamage" is the maximum possible damage that "mo" 
+can deal to nearby Objects. "fullDist" is the distance limit around "mo" where Objects 
+will take this maximum damage.
+
+RSR.GetArmageddonDamage(target, inflictor) - Returns a damage value based on how 
+far away "target" was from the "inflictor" when an Armageddon blast was set off. 
+Currently only used by player and enemy damage functions (see TODO for more details).
+
+RSR.A_RingExplode - Makes the actor explode like an Explosion Ring or Grenade Ring. 
+The actor spawns a NiGHTS paraloop-style explosion of MT_NIGHTSPARKLE Objects, 
+plays the sf_prloop sound, and damages any nearby damageable Objects (players, 
+MF_SHOOTABLE Objects, etc.). "PainChance" sets both the range to damage Objects 
+in and the size of the paraloop explosion created; distances in fracunits must be 
+given as a multiple of FRACUNIT.
+
+--- 2.4. Mobj Info (base/mobjinfo.lua) ---
+
+Initializes a table for RSR-compatible Object definitions (RSR.MOBJ_INFO). To setup 
+your own Object definitions, create an AddonLoaded hook that checks for "RingslingerRev", 
+then adds a definition. For example:
+
+addHook("AddonLoaded", do
+	if not RingslingerRev then return end -- Don't run if Ringslinger Revolution isn't loaded
+	
+	local RSR = RingslingerRev -- Shorthand
+	RSR.MOBJ_INFO[MT_ADDMOBJHERE] = {health = 100, damage = 50}
+end)
+
+-- 3. CVars --
+
+Initializes two console variables:
+
+** rsr_ghostbusters <integer/string> **
+
+Requirements: Server or admins only
+help flags: NETVAR
+Default value: False
+
+If enabled, Homing Rings will be able to lock on to spectators and kill them.
+
+** rsr_lasertag <integer/string> **
+
+Requirements: Server or admins only
+help flags: NETVAR
+Default value: False
+
+If enabled, non-tagged players in Tag gametypes will be able to pick up weapons 
+and use them on tagged players.
+
+-- 4. PSprites --
+
+Runs scripts for initializing the PSprites system:
+
+--- 4.1. PSprites (psprites/psprites.lua) ---
+
+PSprites (Player Sprites) is a system based off of the identically-named system 
+from Doom for displaying weapon sprites to the HUD. A PSprite is a table containing 
+the following variables:
+
+- state - The current "state" of the PSprite, defined in RSR.WEAPON_STATES.
+- sprite - String that determines the sprite prefix to be displayed.
+- frame - String that determines the frame to be displayed.
+- animframe - Special variable for determining which frame to display if the 
+"frame" string has more than one letter.
+- x - X coordinate of the PSPrite.
+- y - Y coordinate of the PSPrite.
+- tics - Current value of the PSprite's state timer, which decreases by 1 until 
+it reaches 0. It will then force the PSprite to go to the next state defined by 
+its current "state" and reset the value to the tics value defined by the next state. 
+If this is set to -1, the state's duration will be infinite.
+- processPending - If set to false, this PSprite will not decrease its tics timer 
+until all other PSprites have also done the same. This is automatically set to 
+true for all PSprites on the next game tic.
+
+This script contains the following functions:
+
+RSR.PSpriteNew() - Returns a table of default values for a PSprite.
+
+RSR.NewPSprite(player, id) - Adds a new PSprite with the given ID (should be an 
+"enum" with the "PS_" prefix) to the given player's "rsrinfo.psprites" variable.
+
+RSR.PlayerPSpritesInit(player) - Initializes the PSprites system for the given player.
+
+RSR.GetPSprite(player, id) - Gets the PSprite table from the given player using 
+the given ID.
+
+RSR.SetPSpriteState(player, id, newState, pending) - Sets the player's PSprite with 
+the given ID to a new state (can be a string or an element from RSR.WEAPON_STATES). 
+"pending" determines if processPending should be true or false (default is false 
+if not given or set to nil).
+
+RSR.PlayerPSpritesReset(player) - Resets the player's PSprites to their default 
+values.
+
+RSR.PSpriteTick(player, id) - Decrements the player's PSprite with the ID given 
+by 1. If the PSprite's "tics" value is 0, then the PSprite goes to the next state.
+
+RSR.TickPSpritesBegin(player) - Sets processPending to true for all of the player's 
+PSprites. This function should be called in a PlayerThink hook before RSR.TickPSprites 
+to work properly.
+
+RSR.TickPSprites(player) - Runs RSR.PSpriteTick for all of the player's PSprites. 
+This function should be called in a PlayerThink hook after RSR.TickPSpritesBegin 
+to work properly.
+
+--- 4.2. PSprite Base Actions (psprites/actions.lua) ---
+
+Defines a bunch of function and actions for the PSprites system:
+
+RSR.IsPSpritesValid(player) - Returns true if the player exists, and has its rsrinfo 
+and rsrinfo.psprites tables initialized. This is used for nearly every action as 
+a sanity check.
+
+RSR.DrawWeapon(player, weapon, force) - Makes the player draw the given weapon only 
+if they can use it. If "force" is true, the player draws the weapon even if they 
+shouldn't use it (currently only used for the rsr_lasertag variable).
+
+RSR.FireWeapon(player) - Makes the player fire their currently held weapon. See 
+Section 7 for more details.
+
+RSR.CheckPendingWeapon(player) - Makes the player switch to their "pendingWeapon" 
+if it's not set to -1.
+
+RSR.SetSneakersRecoverState(player) - Makes the player use the "recoverspeed" state 
+for their currently held weapon if they have the "Super Sneakers" powerup. See TODO 
+for more details.
+
+The PSprite action system is similar to SRB2's state action system with two diferences:
+
+1. The first parameter takes a player_t instead of an mobj_t.
+2. var1 and var2 are replaced with a table containing as many arguments as the modder 
+needs, separated by commas (ex. {"arg1 here", "arg2 here"}).
+
+A_StartSound - Plays a sound effect (defined by the first argument) from the player.
+
+A_LayerOffset - Sets the X and Y coordinates of the PSprite with an ID given by 
+the first argument. The X coordinate is defined by the second argument, and the 
+Y coordinate is defined by the third argument. If the fourth argument is set to 
+true, the PSprite's coordinates are set relative to the PSprite's current position.
+
+A_WeaponHolster - Lowers the player's currently held weapon until it reaches the 
+RSR.LOWER_OFFSET limit, then draws their "pendingWeapon". Currently unused.
+
+A_WeaponDraw - Raises the player's currently held weapon until it reached the 
+RSR.UPPER_OFFSET limit, then sets the weapon PSprite to its "ready" state.
+
+A_WeaponReady - Lets the player fire their weapon if the "Fire" button is held 
+down. If the player can't use weapons, then this forcibly sets the player's 
+currently held weapon to RSR.WEAPON_NONE and sets their "pendingWeapon" to what 
+they were holding before. Also runs RSR.CheckPendingWeapon.
+
+A_CheckAmmo - Checks if the player has ammo for their currently held weapon. If 
+they do, set their weapon PSprite's state to "S_NONE_READY" (invisible "ready" 
+state that still lets switch weapons if they have another). If the player had 
+another weapon with ammo in the same class, this automatically switches to that 
+weapon.
+
+-- 5. Items (items.lua) --
+
+TODO: Add more here
+
+-- 9. NetVars (netvars.lua) --
+
+This script simply syncs some variables for multiplayer over a network. TODO: Add more here
