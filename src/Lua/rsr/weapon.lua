@@ -362,12 +362,6 @@ RSR.WeaponTouchSpecial = function(special, toucher, weaponType)
 	local player = toucher.player
 	if not (Valid(player) and player.rsrinfo) then return end
 
-	-- local hookValue = hookLib.RunHook("RSR_WeaponTouchSpecial", special, toucher, weaponType)
-	-- if hookValue ~= nil then
-	-- 	if Valid(special) and special.health <= 0 then RSR.SetItemFuse(special) end
-	-- 	return hookValue
-	-- end
-
 	local skinInfo = RSR.SKIN_INFO[skins[player.skin].name]
 	if skinInfo and skinInfo.hooks and skinInfo.hooks.touchWeapon then
 		local returnValue = skinInfo.hooks.touchWeapon(special, toucher, weaponType)

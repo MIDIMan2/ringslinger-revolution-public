@@ -7,6 +7,7 @@ local dofolder = function(file)
 end
 
 dofolder("globals.lua")
+dofolder("hooks.lua")
 dofolder("utilities.lua")
 dofolder("mobj.lua")
 dofolder("mobjinfo.lua")
