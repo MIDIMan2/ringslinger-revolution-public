@@ -19,45 +19,6 @@ dofolder("waves.lua")
 dofolder("flagradar.lua")
 dofolder("killfeed.lua")
 
-RSR.SHIELD_INFO = {
-	[SH_WHIRLWIND] = {
-		icon = "RSRWINDI",
-		name = "Whirlwind Shield"
-	},
-	[SH_ARMAGEDDON] = {
-		icon = "RSRARMAI",
-		name = "Armageddon Shield"
-	},
-	[SH_ELEMENTAL] = {
-		icon = "RSRELEMI",
-		name = "Elemental Shield",
-		obituary = "stomped"
-	},
-	[SH_ATTRACT] = {
-		icon = "RSRATTRI",
-		name = "Attraction Shield",
-		obituary = "shocked"
-	},
-	[SH_FORCE] = {
-		icon = "RSRFORCI",
-		name = "Force Shield"
-	},
-	[SH_FLAMEAURA] = {
-		icon = "RSRFLAMI",
-		name = "Flame Shield",
-		obituary = "burned"
-	},
-	[SH_BUBBLEWRAP] = {
-		icon = "RSRBUBLI",
-		name = "Bubble Shield",
-		obituary = "squashed"
-	},
-	[SH_THUNDERCOIN] = {
-		icon = "RSRTHNDI",
-		name = "Thunder Shield"
-	}
-}
-
 --- Draws the player's health to the HUD.
 ---@param player player_t
 RSR.HUDHealth = function(v, player)

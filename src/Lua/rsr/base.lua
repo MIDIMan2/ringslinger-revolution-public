@@ -9,7 +9,7 @@ end
 dofolder("globals.lua")
 dofolder("utilities.lua")
 dofolder("mobj.lua")
-dofolder("mobjinfo.lua")
+dofolder("info.lua")
 dofolder("gametypes.lua")
 dofolder("convertitems.lua")
 dofolder("waves.lua")

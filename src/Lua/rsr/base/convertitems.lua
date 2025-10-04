@@ -84,10 +84,12 @@ RSR.RSMOBJ_TO_RSRMOBJ = {
 		dontremove = true
 	},
 	[MT_ELEMENTAL_BOX] = {
-		motype = MT_BUBBLEWRAP_BOX
+		motype = MT_BUBBLEWRAP_BOX,
+		dontremove = true
 	},
 	[MT_ELEMENTAL_GOLDBOX] = {
-		motype = MT_BUBBLEWRAP_GOLDBOX
+		motype = MT_BUBBLEWRAP_GOLDBOX,
+		dontremove = true
 	}
 }
 
