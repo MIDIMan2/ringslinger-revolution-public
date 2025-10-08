@@ -73,12 +73,12 @@ RSR.HUDHypeThinkFrame = function()
 	for player in players.iterate do
 		if not P_IsLocalPlayer(player) then continue end
 		if player == secondarydisplayplayer then
-			if RSR.DISPLAY_HYPE_TIMER2 > 0 then
-			RSR.DISPLAY_HYPE_TIMER2 = $-1
-			end
+			if RSR.DISPLAY_HYPE_TIMER2 > 0 then RSR.DISPLAY_HYPE_TIMER2 = $-1 end
 
 			local checkEmeralds = false
-			if (not G_RingSlingerGametype() and emeralds == 127) or player.powers[pw_emeralds] == 127 then checkEmeralds = true end
+			if not (RSR.GAMETYPE_INFO[gametype] and RSR.GAMETYPE_INFO[gametype].nosuper) and ((not G_RingSlingerGametype() and emeralds == 127) or player.powers[pw_emeralds] == 127) then
+				checkEmeralds = true
+			end
 
 			if (checkEmeralds and not RSR.DISPLAY_HYPE_BAR2)
 			or (not checkEmeralds and RSR.DISPLAY_HYPE_BAR2) then
@@ -93,7 +93,9 @@ RSR.HUDHypeThinkFrame = function()
 		end
 
 		local checkEmeralds = false
-		if (not G_RingSlingerGametype() and emeralds == 127) or player.powers[pw_emeralds] == 127 then checkEmeralds = true end
+		if not (RSR.GAMETYPE_INFO[gametype] and RSR.GAMETYPE_INFO[gametype].nosuper) and ((not G_RingSlingerGametype() and emeralds == 127) or player.powers[pw_emeralds] == 127) then
+			checkEmeralds = true
+		end
 
 		if (checkEmeralds and not RSR.DISPLAY_HYPE_BAR)
 		or (not checkEmeralds and RSR.DISPLAY_HYPE_BAR) then

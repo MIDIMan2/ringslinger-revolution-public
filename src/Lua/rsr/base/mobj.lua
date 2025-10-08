@@ -30,7 +30,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 		if enemy == bomb then return end -- Don't damage yourself!
 		if enemy.health <= 0 then return end -- Don't damage enemies with 0 health
 		if not (enemy.flags & MF_SHOOTABLE) then return end -- Don't damage non-shootable objects
-		if Valid(bomb.target) and RSR.PlayersAreTeammates(bomb.target.player, enemy.player) then return end -- Don't apply knockback to teammates
+		if Valid(bomb.target) and not bomb.target == enemy and RSR.PlayersAreTeammates(bomb.target.player, enemy.player) then return end -- Don't apply knockback to teammates
 
 		-- Make an exception for MT_BLASTEXECUTOR so the breakable wall in Jade Valley works
 		if enemy.type ~= MT_BLASTEXECUTOR and not P_CheckSight(bomb, enemy) then return end

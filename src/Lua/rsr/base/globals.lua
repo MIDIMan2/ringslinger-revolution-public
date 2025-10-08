@@ -1,8 +1,6 @@
 -- Ringslinger Revolution - Globals
 
-if not RSR then
-	rawset(_G, "RSR", {})
-end
+if not RSR then rawset(_G, "RSR", {}) end
 
 RSR.MAX_HEALTH = 100
 RSR.MAX_ARMOR = 100
@@ -12,18 +10,23 @@ RSR.MAX_HEALTH_BONUS = 200
 RSR.MAX_ARMOR_BONUS = 200
 RSR.MAX_HYPE = 3000
 
-RSR.RSR_GAMETYPES = {}
+RSR.GAMETYPE_INFO = {}
 
 --- Makes the given gametype use RSR logic.
 ---@param gameType UINT32
-RSR.AddGametype = function(gameType)
+---@param info rsrgametypeinfo_t|nil
+RSR.AddGametype = function(gameType, info)
 	if not gameType then return end
-	RSR.RSR_GAMETYPES[gameType] = true
+	if not info then
+		RSR.GAMETYPE_INFO[gameType] = {rsrrules = true}
+		return
+	end
+	RSR.GAMETYPE_INFO[gameType] = info
 end
 
 --- Returns true if the current map is a Ringslinger Revolution map.
 RSR.GamemodeActive = function()
-	if not (RSR.RSR_GAMETYPES[gametype] or mapheaderinfo[gamemap].ringslingerrev) then return false end
+	if not ((RSR.GAMETYPE_INFO[gametype] and RSR.GAMETYPE_INFO[gametype].rsrrules) or mapheaderinfo[gamemap].ringslingerrev) then return false end
 	return true
 end
 

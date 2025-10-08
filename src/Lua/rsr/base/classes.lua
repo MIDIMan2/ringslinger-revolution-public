@@ -144,6 +144,10 @@
 ---@field obituary string Message to display when killed by a player with this shield for the text killfeed.
 ---@field meleedamage integer The damage dealt when meleeing a player while using the shield ability.
 
+---@class rsrgametypeinfo_t
+---@field rsrrules boolean Makes the gametype use RSR rules.
+---@field nosuper boolean Disables super forms for this gametype.
+
 -- --------------------------------
 -- CLASS ADDITIONS
 -- --------------------------------
