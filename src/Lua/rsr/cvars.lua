@@ -16,6 +16,22 @@ RSR.CV_LaserTag = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
+-- Makes players die from any amount of damage
+RSR.CV_InstaGib = CV_RegisterVar({
+	name = "rsr_instagib",
+	defaultvalue = "False",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_TrueFalse
+})
+
+-- Makes players lose their emeralds when "de-supering"
+RSR.CV_SuperBurnout = CV_RegisterVar({
+	name = "rsr_superburnout",
+	defaultvalue = "False",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_TrueFalse
+})
+
 COM_AddCommand("rsr_kill", function(player, _)
 	if not RSR.GamemodeActive() then
 		print("You must be in a Ringslinger Revolution level or gametype to use this.")
@@ -37,22 +53,22 @@ COM_AddCommand("rsr_kill", function(player, _)
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 
--- TODO: Remove or comment this out for public releases
--- COM_AddCommand("rsr_getemeralds", function(player, arg)
--- 	if not Valid(player) then return end
+if not RSR.DEV_MODE then return end
 
--- 	if (gametyperules & GTR_POWERSTONES) then
--- 		player.powers[pw_emeralds] = 127
--- 	else
--- 		emeralds = 127
--- 	end
--- 	player.rsrinfo.hype = RSR.MAX_HYPE
--- end)
+COM_AddCommand("rsr_getemeralds", function(player, arg)
+	if not Valid(player) then return end
 
--- TODO: Remove or comment this out for public releases
--- COM_AddCommand("rsr_killallenemies", function(player, arg)
--- 	for mo in mobjs.iterate() do
--- 		if not (Valid(mo) and (mo.flags & MF_ENEMY)) then continue end
--- 		P_KillMobj(mo)
--- 	end
--- end)
+	if (gametyperules & GTR_POWERSTONES) then
+		player.powers[pw_emeralds] = 127
+	else
+		emeralds = 127
+	end
+	player.rsrinfo.hype = RSR.MAX_HYPE
+end)
+
+COM_AddCommand("rsr_killallenemies", function(player, arg)
+	for mo in mobjs.iterate() do
+		if not (Valid(mo) and (mo.flags & MF_ENEMY)) then continue end
+		P_KillMobj(mo)
+	end
+end)

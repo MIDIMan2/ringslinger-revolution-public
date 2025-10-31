@@ -491,7 +491,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		player.rmomy = target.momy + player.cmomy
 	end
 
-	if rsrinfo.health <= 0 then
+	if rsrinfo.health <= 0 or RSR.CV_InstaGib.value then
 		player.powers[pw_shield] = SH_NONE
 		player.rings = 0
 		if G_IsSpecialStage(gamemap) then return RSR.PlayerForceDeath(player, inflictor, source, damage, damagetype) end
@@ -528,7 +528,7 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 	if not Valid(player) then return end
 	damagetype = $ or 0
 
-	if player.rsrinfo.health > 0 then
+	if player.rsrinfo.health > 0 and not RSR.CV_InstaGib.value then
 		return false
 	else
 		-- Force death if the player's health is 0
