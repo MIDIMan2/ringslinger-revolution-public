@@ -136,7 +136,7 @@
 ---@field nohud boolean Disables RSR's HUD for this character/skin.
 ---@field hooks rsrskinhooks_t Table of functions for overriding RSR behaviors for this character/skin.
 ---@field meleeicon string Name of the graphic to use for the melee killfeed icon for this character/skin.
----@field meleename string Name to use for the melee killfeed text for this character/skin.
+---@field meleeobituary string Melee killfeed text for this character/skin (%s must be used to define attacker and victim, in that order).
 
 ---@class rsrshieldinfo_t
 ---@field icon string Graphic to use for the shield's icon.

@@ -65,49 +65,57 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BASIC] = {
 	knockback = 3*FRACUNIT,
 	killfeedIcon = "RSRBASCI",
 	killfeedName = "Red Ring",
-	killfeedObituary = "humiliated"
+	killfeedObituary = "$a's Red Ring humiliated $v.",
+	killfeedObituarySolo = "$v was humiliated by a Red Ring."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BASIC_CHARGED] = {
 	knockback = 6*FRACUNIT,
 	killfeedIcon = "RSRBSALI",
 	killfeedName = "Charged Shot",
-	killfeedObituary = "punched through"
+	killfeedObituary = "$a's Charged Shot punched through $v.",
+	killfeedObituarySolo = "$v was punched through by a Charged Shot."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER] = {
 	knockback = 6*FRACUNIT,
 	killfeedIcon = "RSRSCTRI",
 	killfeedName = "Scatter Ring",
-	killfeedObituary = "scattered"
+	killfeedObituary = "$a's Scatter Ring scattered $v.",
+	killfeedObituarySolo = "$v was scattered by a Scatter Ring."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON] = {
 	knockback = 3*FRACUNIT,
 	killfeedIcon = "RSRSCALI",
 	killfeedName = "Mass Slug",
-	killfeedObituary = "blasted"
+	killfeedObituary = "$a's Mass Slug blasted $v.",
+	killfeedObituarySolo = "$v was blasted by a Mass Slug."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	knockback = 6*FRACUNIT,
 	killfeedIcon = "RSRSCALI",
 	killfeedName = "Mass Slug debris",
-	killfeedObituary = "slugged"
+	killfeedObituary = "$a's Mass Slug slugged $v.",
+	killfeedObituarySolo = "$v was slugged by Mass Slug debris."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_AUTO] = {
 	knockback = 1*FRACUNIT,
 	killfeedIcon = "RSRAUTOI",
 	killfeedName = "Automatic Ring",
-	killfeedObituary = "scratched away"
+	killfeedObituary = "$a's Automatic Ring scratched away $v.",
+	killfeedObituarySolo = "$v was scratched away by an Automatic Ring."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_AUTO_SNP] = {
 	knockback = 1*FRACUNIT/2,
 	killfeedIcon = "RSRAUALI",
 	killfeedName = "Spray&Pray",
-	killfeedObituary = "overwhelmed"
+	killfeedObituary = "$a's Spray&Pray overwhelmed $v.",
+	killfeedObituarySolo = "$v was overwhelmed by Spray&Pray."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOUNCE] = {
 	knockback = 6*FRACUNIT,
 	killfeedIcon = "RSRBNCEI",
 	killfeedName = "Bounce Ring",
-	killfeedObituary = "bounced"
+	killfeedObituary = "$a's Bounce Ring bounced $v.",
+	killfeedObituarySolo = "$v was bounced by a Bounce Ring."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOUNCE_MEGABOMB] = {
 	knockback = 9*FRACUNIT,
@@ -115,13 +123,15 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOUNCE_MEGABOMB] = {
 	explosive = true,
 	killfeedIcon = "RSRBNALI",
 	killfeedName = "Goldburster",
-	killfeedObituary = "ejected"
+	killfeedObituary = "$a's Goldburster ejected $v.",
+	killfeedObituarySolo = "$v was ejected by a Goldburster."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION] = {
 	knockback = 6*FRACUNIT,
 	killfeedIcon = "RSRBNALI",
 	killfeedName = "Goldburster debris",
-	killfeedObituary = "pinballed"
+	killfeedObituary = "$a's Goldburster debris pinballed $v.",
+	killfeedObituarySolo = "$v was pinballed by Goldburster debris."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_GRENADE] = {
 	knockback = 6*FRACUNIT,
@@ -130,7 +140,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_GRENADE] = {
 	sparklestate = S_RSR_NIGHTSPARKLE_GRENADE,
 	killfeedIcon = "RSRGRNDI",
 	killfeedName = "Grenade Ring",
-	killfeedObituary = "fragged"
+	killfeedObituary = "$a's Grenade Ring fragged $v.",
+	killfeedObituarySolo = "$v was fragged by a Grenade Ring."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB] = {
 	knockback = 6*FRACUNIT,
@@ -139,7 +150,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB] = {
 	sparklestate = S_RSR_NIGHTSPARKLE_GRENADE,
 	killfeedIcon = "RSRGRALI",
 	killfeedName = "Stickybomb",
-	killfeedObituary = "trapped"
+	killfeedObituary = "$a's Stickybomb trapped $v.",
+	killfeedObituarySolo = "$v was trapped by a Stickybomb."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOMB] = {
 	knockback = 3*FRACUNIT,
@@ -148,7 +160,9 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOMB] = {
 	sparklestate = S_RSR_NIGHTSPARKLE_BOMB,
 	killfeedIcon = "RSRBOMBI",
 	killfeedName = "Explosion Ring",
-	killfeedObituary = "exploded"
+	killfeedObituary = "$a's Explosion Ring exploded $v.",
+	killfeedObituarySelf = "$v's blew themself up with an Explosion Ring.",
+	killfeedObituarySolo = "$v was exploded by an Explosion Ring."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOMB_MISSILEFORM] = {
 	knockback = 3*FRACUNIT,
@@ -159,13 +173,15 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOMB_MISSILEFORM] = {
 	sparklestate = S_RSR_NIGHTSPARKLE_BOMB,
 	killfeedIcon = "RSRBMALI",
 	killfeedName = "Self-Propel",
-	killfeedObituary = "collaterally damaged"
+	killfeedObituary = "$a's Self-Propel collaterally damaged $v.",
+	killfeedObituarySolo = "$v was collaterally damaged by a Self-Propel."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_HOMING] = {
 	knockback = 1*FRACUNIT,
 	killfeedIcon = "RSRHOMGI",
 	killfeedName = "Homing Ring",
-	killfeedObituary = "hunted down"
+	killfeedObituary = "$a's Homing Ring hunted down $v.",
+	killfeedObituarySolo = "$v was hunted down by a Homing Ring."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	knockback = 3*FRACUNIT,
@@ -174,27 +190,31 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	sparklestate = S_RSR_NIGHTSPARKLE_WASP,
 	killfeedIcon = "RSRHMALI",
 	killfeedName = "Router RPB",
-	killfeedObituary = "stung"
+	killfeedObituary = "$a's Router RPB stung $v.",
+	killfeedObituarySolo = "$v was stung by a Router RPB."
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_RAIL] = {
 	knockback = 12*FRACUNIT,
 	railring = true,
 	killfeedIcon = "RSRRAILI",
 	killfeedName = "Rail Ring",
-	killfeedObituary = "unmade"
+	killfeedObituary = "$a's Rail Ring unmade $v.",
+	killfeedObituarySolo = "$v was unmade by a Rail Ring."
 }
 RSR.MOBJ_INFO[MT_CORK] = {
 	damage = 40,
 	knockback = 6*FRACUNIT,
 	killfeedIcon = "RSRGUN",
 	killfeedName = "popgun",
-	killfeedObituary = "shot"
+	killfeedObituary = "$a's popgun shot $v.",
+	killfeedObituarySolo = "$v was shot by a popgun cork."
 }
 RSR.MOBJ_INFO[MT_LHRT] = {
 	damage = 10,
 	knockback = 9*FRACUNIT,
 	killfeedIcon = "RSRHEART",
-	killfeedName = "heart"
+	killfeedObituary = "$a's heart killed $v.",
+	killfeedObituarySolo = "$v was killed by a heart."
 }
 
 -- Enemy Projectiles
@@ -263,13 +283,13 @@ RSR.SHIELD_INFO[SH_ARMAGEDDON] = {
 RSR.SHIELD_INFO[SH_ELEMENTAL] = {
 	icon = "RSRELEMI",
 	name = "Elemental Shield",
-	obituary = "stomped",
+	obituary = "$a's Elemental Shield stomped $v.",
 	meleedamage = 65
 }
 RSR.SHIELD_INFO[SH_ATTRACT] = {
 	icon = "RSRATTRI",
 	name = "Attraction Shield",
-	obituary = "shocked",
+	obituary = "$a's Attraction Shield shocked $v.",
 	meleedamage = 20
 }
 RSR.SHIELD_INFO[SH_FORCE] = {
@@ -279,13 +299,13 @@ RSR.SHIELD_INFO[SH_FORCE] = {
 RSR.SHIELD_INFO[SH_FLAMEAURA] = {
 	icon = "RSRFLAMI",
 	name = "Flame Shield",
-	obituary = "burned",
+	obituary = "$a's Flame Shield burned $v.",
 	meleedamage = 30
 }
 RSR.SHIELD_INFO[SH_BUBBLEWRAP] = {
 	icon = "RSRBUBLI",
 	name = "Bubble Shield",
-	obituary = "squashed",
+	obituary = "$a's Bubble Shield squashed $v.",
 	meleedamage = 40
 }
 RSR.SHIELD_INFO[SH_THUNDERCOIN] = {
