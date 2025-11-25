@@ -15,6 +15,7 @@ RSR.KILLFEED_DMG_INFO = {
 		},
 		obituarySector = {
 			attacker = "$a gave $v too much poison to drink.",
+			solo = "$v had too much poison to drink."
 		}
 	},
 	[DMG_FIRE] = {
