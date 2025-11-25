@@ -63,7 +63,7 @@
 ---@field painchance integer|nil Makes the enemy use their painstate in a chance out of 255. Only use for Doom-style enemies. Default is nil.
 ---@field killfeedIcon string Graphic to use for the mobj type in the killfeed.
 ---@field killfeedName string Name to use for the mobj type in the killfeed.
----@field killfeedObituary string Death message to use for the mobj type in the killfeed.
+---@field killfeedObituary rsrobituaryinfo_t Table of death messages to use for the mobj type in the killfeed.
 
 ---@class rsrammoinfo_t
 ---@field amount integer Amount of ammo to give the player.
@@ -147,6 +147,11 @@
 ---@class rsrgametypeinfo_t
 ---@field rsrrules boolean Makes the gametype use RSR rules.
 ---@field nosuper boolean Disables super forms for this gametype.
+
+---@class rsrobituaryinfo_t
+---@field attacker string Message to display when a player was killed by another player.
+---@field hurtself string Message to display when a player killed themself.
+---@field solo string Message to display when a player was killed by a projectile without a source (or a dead source).
 
 -- --------------------------------
 -- CLASS ADDITIONS
