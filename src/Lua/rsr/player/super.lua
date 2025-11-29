@@ -43,7 +43,8 @@ RSR.PlayerSuperTick = function(player)
 		return
 	end
 
-	if player.rsrinfo.hype >= RSR.TRIGGER_HYPE then
+	-- Only allow players to go super if the gametype allows it
+	if not (RSR.GAMETYPE_INFO[gametype] and RSR.GAMETYPE_INFO[gametype].nosuper) and player.rsrinfo.hype >= RSR.TRIGGER_HYPE then
 		player.charflags = $|SF_SUPER -- Allow non-super players to go super
 		player.rings = 50 -- The player must have 50 rings to turn super
 	else

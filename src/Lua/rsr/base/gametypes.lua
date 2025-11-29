@@ -41,7 +41,7 @@ G_AddGametype({
 	name = "RSR Tag",
 	identifier = "rsrtag",
 	typeoflevel = TOL_TAG|TOL_RSRTAG,
-	rules = GTR_RINGSLINGER|GTR_FIRSTPERSON|GTR_TAG|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_OVERTIME|GTR_STARTCOUNTDOWN|GTR_BLINDFOLDED|GTR_DEATHMATCHSTARTS|GTR_SPAWNINVUL|GTR_RESPAWNDELAY,
+	rules = GTR_RINGSLINGER|GTR_FIRSTPERSON|GTR_TAG|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_OVERTIME|GTR_POWERSTONES|GTR_STARTCOUNTDOWN|GTR_BLINDFOLDED|GTR_DEATHMATCHSTARTS|GTR_SPAWNINVUL|GTR_RESPAWNDELAY,
 	intermissiontype = int_match,
 	headercolor = 123,
 	defaultpointlimit = 0,
@@ -49,7 +49,10 @@ G_AddGametype({
 	description = "Whoever's IT has to hunt down everyone else. If you get caught, you have to turn on your former friends! Uses RSR rules.",
 })
 
-RSR.AddGametype(GT_RSRTAG)
+RSR.AddGametype(GT_RSRTAG, {
+	rsrrules = true,
+	nosuper = true
+})
 
 -- RSR Hide and Seek
 
@@ -57,7 +60,7 @@ G_AddGametype({
 	name = "RSR Hide and Seek",
 	identifier = "rsrhideandseek",
 	typeoflevel = TOL_TAG|TOL_RSRTAG,
-	rules = GTR_RINGSLINGER|GTR_FIRSTPERSON|GTR_TAG|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_OVERTIME|GTR_STARTCOUNTDOWN|GTR_HIDEFROZEN|GTR_BLINDFOLDED|GTR_DEATHMATCHSTARTS|GTR_SPAWNINVUL|GTR_RESPAWNDELAY,
+	rules = GTR_RINGSLINGER|GTR_FIRSTPERSON|GTR_TAG|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_OVERTIME|GTR_POWERSTONES|GTR_STARTCOUNTDOWN|GTR_HIDEFROZEN|GTR_BLINDFOLDED|GTR_DEATHMATCHSTARTS|GTR_SPAWNINVUL|GTR_RESPAWNDELAY,
 	intermissiontype = int_match,
 	headercolor = 150,
 	defaultpointlimit = 0,
@@ -65,7 +68,10 @@ G_AddGametype({
 	description = "Try and find a good hiding place in these maps - we dare you. Uses RSR rules.",
 })
 
-RSR.AddGametype(GT_RSRHIDEANDSEEK)
+RSR.AddGametype(GT_RSRHIDEANDSEEK, {
+	rsrrules = true,
+	nosuper = true
+})
 
 -- RSR CTF
 

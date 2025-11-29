@@ -164,7 +164,10 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 
 	local curSpeed = FixedHypot(FixedHypot(mo.momx, mo.momy), mo.momz)
 	if not noPlayerSpeed and Valid(player) then -- Try to catch up with players, similar to the Deton
-		curSpeed = FixedMul(3*player.normalspeed/4, tracer.scale)
+		curSpeed = player.normalspeed
+		-- TODO: player.speed might cause problems
+		if player.speed > player.normalspeed then curSpeed = FixedDiv(player.speed, tracer.scale) end -- Go faster if the player is going faster than their normalspeed
+		curSpeed = FixedMul(3*$/4, tracer.scale)
 	end
 
 	P_InstaThrust(mo, mo.angle, FixedMul(cos(mo.pitch), curSpeed))

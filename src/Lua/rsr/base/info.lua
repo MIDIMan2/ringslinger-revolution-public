@@ -1,5 +1,9 @@
  ---@diagnostic disable: missing-fields
- -- Ringslinger Revolution - MobjInfo Table
+ -- Ringslinger Revolution - Info Tables
+
+ -- --------------------------------
+ -- MOBJ INFO
+ -- --------------------------------
 
 if not RSR.MOBJ_INFO then
 	---@type rsrmobjinfo_t[]
@@ -238,3 +242,53 @@ RSR.MOBJ_INFO[MT_RSR_POWERUP_INFINITY] = {poweritem = true}
 
 -- Miscellaneous
 RSR.MOBJ_INFO[MT_BLASTEXECUTOR] = {health = 1, nothomable = true} -- Don't let homing rings home in on blast executors
+
+-- --------------------------------
+ -- SHIELD INFO
+ -- --------------------------------
+
+if not RSR.SHIELD_INFO then
+	---@type rsrshieldinfo_t[]
+	RSR.SHIELD_INFO = {}
+end
+
+RSR.SHIELD_INFO[SH_WHIRLWIND] = {
+	icon = "RSRWINDI",
+	name = "Whirlwind Shield"
+}
+RSR.SHIELD_INFO[SH_ARMAGEDDON] = {
+	icon = "RSRARMAI",
+	name = "Armageddon Shield"
+}
+RSR.SHIELD_INFO[SH_ELEMENTAL] = {
+	icon = "RSRELEMI",
+	name = "Elemental Shield",
+	obituary = "stomped",
+	meleedamage = 65
+}
+RSR.SHIELD_INFO[SH_ATTRACT] = {
+	icon = "RSRATTRI",
+	name = "Attraction Shield",
+	obituary = "shocked",
+	meleedamage = 20
+}
+RSR.SHIELD_INFO[SH_FORCE] = {
+	icon = "RSRFORCI",
+	name = "Force Shield"
+}
+RSR.SHIELD_INFO[SH_FLAMEAURA] = {
+	icon = "RSRFLAMI",
+	name = "Flame Shield",
+	obituary = "burned",
+	meleedamage = 30
+}
+RSR.SHIELD_INFO[SH_BUBBLEWRAP] = {
+	icon = "RSRBUBLI",
+	name = "Bubble Shield",
+	obituary = "squashed",
+	meleedamage = 40
+}
+RSR.SHIELD_INFO[SH_THUNDERCOIN] = {
+	icon = "RSRTHNDI",
+	name = "Thunder Shield"
+}

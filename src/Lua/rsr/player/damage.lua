@@ -913,24 +913,18 @@ RSR.PlayerMelee = function(pmo, pmo2)
 
 	-- 30 damage for Flame Dash, 40 damage for Bubble Bounce, and 65 for Elemental Stomp due to how restrictive it is
 	-- Attraction gets a slight boost to 20 to help the melee playstyle
-	if shield == SH_FLAMEAURA and (player.pflags & PF_SHIELDABILITY) then
-		meleeBaseDamage = 30
-	elseif shield == SH_BUBBLEWRAP and (player.pflags & PF_SHIELDABILITY) then
-		meleeBaseDamage = 40
-	elseif shield == SH_ELEMENTAL and (player.pflags & PF_SHIELDABILITY) then
-		meleeBaseDamage = 65
-	elseif shield == SH_ATTRACT and (player.pflags & PF_SHIELDABILITY) and player.rsrinfo.homing then
-		meleeBaseDamage = 20
+	-- -orbitalviolet
+
+	-- Damage values are stored in RSR.SHIELD_INFO (located in rsr/base/info.lua)
+	-- -MIDIMan
+	if ((shield ~= SH_ATTRACT and (player.pflags & PF_SHIELDABILITY)) or (shield == SH_ATTRACT and player.rsrinfo.homing))
+	and RSR.SHIELD_INFO[shield] and RSR.SHIELD_INFO[shield].meleedamage then
+		meleeBaseDamage = RSR.SHIELD_INFO[shield].meleedamage
 	end
 
-	if shield2 == SH_FLAMEAURA and (player2.pflags & PF_SHIELDABILITY) then
-		meleeBaseDamage2 = 30
-	elseif shield2 == SH_BUBBLEWRAP and (player2.pflags & PF_SHIELDABILITY) then
-		meleeBaseDamage2 = 40
-	elseif shield2 == SH_ELEMENTAL and (player2.pflags & PF_SHIELDABILITY) then
-		meleeBaseDamage2 = 65
-	elseif shield2 == SH_ATTRACT and (player2.pflags & PF_SHIELDABILITY) and player2.rsrinfo.homing then
-		meleeBaseDamage2 = 20
+	if ((shield2 ~= SH_ATTRACT and (player2.pflags & PF_SHIELDABILITY)) or (shield2 == SH_ATTRACT and player2.rsrinfo.homing))
+	and RSR.SHIELD_INFO[shield2] and RSR.SHIELD_INFO[shield2].meleedamage then
+		meleeBaseDamage2 = RSR.SHIELD_INFO[shield2].meleedamage
 	end
 
 	-- Invincibility or Super: x3 damage

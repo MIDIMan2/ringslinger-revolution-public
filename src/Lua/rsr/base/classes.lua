@@ -138,6 +138,16 @@
 ---@field meleeicon string Name of the graphic to use for the melee killfeed icon for this character/skin.
 ---@field meleename string Name to use for the melee killfeed text for this character/skin.
 
+---@class rsrshieldinfo_t
+---@field icon string Graphic to use for the shield's icon.
+---@field name string Name of the shield (used for the text killfeed).
+---@field obituary string Message to display when killed by a player with this shield for the text killfeed.
+---@field meleedamage integer The damage dealt when meleeing a player while using the shield ability.
+
+---@class rsrgametypeinfo_t
+---@field rsrrules boolean Makes the gametype use RSR rules.
+---@field nosuper boolean Disables super forms for this gametype.
+
 -- --------------------------------
 -- CLASS ADDITIONS
 -- --------------------------------
