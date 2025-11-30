@@ -5,8 +5,9 @@
 ---@param maxDist fixed_t|nil Maximum distance to search for enemies (Default is RING_DIST).
 ---@param searchEnemies boolean|nil
 ---@param searchSpectators boolean|nil
+---@param canHomeUpwards boolean|nil
 ---@return mobj_t|nil
-RSR.PlayerLookForEnemies = function(player, maxDist, searchEnemies, searchSpectators)
+RSR.PlayerLookForEnemies = function(player, maxDist, searchEnemies, searchSpectators, canHomeUpwards)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
 	local closestMo
@@ -37,13 +38,15 @@ RSR.PlayerLookForEnemies = function(player, maxDist, searchEnemies, searchSpecta
 		local zDist = (pmo.z + pmo.height/2) - (enemy.z + enemy.height/2)
 		dist = R_PointToDist2(0, 0, pmo.x - enemy.x, pmo.y - enemy.y)
 
-		-- Don't home upwards!
-		if (pmo.eflags & MFE_VERTICALFLIP) then
-			if enemy.z + enemy.height < pmo.z + pmo.height - FixedMul(MAXSTEPMOVE, pmo.scale) then
+		-- Don't home upwards (unless canHomeUpwards is true)!
+		if not canHomeUpwards then
+			if (pmo.eflags & MFE_VERTICALFLIP) then
+				if enemy.z + enemy.height < pmo.z + pmo.height - FixedMul(MAXSTEPMOVE, pmo.scale) then
+					return
+				end
+			elseif enemy.z > pmo.z + FixedMul(MAXSTEPMOVE, pmo.scale) then
 				return
 			end
-		elseif enemy.z > pmo.z + FixedMul(MAXSTEPMOVE, pmo.scale) then
-			return
 		end
 
 		dist = R_PointToDist2(0, 0, dist, zDist)
