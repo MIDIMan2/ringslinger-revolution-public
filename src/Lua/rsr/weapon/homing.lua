@@ -297,7 +297,7 @@ pspractions.A_HomingAttackAlt = function(player, args)
 
 	pspractions.A_LayerOffset(player, args)
 
-	local lockOn = RSR.PlayerLookForEnemies(player, 2048*FRACUNIT, true, RSR.CV_Ghostbusters.value and true or false)
+	local lockOn = RSR.PlayerLookForEnemies(player, 2048*FRACUNIT, true, RSR.CV_Ghostbusters.value and true or false, true)
 	if Valid(lockOn) then
 		local visual = P_SpawnMobj(lockOn.x, lockOn.y, lockOn.z, MT_LOCKON)
 		if Valid(visual) then

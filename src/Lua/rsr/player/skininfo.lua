@@ -16,5 +16,5 @@ RSR.SKIN_INFO["DEFAULT"] = {
 
 RSR.SKIN_INFO["amy"] = {
 	meleeicon = "RSRHAMMR",
-	meleename = "Piko Piko Hammer"
+	meleeobituary = "$a's Piko Piko Hammer whacked $v."
 }

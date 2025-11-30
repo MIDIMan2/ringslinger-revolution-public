@@ -9,46 +9,81 @@ RSR.KILLFEED_TICS = 4*TICRATE
 RSR.KILLFEED_DMG_INFO = {
 	[DMG_WATER] = {
 		icon = "RSRELEMI", -- TODO: Replace this with a clearer icon
-		obituaryMobj = "had too much poison to drink",
-		obituarySector = "was poisoned"
+		obituaryMobj = {
+			attacker = "$a poisoned $v.",
+			solo = "$v was poisoned."
+		},
+		obituarySector = {
+			attacker = "$a gave $v too much poison to drink.",
+			solo = "$v had too much poison to drink."
+		}
 	},
 	[DMG_FIRE] = {
 		icon = "RSRFLAMI",
-		obituaryMobj = "burned to death",
-		obituarySector = "melted in lava"
+		obituaryMobj = {
+			attacker = "$a burnt $v.",
+			solo = "$v was burnt."
+		},
+		obituarySector = {
+			attacker = "$a threw $v into the lava.",
+			solo = "$v melted in lava."
+		}
 	},
 	[DMG_ELECTRIC] = {
 		icon = "RSRTHNDI",
-		obituary = "got electrocuted"
+		obituary = {
+			attacker = "$a electrocuted $v.",
+			solo = "$v got electrocuted.",
+		}
 	},
 	[DMG_SPIKE] = {
 		icon = "RSRSPIKE",
-		obituary = "got spiked"
+		obituary = {
+			attacker = "$a spiked $v.",
+			solo = "$v got spiked.",
+		}
 	},
 	[DMG_NUKE] = {
 		icon = "RSRARMAI",
-		obituaryMobj = "got nuked by %s's Armageddon blast",
-		obituarySector = "got nuked"
+		obituary = {
+			attacker = "$a's Armageddon Shield nuked $v.",
+			solo = "$v got nuked.",
+		}
 	},
 	[DMG_DROWNED] = {
 		icon = "RSRDROWN",
-		obituary = "drowned"
+		obituary = {
+			attacker = "$a drowned $v.",
+			solo = "$v drowned.",
+		}
 	},
 	[DMG_SPACEDROWN] = {
 		icon = "RSRDROWN",
-		obituary = "drowned in space"
+		obituary = {
+			attacker = "$a drowned $v in space.",
+			solo = "$v drowned in space.",
+		}
 	},
 	[DMG_DEATHPIT] = {
 		icon = "RSRPIT",
-		obituary = "fell into a pit"
+		obituary = {
+			attacker = "$a knocked $v into a pit.",
+			solo = "$v fell into a pit.",
+		}
 	},
 	[DMG_CRUSHED] = {
 		icon = "RSRCRUSH",
-		obituary = "was crushed"
+		obituary = {
+			attacker = "$a knocked $v into a crusher.",
+			solo = "$v was crushed.",
+		}
 	},
-	[DMG_SPECTATOR] = {
+	[DMG_SPECTATOR] = { -- TODO: See if there's a way to overwrite the vanilla "Player became a spectator." message
 		icon = "RSRSPECT",
-		obituary = "became a spectator"
+		obituary = {
+			attacker = "$a fractured $v's ego.",
+			solo = "$v became a spectator.",
+		}
 	}
 }
 
@@ -94,10 +129,58 @@ local RSR_CHATCOLORENDCODE = function(pl)
 	return ""
 end
 
---- Gets the information needed for some killfeed variables
-RSR.KillfeedGetMobjInfo = function(moType)
-	if not (moType and RSR.MOBJ_INFO[moType]) then return "RSREGGM", "projectile", "killed" end
-	return RSR.MOBJ_INFO[moType].killfeedIcon or "RSREGGM", RSR.MOBJ_INFO[moType].killfeedName or "projectile", RSR.MOBJ_INFO[moType].killfeedObituary or "killed"
+--- Gets the necessary mobj-related info for killfeed variables.
+---@param moType mobjtype_t
+---@param hasAttacker boolean|nil
+---@param hurtSelf boolean|nil
+RSR.KillfeedGetMobjInfo = function(moType, hasAttacker, hurtSelf)
+	if not (moType and RSR.MOBJ_INFO[moType] and RSR.MOBJ_INFO[moType].killfeedObituary) then return "RSREGGM", "$v was killed." end
+	if type(RSR.MOBJ_INFO[moType].killfeedObituary) ~= "table" then
+		print("\x82WARNING:\x80 killfeedObituary for Object type"..moType.." has not been converted to the new format!")
+		return RSR.MOBJ_INFO[moType].killfeedIcon or "RSREGGM", "$v was killed."
+	end
+
+	local obituary = nil
+	if hurtSelf and RSR.MOBJ_INFO[moType].killfeedObituary.hurtself then
+		obituary = RSR.MOBJ_INFO[moType].killfeedObituary.hurtself
+	elseif hasAttacker and RSR.MOBJ_INFO[moType].killfeedObituary.attacker then
+		obituary = RSR.MOBJ_INFO[moType].killfeedObituary.attacker
+	elseif RSR.MOBJ_INFO[moType].killfeedObituary.solo then
+		obituary = RSR.MOBJ_INFO[moType].killfeedObituary.solo
+	end
+
+	return RSR.MOBJ_INFO[moType].killfeedIcon or "RSREGGM", obituary or "$v was killed."
+end
+
+--- Gets the necessary damagetype-related info for killfeed varaibles.
+---@param damageType integer
+---@param hasInflictor boolean|nil
+---@param hasAttacker boolean|nil
+RSR.KillfeedGetDmgInfo = function(damageType, hasInflictor, hasAttacker)
+	if not (damageType and RSR.KILLFEED_DMG_INFO[damageType & ~DMG_CANHURTSELF]) then return "RSREGGM", "$v died." end
+	local hurtSelf = (damageType & DMG_CANHURTSELF) and true or false
+	damageType = $ & ~DMG_CANHURTSELF
+	local obituary = "$v died."
+	local obituaryInfo = nil
+	if hasInflictor and RSR.KILLFEED_DMG_INFO[damageType].obituaryMobj then
+		obituaryInfo = RSR.KILLFEED_DMG_INFO[damageType].obituaryMobj
+	elseif not hasInflictor and RSR.KILLFEED_DMG_INFO[damageType].obituarySector then
+		obituaryInfo = RSR.KILLFEED_DMG_INFO[damageType].obituarySector
+	elseif RSR.KILLFEED_DMG_INFO[damageType].obituary then
+		obituaryInfo = RSR.KILLFEED_DMG_INFO[damageType].obituary
+	end
+
+	if obituaryInfo then
+		if hurtSelf and obituaryInfo.hurtself then
+			obituary = obituaryInfo.hurtself
+		elseif hasAttacker and obituaryInfo.attacker then
+			obituary = obituaryInfo.attacker
+		elseif obituaryInfo.solo then
+			obituary = obituaryInfo.solo
+		end
+	end
+
+	return RSR.KILLFEED_DMG_INFO[damageType].icon or "RSREGGM", obituary or "$v died."
 end
 
 --- Adds a message to the killfeed.
@@ -107,79 +190,62 @@ end
 ---@param damagetype integer
 RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	if not Valid(victim) then return end
-
-	if #RSR.KILLFEED_MESSAGES >= 4 then
-		table.remove(RSR.KILLFEED_MESSAGES, 1)
-	end
+	if #RSR.KILLFEED_MESSAGES >= 4 then table.remove(RSR.KILLFEED_MESSAGES, 1) end -- Remove the first message in the queue to make room for the new one
 
 	local victimName = string.format("%s%s%s", RSR_CHATCOLORCODE(victim), victim.name, RSR_CHATCOLORENDCODE(victim))
 	local inflictorPatch = "RSREGGM" -- Always show Eggman for unknown causes of death
-	local inflictorName = "The Shredded Cheese Man" -- We shouldn't be seeing these
-	local obituary = "caused the mysterious disappearance of" -- How do you get this to happen
-	local meleeRandInt = RSR.RandomFixedRange(1,4)
+	local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen
+	local meleeRandInt = P_RandomRange(1,4)
 	local infReflected = false
 	local attackerName = nil
 	local highlight = false
 	local skincolor = nil
 
-	if not Valid(inflictor) then
-		if victim.rsrinfo and victim.rsrinfo.forceInflictorType and RSR.MOBJ_INFO[victim.rsrinfo.forceInflictorType] then
-			inflictorPatch, inflictorName, obituary = RSR.KillfeedGetMobjInfo(victim.rsrinfo.forceInflictorType)
-			if victim.rsrinfo.forceInflictorReflected then infReflected = true end
-		elseif damagetype then
-			damagetype = $ & ~(DMG_CANHURTSELF)
-			if RSR.KILLFEED_DMG_INFO[damagetype] and RSR.KILLFEED_DMG_INFO[damagetype].icon then inflictorPatch = RSR.KILLFEED_DMG_INFO[damagetype].icon end
-		end
-	else
-		-- forceInflictorType should override the actual inflictor (used for Amy's hearts)
-		if victim.rsrinfo and victim.rsrinfo.forceInflictorType and RSR.MOBJ_INFO[victim.rsrinfo.forceInflictorType] then
-			inflictorPatch, inflictorName, obituary = RSR.KillfeedGetMobjInfo(victim.rsrinfo.forceInflictorType)
-			if victim.rsrinfo.forceInflictorReflected then infReflected = true end
-		elseif RSR.MOBJ_INFO[inflictor.type] then
-			inflictorPatch, inflictorName, obituary = RSR.KillfeedGetMobjInfo(inflictor.type)
-			if inflictor.rsrForceReflected then infReflected = true end
-		elseif damagetype then
-			damagetype = $ & ~(DMG_CANHURTSELF)
-			if RSR.KILLFEED_DMG_INFO[damagetype] and RSR.KILLFEED_DMG_INFO[damagetype].icon then inflictorPatch = RSR.KILLFEED_DMG_INFO[damagetype].icon end
-		elseif Valid(inflictor.player) and inflictor.player.rsrinfo then
-			local infShield = (inflictor.player.powers[pw_shield] & SH_NOSTACK)
-			if infShield and RSR.SHIELD_INFO[infShield]
-			and (inflictor.player.pflags & PF_SHIELDABILITY) and not (infShield == SH_ATTRACT and not inflictor.player.rsrinfo.homing) then
-				inflictorPatch = RSR.SHIELD_INFO[infShield].icon or "RSRARMRI"
-				inflictorName = RSR.SHIELD_INFO[infShield].name or "Shield"
-				if RSR.SHIELD_INFO[infShield].obituary then obituary = RSR.SHIELD_INFO[infShield].obituary end
-			elseif inflictor.player.powers[pw_super] then
-				inflictorPatch = "RSRSUPRI"
-				inflictorName = "super form"
-			elseif RSR.HasPowerup(inflictor.player, RSR.POWERUP_INVINCIBILITY) or inflictor.player.powers[pw_invulnerability] then
-				inflictorPatch = "RSRINVNI"
-				inflictorName = "invincibility"
-			elseif inflictor.player.charability2 == CA2_MELEE then
-				inflictorPatch = "RSRHAMMR"
-				inflictorName = "Piko Piko Hammer"
-				if RSR.SKIN_INFO[skins[inflictor.player.skin].name] then
-					inflictorPatch = RSR.SKIN_INFO[skins[inflictor.player.skin].name].meleeicon
-					inflictorName = RSR.SKIN_INFO[skins[inflictor.player.skin].name].meleename
-				end
-			else
-				inflictorPatch = "RSRMELEE"
-				inflictorName = "melee"
-				if meleeRandInt == 1 then
-					obituary = "punched out"
-				elseif meleeRandInt == 2 then
-					obituary = "threw hands with"
-				elseif meleeRandInt == 3 then
-					obituary = "beat up"
-				else
-					obituary = "KO'd"
-				end
-				skincolor = inflictor.player.skincolor
-			end
-		end
-	end
-
 	if Valid(attacker) then
 		attackerName = string.format("%s%s%s", RSR_CHATCOLORCODE(attacker), attacker.name, RSR_CHATCOLORENDCODE(attacker))
+	end
+
+	if victim.rsrinfo and victim.rsrinfo.forceInflictorType and RSR.MOBJ_INFO[victim.rsrinfo.forceInflictorType] then
+		inflictorPatch, obituary = RSR.KillfeedGetMobjInfo(victim.rsrinfo.forceInflictorType, Valid(attacker) and true or false, (damagetype & DMG_CANHURTSELF) and true or false)
+		if victim.rsrinfo.forceInflictorReflected then infReflected = true end
+	elseif Valid(inflictor) and RSR.MOBJ_INFO[inflictor.type] then
+		inflictorPatch, obituary = RSR.KillfeedGetMobjInfo(inflictor.type, Valid(attacker) and true or false, (damagetype & DMG_CANHURTSELF) and true or false)
+		if inflictor.rsrForceReflected then infReflected = true end
+	elseif damagetype then
+		inflictorPatch, obituary = RSR.KillfeedGetDmgInfo(damagetype, Valid(inflictor) and true or false, Valid(attacker) and true or false)
+	elseif Valid(inflictor) and Valid(inflictor.player) and inflictor.player.rsrinfo then
+		local infShield = (inflictor.player.powers[pw_shield] & SH_NOSTACK)
+		if infShield and RSR.SHIELD_INFO[infShield]
+		and (inflictor.player.pflags & PF_SHIELDABILITY) and not (infShield == SH_ATTRACT and not inflictor.player.rsrinfo.homing) then
+			inflictorPatch = RSR.SHIELD_INFO[infShield].icon or "RSRARMRI"
+			obituary = "$a's Shield killed $v."
+			if RSR.SHIELD_INFO[infShield].obituary then obituary = RSR.SHIELD_INFO[infShield].obituary end
+		elseif inflictor.player.powers[pw_super] then
+			inflictorPatch = "RSRSUPRI"
+			obituary = "$a's super form killed $v."
+		elseif RSR.HasPowerup(inflictor.player, RSR.POWERUP_INVINCIBILITY) or inflictor.player.powers[pw_invulnerability] then
+			inflictorPatch = "RSRINVNI"
+			obituary = "$a's invincibility killed $v."
+		elseif inflictor.player.charability2 == CA2_MELEE then
+			inflictorPatch = "RSRHAMMR"
+			obituary = "$a's Piko Piko Hammer whacked $v."
+			if RSR.SKIN_INFO[skins[inflictor.player.skin].name] then
+				inflictorPatch = RSR.SKIN_INFO[skins[inflictor.player.skin].name].meleeicon
+				obituary = RSR.SKIN_INFO[skins[inflictor.player.skin].name].meleeobituary
+			end
+		else
+			inflictorPatch = "RSRMELEE"
+			if meleeRandInt == 1 then
+				obituary = "$a punched out $v."
+			elseif meleeRandInt == 2 then
+				obituary = "$a threw hands with $v."
+			elseif meleeRandInt == 3 then
+				obituary = "$a beat up $v."
+			else
+				obituary = "$a KO'd $v."
+			end
+			skincolor = inflictor.player.skincolor
+		end
 	end
 
 	-- Don't show highlighted backgrounds in splitscreen
@@ -192,17 +258,13 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		end
 	end
 
-	-- TODO: Revive this for 2.2.16
 	-- Alternative killfeed so players can see what they did in the logs
-	-- print(
-	-- 	string.format("%s's %s%s %s %s.",
-	-- 		attackerName or "",
-	-- 		infReflected and "reflected " or "",
-	-- 		inflictorName,
-	-- 		obituary,
-	-- 		victimName
-	-- 	)
-	-- )
+	local newString = string.gsub(obituary, "(%$%w?)", {
+		["$a"] = attackerName or "The Shredded Cheese Man",
+		["$r"] = infReflected and "reflected " or "",
+		["$v"] = victimName,
+	})
+	print(newString)
 
 	table.insert(RSR.KILLFEED_MESSAGES, {
 		victim = victimName,
@@ -224,8 +286,8 @@ RSR.HUDKillfeed = function(v)
 	for key, info in ipairs(RSR.KILLFEED_MESSAGES) do
 		if not info then continue end
 
-		local bgColor = 31
-		if info.highlight then bgColor = 0 end
+		local bgColor = 31 -- Black
+		if info.highlight then bgColor = 0 end -- White
 
 		local inflictorPatch = v.cachePatch(info.inflictor)
 		local patchWidth = 16
@@ -265,7 +327,7 @@ RSR.HUDKillfeed = function(v)
 		v.drawString(x, y + patchHeight/4, info.victim, flags|V_ALLOWLOWERCASE, "thin-right") -- Show the victim
 		x = $ - v.stringWidth(info.victim, 0, "thin") - patchWidth - 2
 		v.draw(x, y, inflictorPatch, flags, colormap) -- Show the inflictor: Player, projectile, or otherwise
-		if info.infReflected then -- Show if the projectile was reflected
+		if info.infReflected then -- Show the Force Shield icon if the projectile was reflected
 			x = $ - patchWidth - 2
 			v.draw(x, y, v.cachePatch("RSRFORCI"), flags, colormap)
 		end
