@@ -90,12 +90,6 @@ RSR.HealthTouchSpecial = function(special, toucher, health)
 	local player = toucher.player
 	if not (Valid(player) and player.rsrinfo) then return end
 
-	-- local hookValue = hookLib.RunHook("RSR_HealthTouchSpecial", special, toucher, health)
-	-- if hookValue ~= nil then
-	-- 	if Valid(special) and special.health <= 0 then RSR.SetItemFuse(special) end
-	-- 	return hookValue
-	-- end
-
 	local skinInfo = RSR.SKIN_INFO[skins[player.skin].name]
 	if skinInfo and skinInfo.hooks and skinInfo.hooks.touchHealth then
 		local returnValue = skinInfo.hooks.touchHealth(special, toucher, health)
@@ -127,12 +121,6 @@ RSR.ArmorTouchSpecial = function(special, toucher, armor)
 	if not (Valid(special) and Valid(toucher)) then return end
 	local player = toucher.player
 	if not (Valid(player) and player.rsrinfo) then return end
-
-	-- local hookValue = hookLib.RunHook("RSR_ArmorTouchSpecial", special, toucher, armor)
-	-- if hookValue ~= nil then
-	-- 	if Valid(special) and special.health <= 0 then RSR.SetItemFuse(special) end
-	-- 	return hookValue
-	-- end
 
 	local skinInfo = RSR.SKIN_INFO[skins[player.skin].name]
 	if skinInfo and skinInfo.hooks and skinInfo.hooks.touchArmor then
