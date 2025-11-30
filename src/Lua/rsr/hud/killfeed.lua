@@ -192,10 +192,8 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	if not Valid(victim) then return end
 	if #RSR.KILLFEED_MESSAGES >= 4 then table.remove(RSR.KILLFEED_MESSAGES, 1) end -- Remove the first message in the queue to make room for the new one
 
-	-- TODO: Remove inflictor name
 	local victimName = string.format("%s%s%s", RSR_CHATCOLORCODE(victim), victim.name, RSR_CHATCOLORENDCODE(victim))
 	local inflictorPatch = "RSREGGM" -- Always show Eggman for unknown causes of death
-	-- local inflictorName = "The Shredded Cheese Man" -- We shouldn't be seeing these
 	local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen
 	local meleeRandInt = P_RandomRange(1,4)
 	local infReflected = false
@@ -260,7 +258,6 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		end
 	end
 
-	-- TODO: Implement DMG_CANHURTSELF when 2.2.16 comes out
 	-- Alternative killfeed so players can see what they did in the logs
 	local newString = string.gsub(obituary, "(%$%w?)", {
 		["$a"] = attackerName or "The Shredded Cheese Man",
@@ -268,21 +265,6 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		["$v"] = victimName,
 	})
 	print(newString)
-	-- if not attackerName then
-	-- 	-- print(string.format(obituary, victimName))
-
-	-- else
-	-- 	print(string.format(obituary, attackerName, victimName))
-	-- 	-- print(
-	-- 	-- 	string.format("%s's %s%s %s %s.",
-	-- 	-- 		attackerName or "",
-	-- 	-- 		infReflected and "reflected " or "",
-	-- 	-- 		inflictorName,
-	-- 	-- 		obituary,
-	-- 	-- 		victimName
-	-- 	-- 	)
-	-- 	-- )
-	-- end
 
 	table.insert(RSR.KILLFEED_MESSAGES, {
 		victim = victimName,
