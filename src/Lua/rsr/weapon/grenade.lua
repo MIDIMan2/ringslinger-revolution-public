@@ -1,5 +1,6 @@
 ---@diagnostic disable: missing-fields
 -- Ringslinger Revolution - Grenade Weapon
+-- TODO: Use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
 
 RSR.AddAmmo("GRENADE", {
 	amount = 10,
@@ -402,16 +403,14 @@ pspractions.A_GrenadeAttack = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
 	RSR.SetWeaponDelay(player)
+	RSR.TakeAmmoFromReadyWeapon(player, 1)
 
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_GRENADE, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then
--- 		missile.rsrExplosiveRing = true -- Let the grenade ring deal knockback to the player on top of explosion knockback
 		P_SetObjectMomZ(missile, FRACUNIT, true)
--- 		missile.fuse = missile.info.reactiontime
 		-- Reaction time is being used for splash damage
 		missile.fuse = 2*TICRATE + 2
 	end
-	RSR.TakeAmmoFromReadyWeapon(player, 1)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
@@ -421,16 +420,14 @@ pspractions.A_GrenadeAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
+	RSR.TakeAmmoFromReadyWeapon(player, 2)
 
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then
--- 		missile.rsrExplosiveRing = true -- Let the grenade ring deal knockback to the player on top of explosion knockback
 		P_SetObjectMomZ(missile, FRACUNIT, true)
--- 		missile.fuse = missile.info.reactiontime
 		-- Reaction time is being used for splash damage
 		missile.fuse = 10*TICRATE + 2
 	end
-	RSR.TakeAmmoFromReadyWeapon(player, 2)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end

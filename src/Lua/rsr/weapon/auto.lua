@@ -126,8 +126,8 @@ pspractions.A_AutoAttack = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.SetWeaponDelay(player)
-	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_AUTO, player.mo.angle, player.cmd.aiming<<16)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_AUTO, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
@@ -138,10 +138,10 @@ pspractions.A_AutoAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
+	RSR.TakeAmmoFromReadyWeapon(player, 3)
 
 	local angle = player.mo.angle
 	local pitch = player.cmd.aiming<<16
-
 	for i = 0, 2 do
 		local angleOffset = FixedAngle(P_RandomRange(5,-5)*FRACUNIT/2) -- Random horizontal spread between 2.5 and -2.5 degrees
 		local pitchOffset = FixedAngle(P_RandomRange(4,-4)*FRACUNIT/2) -- Random vertical spread between 2 and -2 degrees
@@ -153,7 +153,6 @@ pspractions.A_AutoAttackAlt = function(player, args)
 			leadSplit.destscale = 9*leadSplit.scale/10
 		end
 	end
-	RSR.TakeAmmoFromReadyWeapon(player, 3)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end

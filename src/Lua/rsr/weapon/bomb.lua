@@ -144,9 +144,8 @@ pspractions.A_BombAttack = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.SetWeaponDelay(player)
-
-	local bomb = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOMB, player.mo.angle, player.cmd.aiming<<16)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOMB, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
@@ -157,12 +156,10 @@ pspractions.A_BombAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
+	RSR.TakeAmmoFromReadyWeapon(player, 3)
 
 	local bomb = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOMB_MISSILEFORM, player.mo.angle, player.cmd.aiming<<16)
-	if Valid(bomb) then
-		P_ExplodeMissile(bomb)
-	end
-	RSR.TakeAmmoFromReadyWeapon(player, 3)
+	if Valid(bomb) then P_ExplodeMissile(bomb) end
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
