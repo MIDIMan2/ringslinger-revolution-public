@@ -199,6 +199,32 @@ RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, 
 	missile.rsrProjectile = true
 	if not speed then speed = missile.info.speed end
 
+	-- Move the projectile if it's being blocked by a wall beside or behind the player
+	missile.flags = $ & ~MF_MISSILE -- Don't collide with objects
+	if not P_TryMove(missile, missile.x, missile.y, true) then
+		for i = 0, 4 do
+			local checkAngle = 0
+			if i == 1 then
+				checkAngle = ANGLE_45
+			elseif i == 2 then
+				checkAngle = ANGLE_90
+			elseif i == 3 then
+				checkAngle = -ANGLE_45
+			elseif i == 4 then
+				checkAngle = -ANGLE_90
+			end
+
+			if P_TryMove(
+				missile,
+				missile.x + P_ReturnThrustX(nil, missile.angle + checkAngle, source.radius),
+				missile.y + P_ReturnThrustY(nil, missile.angle + checkAngle, source.radius),
+				true
+			) then
+				break
+			end
+		end
+	end
+	if (missile.info.flags & MF_MISSILE) then missile.flags = $|MF_MISSILE end -- Reapply the MF_MISSILE flag if it had one before the check
 	RSR.MoveMissile(missile, angle, slope, speed)
 
 	if not Valid(missile) then return end
