@@ -337,15 +337,16 @@ SelectHeading = RSR Classic
 Level P6
 LevelName = Legacy Factory
 SubTitle = RSR Legacy: Noxious Factory
-Music = THZ1
+Music = FDEMO3
 TypeOfLevel = RSRMatch,RSRTag
 NextLevel = P7
 SkyNum = 4
 SelectHeading = RSR Classic
 
 Level P7
-LevelName = Thunder Citadel
-Music = CEZ2
+LevelName = Legacy Citadel
+SubTitle = RSR Legacy: Thunder Citadel
+Music = FDEMO6
 TypeOfLevel = RSRMatch,RSRTag
 NextLevel = P8
 Weather = 1
@@ -372,7 +373,7 @@ SelectHeading = RSR Classic
 Level PA
 LevelName = Legacy Falls
 SubTitle = RSR Legacy: Sapphire Falls
-Music = MP_GHZ
+Music = OLDGHZ
 TypeOfLevel = RSRMatch,RSRTag
 NextLevel = PB
 SkyNum = 2
@@ -381,7 +382,7 @@ SelectHeading = RSR Classic
 Level PB
 LevelName = Legacy Blizzard
 SubTitle = RSR Legacy: Diamond Blizzard
-Music = MP_AIR
+Music = MP_AI2
 TypeOfLevel = RSRMatch,RSRTag
 NextLevel = PC
 Weather = 2
@@ -391,7 +392,7 @@ SelectHeading = RSR Classic
 Level PC
 LevelName = Legacy Sanctuary
 SubTitle = RSR Legacy: Celestial Sanctuary
-Music = AGZ
+Music = OLDAGZ
 TypeOfLevel = RSRMatch,RSRTag
 NextLevel = P0
 SkyNum = 40
@@ -530,7 +531,7 @@ SelectHeading = RSR Classic
 Level I3
 Levelname = Legacy Forest
 SubTitle = RSR Legacy: Lime Forest
-Music = GFZALT
+Music = FDEMO1
 TypeOfLevel = RSRCTF
 NextLevel = I4
 SkyNum = 1
@@ -546,11 +547,11 @@ Weather = 3
 SkyNum = 20
 SelectHeading = RSR Classic
 
-#TODO: Rename this so it doesn't get confused with Legacy Falls (Sapphire Falls)
+#Name chosen since "Legacy Falls" could be confused with the legacy "Sapphire Falls"
 Level I5
-Levelname = Legacy Falls
+Levelname = Icicle Legacy
 SubTitle = RSR Legacy: Icicle Falls
-Music = MP_ICE
+Music = OLDICE
 TypeOfLevel = RSRCTF
 NextLevel = I0
 Skynum = 55
