@@ -1,9 +1,10 @@
 -- Ringslinger Revolution - Flag Radar HUD
 
 RSR.HUDCTFFlagRadar = function(v, player, thiscam)
+	if not v then return end
 	if not RSR.GamemodeActive() then return end -- Only run in RSR maps
 	if not (gametyperules & GTR_TEAMFLAGS) then return end -- Only run in CTF maps
-	if not v then return end
+	if not Valid(player) and Valid(player.realmo) then return end
 
 	-- Display a flagrunner radar
 	for player2 in players.iterate do
@@ -28,7 +29,7 @@ RSR.HUDCTFFlagRadar = function(v, player, thiscam)
 			local transFlag = FixedMul(9, min(transScale, FRACUNIT))*V_10TRANS
 			flagPatch = v.cachePatch($)
 			v.drawCropped(
-				160*FRACUNIT + (160*FRACUNIT - result.x) - 46*result.scale,
+				result.x - 46*result.scale,
 				result.y - 31*result.scale,
 				2*max(FRACUNIT/32, result.scale),
 				2*max(FRACUNIT/32, result.scale),
