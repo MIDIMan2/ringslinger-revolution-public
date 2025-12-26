@@ -394,8 +394,17 @@ LevelName = Legacy Sanctuary
 SubTitle = RSR Legacy: Celestial Sanctuary
 Music = OLDAGZ
 TypeOfLevel = RSRMatch,RSRTag
-NextLevel = P0
+NextLevel = PD
 SkyNum = 40
+SelectHeading = RSR Classic
+
+Level PD
+LevelName = Legacy Lake
+SubTitle = RSR Legacy: Granite Lake
+Music = OLDGLZ
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = P0
+SkyNum = 2
 SelectHeading = RSR Classic
 
 Level H0
