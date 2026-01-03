@@ -12,7 +12,7 @@ RSR.AddWeapon("BOUNCE", {
 	ammotype = RSR.AMMO_BOUNCE,
 	ammoamount = 16,
 	ammoalt = 3,
-	class = 4,
+	class = 6,
 	delay = 7,
 	delayspeed = 4,
 	delayalt = 35,

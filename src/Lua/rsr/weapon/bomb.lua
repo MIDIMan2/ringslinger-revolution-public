@@ -11,7 +11,7 @@ RSR.AddWeapon("BOMB", {
 	ammotype = RSR.AMMO_BOMB,
 	ammoamount = 10,
 	ammoalt = 3,
-	class = 6,
+	class = 4,
 	delay = 36,
 	delayspeed = 18,
 	delayalt = 70,
