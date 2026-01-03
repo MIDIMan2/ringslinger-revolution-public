@@ -32,6 +32,15 @@ RSR.WavesMapLoad = function()
 			table.insert(RSR.WAVE_LINEDEFTAGS, tonumber(tString))
 		end
 	end
+	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrwavenumber then
+		for tString in string.gmatch(mapheaderinfo[gamemap].rsrwavenumber, "[^,]+") do
+			if tonumber(tString) == nil then
+				print("\x82WARNING:\x80 Bad RSRWaveNumber parameter provided! Are you sure the LevelHeader supplies an integer for rsrwavenumber?")
+				continue
+			end
+			RSR.WAVE_NUM_MAX = tonumber(tString)
+		end
+	end
 end
 
 RSR.WavesThinkFrame = function()
