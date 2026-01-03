@@ -50,30 +50,55 @@ end
 --- Fires the player's current weapon.
 ---@param player player_t
 RSR.FireWeapon = function(player)
-	if not (RSR.IsPSpritesValid(player) and Valid(player.mo)) then return end
+	if RSR.CV_StrangerRings.value then -- Fire the alt weapon if StrangerRings is enabled
+		if not (RSR.IsPSpritesValid(player) and Valid(player.mo)) then return end
 
-	if not RSR.CheckAmmo(player) then return end
-	if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attack == nil then return end
+		local ammoAlt = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt
+		if not RSR.CheckAmmo(player, nil, ammoAlt) then
+			-- Make sure the player doesn't have infinity and any ammo
+			if not (RSR.HasPowerup(player, RSR.POWERUP_INFINITY) and RSR.CheckAmmo(player)) then return end
+		end
+		if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attackalt == nil then return end
 
-	PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attack)
-	player.drawangle = player.mo.angle
+		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attackalt)
+		player.drawangle = player.mo.angle
+		return true
+	else
+		if not (RSR.IsPSpritesValid(player) and Valid(player.mo)) then return end
+
+		if not RSR.CheckAmmo(player) then return end
+		if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attack == nil then return end
+
+		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attack)
+		player.drawangle = player.mo.angle
+	end
 end
 
 --- Fires the player current weapon using its altfire.
 ---@param player player_t
 RSR.FireWeaponAlt = function(player)
-	if not (RSR.IsPSpritesValid(player) and Valid(player.mo)) then return end
+	if RSR.CV_StrangerRings.value then -- Fire the normal weapon if StrangerRings is enabled
+		if not (RSR.IsPSpritesValid(player) and Valid(player.mo)) then return end
 
-	local ammoAlt = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt
-	if not RSR.CheckAmmo(player, nil, ammoAlt) then
-		-- Make sure the player doesn't have infinity and any ammo
-		if not (RSR.HasPowerup(player, RSR.POWERUP_INFINITY) and RSR.CheckAmmo(player)) then return end
+		if not RSR.CheckAmmo(player) then return end
+		if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attack == nil then return end
+
+		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attack)
+		player.drawangle = player.mo.angle
+	else
+		if not (RSR.IsPSpritesValid(player) and Valid(player.mo)) then return end
+
+		local ammoAlt = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt
+		if not RSR.CheckAmmo(player, nil, ammoAlt) then
+			-- Make sure the player doesn't have infinity and any ammo
+			if not (RSR.HasPowerup(player, RSR.POWERUP_INFINITY) and RSR.CheckAmmo(player)) then return end
+		end
+		if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attackalt == nil then return end
+
+		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attackalt)
+		player.drawangle = player.mo.angle
+		return true
 	end
-	if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attackalt == nil then return end
-
-	PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attackalt)
-	player.drawangle = player.mo.angle
-	return true
 end
 
 --- Checks if the player's pendingWeapon variable is not -1, then draws the weapon.

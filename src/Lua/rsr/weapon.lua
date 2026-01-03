@@ -118,7 +118,7 @@ end
 ---@param ignoreInfinity boolean|nil If true, ammo will be taken away even if the player has the infinity powerup.
 RSR.TakeAmmo = function(player, amount, ammoType, ignoreInfinity)
 	if not (Valid(player) and player.rsrinfo) then return end
-	if not ignoreInfinity and RSR.HasPowerup(player, RSR.POWERUP_INFINITY) then return end -- Don't deplete ammo if the player has the infinity powerup
+	if (RSR.CV_InfiniteAmmo == "TooMuch") or (not ignoreInfinity and (RSR.HasPowerup(player, RSR.POWERUP_INFINITY) or RSR.CV_InfiniteAmmo == "On")) then return end -- Don't deplete ammo if the player has the infinity powerup or InfiniteAmmo is on. Don't even bother running ignoreInfinity if InfiniteAmmo is set to "TooMuch"
 	amount = $ or 0
 
 	local rsrinfo = player.rsrinfo

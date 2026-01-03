@@ -88,8 +88,8 @@ RSR.PlayerInit = function(player)
 
 	RSR.PlayerSetChasecam(player, false)
 
-	-- Reset normalspeed in case the attraction shield messed with it
-	player.normalspeed = skins[player.skin].normalspeed
+	-- (DEPRECATED) Reset normalspeed in case the attraction shield messed with it
+	-- player.normalspeed = skins[player.skin].normalspeed
 	-- rsrinfo.boostNormalspeed = false
 
 	player.rsrPrevSkin = player.skin

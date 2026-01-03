@@ -14,6 +14,8 @@ RSR.MAX_HEALTH_BONUS = 200
 RSR.MAX_ARMOR_BONUS = 200
 RSR.MAX_HYPE = 3000
 
+RSR.MAX_REAPING = 50
+
 RSR.GAMETYPE_INFO = {}
 
 --- Makes the given gametype use RSR logic.

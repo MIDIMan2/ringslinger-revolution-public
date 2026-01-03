@@ -12,10 +12,13 @@ RSR.GiveHealth = function(player, health, isBonus)
 	if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].nodamage then return false end
 	if health == nil then health = 1 end
 
-	if not isBonus and player.rsrinfo.health >= RSR.MAX_HEALTH then return false end
+	if not RSR.CV_LimitBreak.value then -- Change the health threshold for doing nothing based on LimitBreak value
+		if not isBonus and player.rsrinfo.health >= RSR.MAX_HEALTH then return false end
+	else
+		if player.rsrinfo.health >= RSR.MAX_HEALTH_BONUS then return false end
 
 	local maxHealth = RSR.MAX_HEALTH
-	if isBonus then maxHealth = RSR.MAX_HEALTH_BONUS end
+	if isBonus or RSR.CV_LimitBreak.value then maxHealth = RSR.MAX_HEALTH_BONUS end -- Allow healing past max if using Megasphere or LimitBreak
 
 	player.rsrinfo.health = min($ + health, maxHealth)
 	return true
@@ -31,10 +34,13 @@ RSR.GiveArmor = function(player, armor, isBonus)
 	if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].nodamage then return false end
 	if armor == nil then armor = 1 end
 
-	if not isBonus and player.rsrinfo.armor >= RSR.MAX_ARMOR then return false end
+	if not RSR.CV_LimitBreak.value then -- Change the armor threshold for doing nothing based on LimitBreak value
+		if not isBonus and player.rsrinfo.armor >= RSR.MAX_ARMOR then return false end
+	else
+		if player.rsrinfo.armor >= RSR.MAX_ARMOR_BONUS then return false end
 
-	local maxArmor = RSR.MAX_HEALTH
-	if isBonus then maxArmor = RSR.MAX_ARMOR_BONUS end
+	local maxArmor = RSR.MAX_ARMOR
+	if isBonus or RSR.CV_LimitBreak.value then maxArmor = RSR.MAX_ARMOR_BONUS end -- Allow healing past max if using Megasphere or LimitBreak
 
 	player.rsrinfo.armor = min($ + armor, maxArmor)
 	return true

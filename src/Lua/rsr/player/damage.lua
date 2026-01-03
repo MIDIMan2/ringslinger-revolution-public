@@ -336,50 +336,83 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	end
 	local hadArmor = false
 	-- Attraction Shield grants you damage resistance
-	if shield == SH_ATTRACT then
+	if shield == SH_ATTRACT and (RSR.CV_ShieldEffects == "Passive" or RSR.CV_ShieldEffects == "All") then -- Disable this if ShieldEffects disables passives
 		damage = $ * 3 / 4
 	end
 	-- Health saving while you have armor
 	if rsrinfo.armor and not player.powers[pw_super] then
-		saved = damage/2
+		if RSR.CV_ArmorSwitch.value then -- Second healthbar logic for ArmorSwitch
+			if damage > rsrinfo.armor then
+				damage = $ - rsrinfo.armor
+				rsrinfo.armor = 0
+				S_StartSound(player.mo, sfx_rsrcrk)
+			else
+				rsrinfo.armor = $ - damage
+				damage = 0
+			end
 
-		-- (DEPRECATED) Attraction Shield is less affected by armor loss than other shields (it still only saves the same amount of health though)
-		-- if (player.powers[pw_shield] & SH_ATTRACT) then
-		--	shieldSaved = saved * 3 / 4
-		-- else
-		--	shieldSaved = saved
-		-- end
+			if Valid(inflictor) then
+				for i = 0, 3 do
+					local spark = P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(target.height, target.scale)/2, MT_SUPERSPARK)
+					if Valid(spark) then
+						spark.dontdrawforviewmobj = target
+						spark.scale = FixedMul($, 2*FRACUNIT/3)
+						-- Randomize the spark's momentum
+						spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
+						spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
+						spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
+						if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
+						if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
+						if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
 
-		saved = min($, rsrinfo.armor)
-
-		rsrinfo.armor = max($ - saved, 0) -- Make sure armor doesn't go below 0
-		if rsrinfo.armor < 1 then -- If the player runs out of armor, play the shieldbreak sound
-			hadArmor = true
-			S_StartSound(player.mo, sfx_rsrcrk)
+						-- Make the spark shrink to scale 0 in roughly 1/3rd of a second
+						spark.scalespeed = spark.scale/12
+						spark.destscale = 0
+						spark.tics = 12
+					end
+				end
+			end
 		else
-			hurtSound = sfx_rsraht
-			serverHurtSound = sfx_rsrsmp
-		end
-		damage = $ - saved
+			saved = damage/2
 
-		if Valid(inflictor) then
-			for i = 0, 3 do
-				local spark = P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(target.height, target.scale)/2, MT_SUPERSPARK)
-				if Valid(spark) then
-					spark.dontdrawforviewmobj = target
-					spark.scale = FixedMul($, 2*FRACUNIT/3)
-					-- Randomize the spark's momentum
-					spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
-					spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
-					spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
-					if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
-					if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
-					if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+			-- (DEPRECATED) Attraction Shield is less affected by armor loss than other shields (it still only saves the same amount of health though)
+			-- if (player.powers[pw_shield] & SH_ATTRACT) then
+			--	shieldSaved = saved * 3 / 4
+			-- else
+			--	shieldSaved = saved
+			-- end
 
-					-- Make the spark shrink to scale 0 in roughly 1/3rd of a second
-					spark.scalespeed = spark.scale/12
-					spark.destscale = 0
-					spark.tics = 12
+			saved = min($, rsrinfo.armor)
+
+			rsrinfo.armor = max($ - saved, 0) -- Make sure armor doesn't go below 0
+			if rsrinfo.armor < 1 then -- If the player runs out of armor, play the shieldbreak sound
+				hadArmor = true
+				S_StartSound(player.mo, sfx_rsrcrk)
+			else
+				hurtSound = sfx_rsraht
+				serverHurtSound = sfx_rsrsmp
+			end
+			damage = $ - saved
+
+			if Valid(inflictor) then
+				for i = 0, 3 do
+					local spark = P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(target.height, target.scale)/2, MT_SUPERSPARK)
+					if Valid(spark) then
+						spark.dontdrawforviewmobj = target
+						spark.scale = FixedMul($, 2*FRACUNIT/3)
+						-- Randomize the spark's momentum
+						spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
+						spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
+						spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
+						if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
+						if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
+						if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+
+						-- Make the spark shrink to scale 0 in roughly 1/3rd of a second
+						spark.scalespeed = spark.scale/12
+						spark.destscale = 0
+						spark.tics = 12
+					end
 				end
 			end
 		end
@@ -413,7 +446,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		RSR.SetScreenFade(player, 35, FRACUNIT, TICRATE)
 	end
 
-	if shield then
+	if shield and (RSR.CV_ShieldEffects == "Passive" or RSR.CV_ShieldEffects == "All") then -- Disable this if ShieldEffects disables passives
 		-- Reflect projectiles if the player has a Force Shield (also causes homing rings to rebel against their master)
 		if (player.powers[pw_shield] & SH_FORCE) and Valid(inflictor) and (inflictor.flags & MF_MISSILE)
 		and not ((infInfo and (infInfo.dontreflect or infInfo.explosive)) or (inflictor.flags & (MF_ENEMY|MF_GRENADEBOUNCE))) then
@@ -802,6 +835,27 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 					P_AddPlayerScore(sourcePlayer, 100)
 				end
 			end
+			
+			if Valid(sourcePlayer) then -- Only run this if a player is the source of this kill. Placed here to ensure all other health/armor-granting routines run before TheReaping
+				if RSR.CV_TheReaping.value then -- TheReaping is on
+					local reapingHealth = RSR.MAX_REAPING
+					local reapingArmor = 0
+					if RSR.CV_LimitBreak.value then -- Allow TheReaping to overheal with LimitBreak
+						if sourcePlayer.rsrinfo.health > (RSR.MAX_HEALTH + RSR.MAX_REAPING) then
+							reapingHealth = RSR.MAX_HEALTH_BONUS - sourcePlayer.rsrinfo.health
+							reapingArmor = RSR.MAX_REAPING - reapingHealth
+						end
+					else
+						if RSR.MAX_REAPING < sourcePlayer.rsrinfo.health =< 100 then
+							reapingHealth = RSR.MAX_HEALTH - sourcePlayer.rsrinfo.health
+							reapingArmor = RSR.MAX_REAPING - reapingHealth
+						end
+					end
+					-- Give bonus health and armor when killing an enemy player if TheReaping is on
+					RSR.GiveHealth(sourcePlayer, reapingHealth)
+					RSR.GiveArmor(sourcePlayer, reapingArmor)
+				end
+			end
 
 			-- Points are already awarded to seekers in H&S if a player dies
 			if not wasHiding and Valid(sourcePlayer) and #rsrinfo.attackerInfo > 1 then
@@ -917,14 +971,16 @@ RSR.PlayerMelee = function(pmo, pmo2)
 
 	-- Damage values are stored in RSR.SHIELD_INFO (located in rsr/base/info.lua)
 	-- -MIDIMan
-	if ((shield ~= SH_ATTRACT and (player.pflags & PF_SHIELDABILITY)) or (shield == SH_ATTRACT and player.rsrinfo.homing))
-	and RSR.SHIELD_INFO[shield] and RSR.SHIELD_INFO[shield].meleedamage then
-		meleeBaseDamage = RSR.SHIELD_INFO[shield].meleedamage
-	end
+	if (RSR.CV_ShieldEffects == "Passive" or RSR.CV_ShieldEffects == "All") then -- Disable this if ShieldEffects disables passives
+		if ((shield ~= SH_ATTRACT and (player.pflags & PF_SHIELDABILITY)) or (shield == SH_ATTRACT and player.rsrinfo.homing))
+		and RSR.SHIELD_INFO[shield] and RSR.SHIELD_INFO[shield].meleedamage then
+			meleeBaseDamage = RSR.SHIELD_INFO[shield].meleedamage
+		end
 
-	if ((shield2 ~= SH_ATTRACT and (player2.pflags & PF_SHIELDABILITY)) or (shield2 == SH_ATTRACT and player2.rsrinfo.homing))
-	and RSR.SHIELD_INFO[shield2] and RSR.SHIELD_INFO[shield2].meleedamage then
-		meleeBaseDamage2 = RSR.SHIELD_INFO[shield2].meleedamage
+		if ((shield2 ~= SH_ATTRACT and (player2.pflags & PF_SHIELDABILITY)) or (shield2 == SH_ATTRACT and player2.rsrinfo.homing))
+		and RSR.SHIELD_INFO[shield2] and RSR.SHIELD_INFO[shield2].meleedamage then
+			meleeBaseDamage2 = RSR.SHIELD_INFO[shield2].meleedamage
+		end
 	end
 
 	-- Invincibility or Super: x3 damage

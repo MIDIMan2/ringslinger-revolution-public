@@ -24,9 +24,86 @@ RSR.CV_InstaGib = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
+-- Makes armor act as a second health bar
+RSR.CV_ArmorSwitch = CV_RegisterVar({
+	name = "rsr_armorswitch",
+	defaultvalue = "False",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_TrueFalse
+})
+
 -- Makes players lose their emeralds when "de-supering"
 RSR.CV_SuperBurnout = CV_RegisterVar({
 	name = "rsr_superburnout",
+	defaultvalue = "False",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_TrueFalse
+})
+
+-- Sets superweapons that spawn in the map. Random respawns a random one each time, Alternate goes back and forth between both each respawn
+-- TODO: implementation at all, this will have to come later when BFR exists. BFR is here but very, very unfinished
+RSR.CV_Superweapon = CV_RegisterVar({
+	name = "rsr_superweapon",
+	defaultvalue = "Rail",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = {"Rail","BFR","Random","Alternate","None"}
+})
+
+-- Sets power-rings that spawn in the map. Random respawns a random one each time, Alternate goes back and forth between both each respawn
+-- TODO: implementation at all, this will have to come later when Quad Damage exists
+RSR.CV_PowerRing = CV_RegisterVar({
+	name = "rsr_powerring",
+	defaultvalue = "Infinity",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = {"Infinity","QuadDamage","Random","Alternate","None"}
+})
+
+-- Toggles what part of Shield Effects is valid, if any
+-- TODO: still need to figure out how to properly disable shield actives, if that can even be done
+RSR.CV_ShieldEffects = CV_RegisterVar({
+	name = "rsr_shieldeffects",
+	defaultvalue = "All",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = {"All","Passive","Active","None"}
+})
+
+-- Makes players explode when killed
+-- TODO: implementation at all
+RSR.CV_LastLaugh = CV_RegisterVar({
+	name = "rsr_lastlaugh",
+	defaultvalue = "False",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_TrueFalse
+})
+
+-- Makes firing weapons cost no munitions. "TooMuch" enables infinite superweapons...
+RSR.CV_InfiniteAmmo = CV_RegisterVar({
+	name = "rsr_infiniteammo",
+	defaultvalue = "Off",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = {"Off","On","TooMuch"}
+})
+
+-- Makes players gain 50 EHP when scoring a kill
+RSR.CV_TheReaping = CV_RegisterVar({
+	name = "rsr_thereaping",
+	defaultvalue = "False",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_TrueFalse
+})
+
+-- Allows players to heal past 100
+RSR.CV_LimitBreak = CV_RegisterVar({
+	name = "rsr_limitbreak",
+	defaultvalue = "False",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_TrueFalse
+})
+
+-- Inverts the normal and alternate firemodes
+-- TODO: this is probably bugged. Should this affect the superweapons?
+RSR.CV_StrangerRings = CV_RegisterVar({
+	name = "rsr_strangerrings",
 	defaultvalue = "False",
 	flags = CV_NETVAR|CV_SHOWMODIF,
 	PossibleValue = CV_TrueFalse

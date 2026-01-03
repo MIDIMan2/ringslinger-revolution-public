@@ -247,6 +247,7 @@ RSR.PlayerShieldSpecial = function(player)
 	if not RSR.GamemodeActive() then return end
 	if not G_RingSlingerGametype() then return end
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
+	if not (RSR.CV_ShieldEffects == "Active" or RSR.CV_ShieldEffects == "All") then return end -- Only do this if ShieldEffects allows shield actives
 
 	if player.powers[pw_super] or (player.pflags & PF_SPINDOWN) -- TODO: Replace PF_SPINDOWN when 2.3 comes out(?)
 	or ((player.pflags & PF_THOKKED) and not ((player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT and player.secondjump == UINT8_MAX)) then
