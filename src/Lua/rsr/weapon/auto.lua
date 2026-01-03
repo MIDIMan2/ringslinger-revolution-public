@@ -43,7 +43,7 @@ mobjinfo[MT_RSR_PROJECTILE_AUTO] = {
 	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 14,
+	damage = 10,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
@@ -143,8 +143,8 @@ pspractions.A_AutoAttackAlt = function(player, args)
 	local angle = player.mo.angle
 	local pitch = player.cmd.aiming<<16
 	for i = 0, 2 do
-		local angleOffset = FixedAngle(P_RandomRange(5,-5)*FRACUNIT/2) -- Random horizontal spread between 2.5 and -2.5 degrees
-		local pitchOffset = FixedAngle(P_RandomRange(4,-4)*FRACUNIT/2) -- Random vertical spread between 2 and -2 degrees
+		local angleOffset = FixedAngle(P_RandomRange(6,-6)*FRACUNIT/2) -- Random horizontal spread between 3 and -3 degrees
+		local pitchOffset = FixedAngle(P_RandomRange(3,-3)*FRACUNIT/2) -- Random vertical spread between 1.5 and -1.5 degrees
 		local leadSplit = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_AUTO_SNP, angle + angleOffset, pitch + pitchOffset)
 		if Valid(leadSplit) then
 			-- Make it smaller
