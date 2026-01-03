@@ -40,7 +40,7 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE] = {
 	spawnstate = S_RSR_PROJECTILE_GRENADE,
 	seesound = sfx_grndfr,
 -- 	reactiontime = 2*TICRATE + 2,
-	reactiontime = 55,
+	reactiontime = 47,
 	attacksound = sfx_gbeep,
 	painchance = 192*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
@@ -48,7 +48,7 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE] = {
 	speed = 50*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 35,
+	damage = 9,
 	activesound = sfx_s3k5d,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_BOUNCE|MF_GRENADEBOUNCE
 }
