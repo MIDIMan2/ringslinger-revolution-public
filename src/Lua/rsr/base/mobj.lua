@@ -165,6 +165,50 @@ A_RSRRingExplode = function(mo, var1, var2)
 	end
 end
 
+--- Variant of RSRRingExplode that should have reduced CPU cost.
+--- TODO: make this look good
+---@param mo mobj_t
+A_RSRRingExplodeLowIntensity = function(mo, var1, var2)
+	if not Valid(mo) then return end
+
+	local sparkleState = S_NULL
+	if G_GametypeHasTeams() and Valid(mo.target) and Valid(mo.target.player) then
+		if mo.target.player.ctfteam == 1 then
+			sparkleState = S_NIGHTSPARKLESUPER1 -- Red
+		end
+	elseif RSR.MOBJ_INFO[mo.type] and RSR.MOBJ_INFO[mo.type].sparklestate then
+		sparkleState = RSR.MOBJ_INFO[mo.type].sparklestate
+	end
+
+	for i = 0, 3 do
+		local spark = P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(target.height, target.scale), sparkleState)
+		if Valid(spark) then
+			spark.dontdrawforviewmobj = target
+			spark.scale = FixedMul($, 2*FRACUNIT/3)
+			-- Randomize the spark's momentum
+			spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
+			spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
+			spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
+			if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
+			if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
+			if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+
+			-- Make the spark shrink to scale 0 in roughly 1 second
+			spark.scalespeed = spark.scale/2
+			spark.destscale = 0
+			spark.tics = 35
+		end
+	end
+	S_StartSound(mo, sfx_prloop)
+
+	if RSR.MOBJ_INFO[mo.type] then
+		local rsrMobjInfo = RSR.MOBJ_INFO[mo.type]
+		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime, rsrMobjInfo.fulldamage, rsrMobjInfo.thrustdamage, rsrMobjInfo.aimthrust)
+	else
+		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime)
+	end
+end
+
 states[S_RSR_RINGEXPLODE] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
 
 states[S_RSR_XPLD1] =		{SPR_BOM1,	A,				2,	A_ShadowScream,	0,	0,	S_RSR_XPLD2}

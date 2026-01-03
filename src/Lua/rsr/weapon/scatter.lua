@@ -19,7 +19,7 @@ RSR.AddWeapon("SCATTER", {
 	emerald = EMERALD2,
 	icon = "RSRSCTRI",
 	name = "Scatter Ring",
-	namealt = "Mass Slug",
+	namealt = "Mass Scrambler",
 	pickup = MT_RSR_PICKUP_SCATTER,
 	states = {
 		draw = "S_SCATTER_DRAW",
@@ -57,24 +57,33 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_SCATTER,
 	seesound = sfx_sctrfr,
-	deathstate = S_RSR_SPARK,
-	deathsound = sfx_itemup,
+	reactiontime = 10,
+	painchance = 64*FRACUNIT,
+	deathstate = S_RSR_RINGEXPLODE,
+	deathsound = sfx_pop,
 	speed = 45*FRACUNIT,
 	radius = 22*FRACUNIT,
 	height = 22*FRACUNIT,
-	damage = 16,
-	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
+	damage = 2,
+	flags = MF_NOBLOCKMAP|MF_MISSILE
 }
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
-addHook("MobjThinker", RSR.ProjectileGhostTimer, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
+addHook("MobjThinker", function(mo)
+	if not Valid(mo) then return end
+	if mo.health <= 0 then return end
+	if not (mo.flags & MF_MISSILE) then return end
+
+	-- Smoke particles
+	RSR.ProjectileGhostTimer(mo, true)
+end, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 
 -- --------------------------------
 -- ALTFIRE PROJECTILE
 -- --------------------------------
 
---- Specialized version of P_ExplodeMissile that handles the Mass Slug's speed.
+--- Specialized version of P_ExplodeMissile that handles the Mass Scrambler's speed.
 ---@param mo mobj_t
 RSR.ScatterFlakExplode = function(mo)
 	if not Valid(mo) then return end
@@ -85,7 +94,7 @@ RSR.ScatterFlakExplode = function(mo)
 	P_ExplodeMissile(mo)
 end
 
---- Shoots a slightly more concentrated Scatter cluster.
+--- Shoots a wide spread of twelve explosive submunitions.
 ---@param actor mobj_t
 RSR.A_ScatterFlakCannon = function(actor, var1, var2)
 	if not Valid(actor) then return end
@@ -143,32 +152,19 @@ RSR.A_ScatterFlakCannon = function(actor, var1, var2)
 	local flakPitchOffset = FixedAngle(4*FRACUNIT/2) -- 1.0 * ANG2, roughly
 	local flakSpeed = FixedHypot(FixedHypot(actor.rsrPrevMomX or 0, actor.rsrPrevMomY or 0), actor.rsrPrevMomZ or 0)
 
-	for i = -1, 1 do
-		if i == 0 then -- When the central projectile is spawned, iterate 3 times
-			for j = -1, 1 do -- Modulate pitch instead of angle
-				local flakShot = P_SpawnMobjFromMobj(actor, 0, 0, actor.info.height/2, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
-				if Valid(flakShot) then
-					if actor.rsrOrigScale then flakShot.scale = actor.rsrOrigScale end
-					flakShot.angle = actor.angle
-					flakShot.pitch = actor.pitch + (flakPitchOffset * j)
-					flakShot.target = actor.target -- Don't let players hurt themselves with a Mass Slug
-					flakShot.rsrProjectile = true
-					if Valid(flakShot.target) then RSR.ColorTeamMissile(flakShot, flakShot.target.player) end
+	for i = 0, 2 do
+		local flakAngleOffset = FixedAngle(P_RandomRange(10,-10)*FRACUNIT/2) -- Random horizontal spread between 10 and -10 degrees
+		local flakPitchOffset = FixedAngle(P_RandomRange(7,-7)*FRACUNIT/2) -- Random vertical spread between 7 and -7 degrees
+		local flakShot = P_SpawnMobjFromMobj(actor, 0, 0, actor.info.height/2, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
+		if Valid(flakShot) then
+			if actor.rsrOrigScale then flakShot.scale = actor.rsrOrigScale end
+			flakShot.angle = actor.angle + (flakAngleOffset)
+			flakShot.pitch = actor.pitch + (flakPitchOffset)
+			flakShot.target = actor.target -- Don't let players hurt themselves with a Mass Scrambler
+			flakShot.rsrProjectile = true
+			if Valid(flakShot.target) then RSR.ColorTeamMissile(flakShot, flakShot.target.player) end
 
-					RSR.MoveMissile(flakShot, flakShot.angle, flakShot.pitch, flakSpeed)
-				end
-			end
-		else -- Modulate angle this time
-			local flakShot = P_SpawnMobjFromMobj(actor, 0, 0, actor.info.height/2, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
-			if Valid(flakShot) then
-				if actor.rsrOrigScale then flakShot.scale = actor.rsrOrigScale end
-				flakShot.angle = actor.angle + (flakAngleOffset * i)
-				flakShot.pitch = actor.pitch
-				flakShot.target = actor.target -- Don't let players hurt themselves with a Mass Slug
-				flakShot.rsrProjectile = true
-				if Valid(flakShot.target) then RSR.ColorTeamMissile(flakShot, flakShot.target.player) end
-
-				RSR.MoveMissile(flakShot, flakShot.angle, flakShot.pitch, flakSpeed)
+			RSR.MoveMissile(flakShot, flakShot.angle, flakShot.pitch, flakSpeed)
 			end
 		end
 	end
@@ -386,7 +382,7 @@ end
 pspractions.A_ScatterAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
-	-- Hack to prevents the recover action from immediately detonating the Goldburster ring
+	-- Hack to prevents the recover action from immediately detonating the slug
 	player.rsrinfo.lastbuttons = $|BT_FIRENORMAL
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
