@@ -565,6 +565,9 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 		return false
 	else
 		-- Force death if the player's health is 0
+		if RSR.CV_LastLaugh.value then
+			P_SpawnMobjFromMobj(player, 0, 0, player.info.height/2, MT_RSR_PROJECTILE_SUPERBOMB_MISSILEFORM)
+		end
 		if not (damagetype & DMG_DEATHMASK) then
 -- 			player.rsrinfo.removeDeathMask = true
 			player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK
