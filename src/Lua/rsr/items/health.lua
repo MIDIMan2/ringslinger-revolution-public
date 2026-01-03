@@ -6,7 +6,8 @@
 ---@param player player_t
 ---@param health integer Amount of health to give the player (Default is 1).
 ---@param isBonus boolean|nil If true, the player's health will go past 100 and up to 200.
-RSR.GiveHealth = function(player, health, isBonus)
+---@param lowMod boolean|nil If true, recovers an additional flat 5 health if the player's health and armor combined are below 40.
+RSR.GiveHealth = function(player, health, isBonus, lowMod)
 	if not (Valid(player) and player.rsrinfo) then return false end
 	-- Don't run this function if the player's skin has been exempt from the damage system
 	if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].nodamage then return false end
@@ -17,7 +18,11 @@ RSR.GiveHealth = function(player, health, isBonus)
 	local maxHealth = RSR.MAX_HEALTH
 	if isBonus then maxHealth = RSR.MAX_HEALTH_BONUS end
 
-	player.rsrinfo.health = min($ + health, maxHealth)
+	if lowMod then
+		player.rsrinfo.armor = min($ + health + 8, maxHealth)
+	else
+		player.rsrinfo.armor = min($ + health, maxHealth)
+	end
 	return true
 end
 
@@ -25,7 +30,8 @@ end
 ---@param player player_t
 ---@param armor integer Amount of armor to give the player (Default is 1).
 ---@param isBonus boolean|nil If true, the player's armor will go past 100 and up to 200.
-RSR.GiveArmor = function(player, armor, isBonus)
+---@param lowMod boolean|nil If true, recovers an additional flat 5 armor if the player's health and armor combined are below 40.
+RSR.GiveArmor = function(player, armor, isBonus, lowMod)
 	if not (Valid(player) and player.rsrinfo) then return false end
 	-- Don't run this function if the player's skin has been exempt from the damage system
 	if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].nodamage then return false end
@@ -35,8 +41,12 @@ RSR.GiveArmor = function(player, armor, isBonus)
 
 	local maxArmor = RSR.MAX_HEALTH
 	if isBonus then maxArmor = RSR.MAX_ARMOR_BONUS end
-
-	player.rsrinfo.armor = min($ + armor, maxArmor)
+	
+	if lowMod then
+		player.rsrinfo.armor = min($ + armor + 8, maxArmor)
+	else
+		player.rsrinfo.armor = min($ + armor, maxArmor)
+	end
 	return true
 end
 
