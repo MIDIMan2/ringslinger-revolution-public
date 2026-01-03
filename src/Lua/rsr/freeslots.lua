@@ -58,6 +58,8 @@ freeslot(
 	"sfx_rsrsp1",
 	"sfx_rsrsp2",
 	"sfx_rsrsp3",
+	"sfx_rsrhlk", -- Created by orbitalviolet
+	"sfx_rsralk", -- Created by orbitalviolet
 	"sfx_wvstrt",
 	"sfx_wvdone",
 	"sfx_wvpass"
@@ -345,6 +347,10 @@ sfxinfo[sfx_rsrkil].caption = "Scored kill!"
 sfxinfo[sfx_rsrsp1].caption = "Player spawned"
 sfxinfo[sfx_rsrsp2].caption = "Enemy spawned"
 sfxinfo[sfx_rsrsp3].caption = "Item respawned"
+
+-- Powers
+sfxinfo[sfx_rsrhlk].caption = "Homing attack incoming!"
+sfxinfo[sfx_rsralk].caption = "Attraction Shot incoming!"
 
 -- Waves
 sfxinfo[sfx_wvstrt].caption = "Wave start..."

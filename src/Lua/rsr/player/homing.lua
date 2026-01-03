@@ -273,6 +273,7 @@ RSR.PlayerShieldSpecial = function(player)
 		player.rsrinfo.homing = 3*TICRATE
 	else
 		S_StartSound(player.mo, sfx_s3ka6)
+		S_StartSound(player.mo.target, sfx_rsralk)
 	end
 
 	return true
@@ -325,6 +326,7 @@ RSR.PlayerAbilitySpecial = function(player)
 
 	if player.mo.info.attacksound and not player.spectator then
 		S_StartSound(player.mo, player.mo.info.attacksound)
+		S_StartSound(player.mo.target, sfx_rsrhlk)
 	end
 
 	P_SpawnThokMobj(player)
