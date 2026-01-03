@@ -163,9 +163,9 @@ RSR.A_ScatterFlakCannon = function(actor, var1, var2)
 			flakShot.target = actor.target -- Don't let players hurt themselves with a Mass Scrambler
 			flakShot.rsrProjectile = true
 			-- Make it smaller
-			flakShot.rsrOrigScale = leadSplit.scale
-			flakShot.scalespeed = leadSplit.scale
-			flakShot.destscale = leadSplit.scale/5
+			flakShot.rsrOrigScale = flakShot.scale
+			flakShot.scalespeed = flakShot.scale
+			flakShot.destscale = flakShot.scale/5
 			if Valid(flakShot.target) then RSR.ColorTeamMissile(flakShot, flakShot.target.player) end
 
 			RSR.MoveMissile(flakShot, flakShot.angle, flakShot.pitch, flakSpeed)
