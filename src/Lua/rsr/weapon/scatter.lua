@@ -10,7 +10,7 @@ RSR.AddAmmo("SCATTER", {
 RSR.AddWeapon("SCATTER", {
 	ammotype = RSR.AMMO_SCATTER,
 	ammoamount = 20,
-	ammoalt = 1,
+	ammoalt = 4,
 	class = 2,
 	delay = 31,
 	delayspeed = 16,
