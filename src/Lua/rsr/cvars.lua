@@ -109,6 +109,14 @@ RSR.CV_StrangerRings = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
+-- Causes players to regenerate 1 of something per second if enabled.
+RSR.CV_Medicine = CV_RegisterVar({
+	name = "rsr_medicine",
+	defaultvalue = "Off",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = {"Off", "Health", "Armor", "Overflow", "Reverse", "Alternating", "Both"}
+})
+
 COM_AddCommand("rsr_kill", function(player, _)
 	if not RSR.GamemodeActive() then
 		print("You must be in a Ringslinger Revolution level or gametype to use this.")
