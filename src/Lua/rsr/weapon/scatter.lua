@@ -152,7 +152,7 @@ RSR.A_ScatterFlakCannon = function(actor, var1, var2)
 	local flakPitchOffset = FixedAngle(4*FRACUNIT/2) -- 1.0 * ANG2, roughly
 	local flakSpeed = FixedHypot(FixedHypot(actor.rsrPrevMomX or 0, actor.rsrPrevMomY or 0), actor.rsrPrevMomZ or 0)
 
-	for i = 0, 2 do
+	for i = 0, 11 do
 		local flakAngleOffset = FixedAngle(P_RandomRange(10,-10)*FRACUNIT/2) -- Random horizontal spread between 10 and -10 degrees
 		local flakPitchOffset = FixedAngle(P_RandomRange(7,-7)*FRACUNIT/2) -- Random vertical spread between 7 and -7 degrees
 		local flakShot = P_SpawnMobjFromMobj(actor, 0, 0, actor.info.height/2, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
@@ -162,6 +162,10 @@ RSR.A_ScatterFlakCannon = function(actor, var1, var2)
 			flakShot.pitch = actor.pitch + (flakPitchOffset)
 			flakShot.target = actor.target -- Don't let players hurt themselves with a Mass Scrambler
 			flakShot.rsrProjectile = true
+			-- Make it smaller
+			flakShot.rsrOrigScale = leadSplit.scale
+			flakShot.scalespeed = leadSplit.scale
+			flakShot.destscale = leadSplit.scale/5
 			if Valid(flakShot.target) then RSR.ColorTeamMissile(flakShot, flakShot.target.player) end
 
 			RSR.MoveMissile(flakShot, flakShot.angle, flakShot.pitch, flakSpeed)
