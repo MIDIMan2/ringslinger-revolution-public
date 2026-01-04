@@ -57,14 +57,14 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_SCATTER,
 	seesound = sfx_sctrfr,
-	reactiontime = 10,
-	painchance = 64*FRACUNIT,
+	reactiontime = 12,
+	painchance = 80*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
 	speed = 45*FRACUNIT,
 	radius = 22*FRACUNIT,
 	height = 22*FRACUNIT,
-	damage = 2,
+	damage = 0,
 	flags = MF_NOBLOCKMAP|MF_MISSILE
 }
 
@@ -88,9 +88,9 @@ addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER_
 RSR.ScatterFlakExplode = function(mo)
 	if not Valid(mo) then return end
 
-	mo.rsrPrevMomX = mo.momx
-	mo.rsrPrevMomY = mo.momy
-	mo.rsrPrevMomZ = mo.momz
+	mo.rsrPrevMomX = mo.momx/2
+	mo.rsrPrevMomY = mo.momy/2
+	mo.rsrPrevMomZ = mo.momz/2
 	P_ExplodeMissile(mo)
 end
 
@@ -160,12 +160,11 @@ RSR.A_ScatterFlakCannon = function(actor, var1, var2)
 			if actor.rsrOrigScale then flakShot.scale = actor.rsrOrigScale end
 			flakShot.angle = actor.angle + (flakAngleOffset)
 			flakShot.pitch = actor.pitch + (flakPitchOffset)
-			flakShot.target = actor.target -- Don't let players hurt themselves with a Mass Scrambler
 			flakShot.rsrProjectile = true
 			-- Make it smaller
 			flakShot.rsrOrigScale = flakShot.scale
 			flakShot.scalespeed = flakShot.scale
-			flakShot.destscale = flakShot.scale/5
+			flakShot.destscale = flakShot.scale*2/7
 			if Valid(flakShot.target) then RSR.ColorTeamMissile(flakShot, flakShot.target.player) end
 
 			RSR.MoveMissile(flakShot, flakShot.angle, flakShot.pitch, flakSpeed)
