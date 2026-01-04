@@ -11,21 +11,21 @@ RSR.KILLFEED_DMG_INFO = {
 		icon = "RSRELEMI", -- TODO: Replace this with a clearer icon
 		obituaryMobj = {
 			attacker = "$a poisoned $v.",
-			solo = "$v was poisoned."
+			solo = "$v had too much poison to drink."
 		},
 		obituarySector = {
-			attacker = "$a gave $v too much poison to drink.",
-			solo = "$v had too much poison to drink."
+			attacker = "$a volunteered $v for the chemistry experiment.",
+			solo = "$v became a chemistry demonstration."
 		}
 	},
 	[DMG_FIRE] = {
 		icon = "RSRFLAMI",
 		obituaryMobj = {
-			attacker = "$a burnt $v.",
-			solo = "$v was burnt."
+			attacker = "$a incinerated $v.",
+			solo = "$v became very toasty."
 		},
 		obituarySector = {
-			attacker = "$a threw $v into the lava.",
+			attacker = "$a threw $v into lava.",
 			solo = "$v melted in lava."
 		}
 	},
@@ -65,15 +65,15 @@ RSR.KILLFEED_DMG_INFO = {
 	[DMG_SPACEDROWN] = {
 		icon = "RSRDROWN",
 		obituary = {
-			attacker = "$a drowned $v in space.",
-			solo = "$v drowned in space.",
+			attacker = "$a asphyxiated $v in space.",
+			solo = "$v asphyxiated.",
 		}
 	},
 	[DMG_DEATHPIT] = {
 		icon = "RSRPIT",
 		obituary = {
-			attacker = "$a knocked $v into a pit.",
-			solo = "$v fell into a pit.",
+			attacker = "$a gave $v a little push.",
+			solo = "$v experienced gravity.",
 		}
 	},
 	[DMG_CRUSHED] = {
@@ -199,7 +199,7 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 
 	local victimName = string.format("%s%s%s", RSR_CHATCOLORCODE(victim), victim.name, RSR_CHATCOLORENDCODE(victim))
 	local inflictorPatch = "RSREGGM" -- Always show Eggman for unknown causes of death
-	-- local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen (keeping this line as a comment, because it's funny -MIDIMan)
+	-- local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen. Indicates error if seen! (keeping this line as a comment, because it's funny -MIDIMan)
 	local obituary = "$v died."
 	local meleeRandInt = P_RandomRange(1,4)
 	local infReflected = false
@@ -228,10 +228,10 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 			if RSR.SHIELD_INFO[infShield].obituary then obituary = RSR.SHIELD_INFO[infShield].obituary end
 		elseif inflictor.player.powers[pw_super] then
 			inflictorPatch = "RSRSUPRI"
-			obituary = "$a's super form killed $v."
+			obituary = "$a's unlimited power bested $v."
 		elseif RSR.HasPowerup(inflictor.player, RSR.POWERUP_INVINCIBILITY) or inflictor.player.powers[pw_invulnerability] then
 			inflictorPatch = "RSRINVNI"
-			obituary = "$a's invincibility killed $v."
+			obituary = "$a's invincibility defeated $v."
 		elseif inflictor.player.charability2 == CA2_MELEE then
 			inflictorPatch = "RSRHAMMR"
 			obituary = "$a's Piko Piko Hammer whacked $v."
@@ -268,7 +268,7 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 
 	-- Alternative killfeed so players can see what they did in the logs
 	local newString = string.gsub(obituary, "(%$%w?)", {
-		["$a"] = attackerName or "The Shredded Cheese Man",
+		["$a"] = attackerName or "The Shredded Cheese Man", -- Error handler message! This shouldn't be seen!
 		["$r"] = infReflected and "reflected " or "",
 		["$v"] = victimName,
 	})
