@@ -94,7 +94,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON] = {
 	killfeedName = "Mass Scrambler",
 	killfeedObituary = {
 		attacker = "$a's $rMass Scrambler blasted $v.",
-		solo = "$v was blasted by a $rMass Slcrambler."
+		solo = "$v was blasted by a $rMass Scrambler."
 	}
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
@@ -105,8 +105,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	killfeedIcon = "RSRSCALI",
 	killfeedName = "Mass Scrambler bomblet",
 	killfeedObituary = {
-		attacker = "$a's $rMass Scrambler debris popped $v.",
-		solo = "$v was popped by $rMass Scrambler debris."
+		attacker = "$a's $rMass Scrambler debris scrambled $v.",
+		solo = "$v was scrambled by $rMass Scrambler debris."
 	}
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_AUTO] = {
