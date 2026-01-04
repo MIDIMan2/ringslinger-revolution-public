@@ -169,7 +169,6 @@ RSR.A_ScatterFlakCannon = function(actor, var1, var2)
 			if Valid(flakShot.target) then RSR.ColorTeamMissile(flakShot, flakShot.target.player) end
 
 			RSR.MoveMissile(flakShot, flakShot.angle, flakShot.pitch, flakSpeed)
-			end
 		end
 	end
 end
