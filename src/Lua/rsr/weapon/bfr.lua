@@ -19,7 +19,7 @@ RSR.AddWeapon("BFR", {
 	emerald = EMERALD1,
 	icon = "RSRRAILI",
 	name = "Bright Fluorescent Ring",
-	pickup = MT_RSR_PICKUP_RAIL,
+	pickup = MT_RSR_PICKUP_BFR,
 	powerweapon = true,
 	altzoom = true,
 	states = {
@@ -50,6 +50,8 @@ mobjinfo[MT_RSR_PROJECTILE_BFR] = {
 }
 
 states[S_RSR_PROJECTILE_BFR] =	{SPR_RSWS,	FF_FULLBRIGHT,	-1,	nil,	0,	0,	S_NULL}
+
+-- TODO: BFR inflicts DOT to nearby targets. Deals a regular blast on exploding. On exploding, all targets with LOS to the projectile AND the shooter take even more damage! For reference: Quake2 BFG-10000
 
 ---@param mo mobj_t
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_BFR)

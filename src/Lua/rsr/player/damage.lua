@@ -308,6 +308,17 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		end
 	end
 
+	-- Randomise damage if RandomDamage is enabled
+	if CV_RandomDamage == "Partial" then
+		local baseMod = damage * 3*FRACUNIT/4
+		local randomMod = P_RandomRange(0, damage/2)
+		damage = baseMod + randomMod
+	elseif CV_RandomDamage == "Doom" then
+		local doomMod = damage/8
+		local doomRandom = P_RandomRange(1, 8)
+		damage = doomRandom * doomMod
+	end
+
 	-- Set hurt timers for certain conditions
 	if hurtByEnemy then player.rsrinfo.hurtByEnemy = TICRATE end
 	if hurtByMelee then player.rsrinfo.hurtByMelee = TICRATE end

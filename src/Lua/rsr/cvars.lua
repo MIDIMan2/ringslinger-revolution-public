@@ -1,5 +1,13 @@
 -- Ringslinger Revolution - Console Variables/Commands
 
+-- Randomises all incoming damage to all entities through damage.lua. Parameters - None: all damage is fixed. Partial: all damage deals a fixed base portion added to a modulated random element. Doom: all damage is fully randomised akin to Doom '93
+RSR.CV_RandomDamage = CV_RegisterVar({
+	name = "rsr_randomdamage",
+	defaultvalue = "None",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = {"None","Partial","Doom"}
+})
+
 -- Lets homing rings target and kill spectators
 RSR.CV_Ghostbusters = CV_RegisterVar({
 	name = "rsr_ghostbusters",
@@ -40,13 +48,13 @@ RSR.CV_SuperBurnout = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
--- Sets superweapons that spawn in the map. Random respawns a random one each time, Alternate goes back and forth between both each respawn
+-- Sets superweapons that spawn in the map. Rail/BFR forces all superweapon spawnpoints to spawn Rail/BFR. AsMap doesn't override superweapon spawns (in case both are on the same map), Random respawns a random one each time, Alternate goes back and forth between both each respawn
 -- TODO: implementation at all, this will have to come later when BFR exists. BFR is here but very, very unfinished
 RSR.CV_Superweapon = CV_RegisterVar({
 	name = "rsr_superweapon",
 	defaultvalue = "Rail",
 	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = {"Rail","BFR","Random","Alternate","None"}
+	PossibleValue = {"Rail","BFR","AsMap","Random","Alternate","None"}
 })
 
 -- Sets power-rings that spawn in the map. Random respawns a random one each time, Alternate goes back and forth between both each respawn

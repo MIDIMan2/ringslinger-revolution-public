@@ -64,6 +64,7 @@ mobjinfo[MT_RSR_PROJECTILE_BOMB_MISSILEFORM] = {
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
+-- Not used by the Explosion weapon. Defined here due to being a modification of the MissileForm projectile; used in LastLaugh
 mobjinfo[MT_RSR_PROJECTILE_SUPERBOMB_MISSILEFORM] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_BOMB,
@@ -107,6 +108,7 @@ addHook("MobjThinker", function(mo)
 end, MT_RSR_PROJECTILE_BOMB_MISSILEFORM)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOMB_MISSILEFORM)
 
+-- Not used by the Explosion weapon. Defined here due to being a modification of the MissileForm projectile; used in LastLaugh
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_SUPERBOMB_MISSILEFORM)
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
