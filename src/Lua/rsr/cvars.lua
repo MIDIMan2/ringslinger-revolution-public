@@ -57,13 +57,13 @@ RSR.CV_Superweapon = CV_RegisterVar({
 	PossibleValue = {"Rail","BFR","AsMap","Random","Alternate","None"}
 })
 
--- Sets power-rings that spawn in the map. Random respawns a random one each time, Alternate goes back and forth between both each respawn
+-- Sets power-rings that spawn in the map. Infinity/QuadDamage forces all superweapon spawnpoints to spawn Infinity/QuadDamage. AsMap doesn't override power-ring spawns (in case both are on the same map), Random respawns a random one each time, Alternate goes back and forth between both each respawn
 -- TODO: implementation at all, this will have to come later when Quad Damage exists
 RSR.CV_PowerRing = CV_RegisterVar({
 	name = "rsr_powerring",
 	defaultvalue = "Infinity",
 	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = {"Infinity","QuadDamage","Random","Alternate","None"}
+	PossibleValue = {"Infinity","QuadDamage","AsMap","Random","Alternate","None"}
 })
 
 -- Toggles what part of Shield Effects is valid, if any
@@ -117,9 +117,9 @@ RSR.CV_StrangerRings = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
--- Causes players to regenerate 1 of something per second if enabled.
-RSR.CV_Medicine = CV_RegisterVar({
-	name = "rsr_medicine",
+-- Makes players to regenerate 1 of something per second if enabled
+RSR.CV_TitleCard = CV_RegisterVar({
+	name = "rsr_titlecard",
 	defaultvalue = "Off",
 	flags = CV_NETVAR|CV_SHOWMODIF,
 	PossibleValue = {"Off", "Health", "Armor", "Overflow", "Reverse", "Alternating", "Both"}

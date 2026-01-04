@@ -32,24 +32,24 @@ addHook("MobjThinker", function(mo)
 end, MT_RSR_DAMAGE_SPLATTER)
 
 addHook("PlayerThink", function(mo)
-	if (leveltime % 70 == 0) and RSR.CV_Medicine.value == "Alternating" then
+	if (leveltime % 70 == 0) and RSR.CV_TitleCard.value == "Alternating" then
 			RSR.GiveArmor(mo, 1)
 	end
     elseif (leveltime % 35 == 0) then
-		if RSR.CV_Medicine.value == "Health" or RSR.CV_Medicine.value == "Alternating" then
+		if RSR.CV_TitleCard.value == "Health" or RSR.CV_TitleCard.value == "Alternating" then
 			RSR.GiveHealth(mo, 1)
-		elseif RSR.CV_Medicine.value == "Armor" then
+		elseif RSR.CV_TitleCard.value == "Armor" then
 			RSR.GiveArmor(mo, 1)
-		elseif RSR.CV_Medicine.value == "Both" then
+		elseif RSR.CV_TitleCard.value == "Both" then
 			RSR.GiveHealth(mo, 1)
 			RSR.GiveArmor(mo, 1)
-		elseif RSR.CV_Medicine.value == "Overflow" then
+		elseif RSR.CV_TitleCard.value == "Overflow" then
 			if mo.rsr.health > 99 then
 				RSR.GiveArmor(mo, 1)
 			else
 				RSR.GiveHealth(mo, 1)
 			end
-		elseif RSR.CV_Medicine.value == "Reverse" then
+		elseif RSR.CV_TitleCard.value == "Reverse" then
 			if mo.rsr.armor > 99 then
 				RSR.GiveHealth(mo, 1)
 			else
