@@ -309,14 +309,14 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	end
 
 	-- Randomise damage if RandomDamage is enabled
-	if CV_RandomDamage == "Partial" then
+	if RSR.CV_RandomDamage == "Partial" then
 		local baseMod = damage * 3*FRACUNIT/4
-		local randomMod = P_RandomRange(0, damage/2)
-		damage = baseMod + randomMod
-	elseif CV_RandomDamage == "Doom" then
-		local doomMod = damage/8
+		local randomMod = P_RandomRange(0, fixround(damage*FRACUNIT/2)/FRACUNIT)
+		damage = fixround(baseMod + randomMod*FRACUNIT)/FRACUNIT
+	elseif RSR.CV_RandomDamage == "Doom" then
+		local doomMod = damage*FRACUNIT/4
 		local doomRandom = P_RandomRange(1, 8)
-		damage = doomRandom * doomMod
+		damage = fixround(doomRandom * doomMod)/FRACUNIT
 	end
 
 	-- Set hurt timers for certain conditions
@@ -1025,14 +1025,14 @@ RSR.PlayerMelee = function(pmo, pmo2)
 		end
 	end
 
-	-- Invincibility or Super: x3 damage
-	if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) or player.powers[pw_invulnerability] or player.powers[pw_super] then
+	-- Invincibility, Super, or FistsForGuns: x3 damage
+	if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) or player.powers[pw_invulnerability] or player.powers[pw_super] or RSR.CV_FistsForGuns.value then
 		meleeMult = 3
 	else
 		meleeMult = 1
 	end
 
-	if RSR.HasPowerup(player2, RSR.POWERUP_INVINCIBILITY) or player2.powers[pw_invulnerability] or player2.powers[pw_super] then
+	if RSR.HasPowerup(player2, RSR.POWERUP_INVINCIBILITY) or player2.powers[pw_invulnerability] or player2.powers[pw_super] or RSR.CV_FistsForGuns.value then
 		meleeMult2 = 3
 	else
 		meleeMult2 = 1

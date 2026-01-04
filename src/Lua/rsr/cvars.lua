@@ -40,6 +40,32 @@ RSR.CV_ArmorSwitch = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
+-- Gives everyone the Speed Shoes speed boost
+-- TODO: implement this
+RSR.CV_GottaGoFast = CV_RegisterVar({
+	name = "rsr_gottagofast",
+	defaultvalue = "False",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_TrueFalse
+})
+
+-- Gives everyone the Speed Shoes fire rate boost
+-- TODO: implement this
+RSR.CV_UltraRapidFire = CV_RegisterVar({
+	name = "rsr_ultrarapidfire",
+	defaultvalue = "False",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_TrueFalse
+})
+
+-- Gives everyone the tripled melee damage from Invincibility
+RSR.CV_FistsForGuns = CV_RegisterVar({
+	name = "rsr_fistsforguns",
+	defaultvalue = "False",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_TrueFalse
+})
+
 -- Makes players lose their emeralds when "de-supering"
 RSR.CV_SuperBurnout = CV_RegisterVar({
 	name = "rsr_superburnout",
