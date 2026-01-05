@@ -61,10 +61,7 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	-- Travelling sound
-	while true then
-		S_StartSound(mo, sfx_grndab)
-	end
+	S_StartSound(mo, sfx_grndab)
 
 	-- Smoke particles
 	RSR.ProjectileGhostTimer(mo, true)
@@ -181,7 +178,7 @@ addHook("MobjThinker", function(mo)
 	-- Do a travelling sound only while not stuck to a wall
 	if (mo.flags & MF_STICKY) then
 		while true then
-			S_StartSound(mo, sfx_grndab)
+			S_StartSound(mo, sfx_gratab)
 		end
 	end
 
