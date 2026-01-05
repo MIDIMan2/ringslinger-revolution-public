@@ -78,11 +78,7 @@ addHook("MobjThinker", function(mo)
 	mo.momz = $ - 1*FRACUNIT
 
 	-- Bomblet sizzling
-	local playSound == true
-
-	if playSound then
-		S_StartSound(mo, sfx_scatab)
-	end
+	S_StartSound(mo, sfx_scatab)
 
 	-- Smoke particles
 	RSR.ProjectileGhostTimer(mo, true)
@@ -205,7 +201,7 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON] = {
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
-states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON] =	{SPR_RSBS,	FF_FULLBRIGHT,	0,	RSR.A_ScatterFlakCannon,	0,	0,	S_BPLD1}
+states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON] =	{SPR_RSBS,	FF_FULLBRIGHT,	0,	RSR.A_ScatterFlakCannon,	0,	0,	S_BOSSEXPLODE}
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON)
 addHook("MobjThinker", function(mo)
