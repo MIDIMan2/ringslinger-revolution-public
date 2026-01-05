@@ -26,16 +26,7 @@ RSR.EnemySetHealth = function(target, inflictor, source, damage, damagetype)
 	if not Valid(target) then return end
 	if not damage then return end
 
-	-- Randomise damage if RandomDamage is enabled
-	if RSR.CV_RandomDamage == "Partial" then
-		local baseMod = damage * 3*FRACUNIT/4
-		local randomMod = P_RandomRange(0, fixround(damage*FRACUNIT/2)/FRACUNIT)
-		damage = fixround(baseMod + randomMod*FRACUNIT)/FRACUNIT
-	elseif RSR.CV_RandomDamage == "Doom" then
-		local doomMod = damage*FRACUNIT/4
-		local doomRandom = P_RandomRange(1, 8)
-		damage = fixround(doomRandom * doomMod)/FRACUNIT
-	end
+	damage = RSR.GetRandomDamage($)
 
 	local healthScale = 30
 	local enemyHealth = RSR.MOBJ_INFO[target.type].health

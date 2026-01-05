@@ -31,34 +31,6 @@ addHook("MobjThinker", function(mo)
 	end
 end, MT_RSR_DAMAGE_SPLATTER)
 
-addHook("PlayerThink", function(mo)
-	if (leveltime % 70 == 0) and RSR.CV_TitleCard.value == "Alternating" then
-			RSR.GiveArmor(mo, 1)
-	end
-    elseif (leveltime % 35 == 0) then
-		if RSR.CV_TitleCard.value == "Health" or RSR.CV_TitleCard.value == "Alternating" then
-			RSR.GiveHealth(mo, 1)
-		elseif RSR.CV_TitleCard.value == "Armor" then
-			RSR.GiveArmor(mo, 1)
-		elseif RSR.CV_TitleCard.value == "Both" then
-			RSR.GiveHealth(mo, 1)
-			RSR.GiveArmor(mo, 1)
-		elseif RSR.CV_TitleCard.value == "Overflow" then
-			if mo.rsr.health > 99 then
-				RSR.GiveArmor(mo, 1)
-			else
-				RSR.GiveHealth(mo, 1)
-			end
-		elseif RSR.CV_TitleCard.value == "Reverse" then
-			if mo.rsr.armor > 99 then
-				RSR.GiveHealth(mo, 1)
-			else
-				RSR.GiveArmor(mo, 1)
-			end
-		end
-	end
-end)
-
 addHook("MobjMoveBlocked", function(mo)
 	if not Valid(mo) then return end
 
@@ -196,6 +168,43 @@ RSR.PlayerDamageTick = function(player)
 	end
 end
 
+--- Slowly replenishes the player's health and armor based on the rsr_titlecard cvar.
+---@param player player_t
+RSR.PlayerRegenerateTick = function(player)
+	if not RSR.CV_TitleCard.value then return end -- Don't run this function if rsr_titlecard is off
+	if not (Valid(player) and player.rsrinfo) then return end
+	if not (leveltime % 35 == 0) then return end -- Only run this function every second
+
+	local medValue = RSR.CV_TitleCard.value
+
+	if (leveltime % 70 == 0) and medValue == RSR.CVREGEN_ALTERNATING then
+		RSR.GiveArmor(player, 1)
+		return
+	end
+
+	if medValue <= RSR.CVREGEN_BOTH then
+		if medValue & RSR.CVREGEN_HEALTH then RSR.GiveHealth(player, 1) end
+		if medValue & RSR.CVREGEN_ARMOR then RSR.GiveArmor(player, 1) end
+		return
+	end
+
+	if medValue == RSR.CVREGEN_OVERFLOW then
+		if player.rsrinfo.health > 99 then
+			RSR.GiveArmor(player, 1)
+		else
+			RSR.GiveHealth(player, 1)
+		end
+	elseif medValue == RSR.CVREGEN_REVERSE then
+		if player.rsrinfo.armor > 99 then
+			RSR.GiveHealth(player, 1)
+		else
+			RSR.GiveArmor(player, 1)
+		end
+	elseif medValue == RSR.CVREGEN_ALTERNATING then
+		RSR.GiveHealth(player, 1)
+	end
+end
+
 --- Adds an attacker to the player's table of attackers
 ---@param player player_t
 ---@param attacker player_t
@@ -268,6 +277,8 @@ RSR.GetInflictorDamage = function(target, inflictor, source, damage, damagetype)
 		damageInfo.knockbackScale = damageInfo.infInfo.knockback
 	end
 
+	damageInfo.damage = RSR.GetRandomDamage($)
+
 	return damageInfo
 end
 
@@ -306,17 +317,6 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 			hurtByMelee = damageInfo.hurtByMelee
 			knockbackScale = damageInfo.knockbackScale
 		end
-	end
-
-	-- Randomise damage if RandomDamage is enabled
-	if RSR.CV_RandomDamage == "Partial" then
-		local baseMod = damage * 3*FRACUNIT/4
-		local randomMod = P_RandomRange(0, fixround(damage*FRACUNIT/2)/FRACUNIT)
-		damage = fixround(baseMod + randomMod*FRACUNIT)/FRACUNIT
-	elseif RSR.CV_RandomDamage == "Doom" then
-		local doomMod = damage*FRACUNIT/4
-		local doomRandom = P_RandomRange(1, 8)
-		damage = fixround(doomRandom * doomMod)/FRACUNIT
 	end
 
 	-- Set hurt timers for certain conditions
@@ -375,7 +375,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	end
 	local hadArmor = false
 	-- Attraction Shield grants you damage resistance
-	if shield == SH_ATTRACT and (RSR.CV_ShieldEffects == "Passive" or RSR.CV_ShieldEffects == "All") then -- Disable this if ShieldEffects disables passives
+	if shield == SH_ATTRACT and (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_PASSIVE) then -- Disable this if ShieldEffects disables passives
 		damage = $ * 3 / 4
 	end
 	-- Health saving while you have armor
@@ -485,7 +485,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		RSR.SetScreenFade(player, 35, FRACUNIT, TICRATE)
 	end
 
-	if shield and (RSR.CV_ShieldEffects == "Passive" or RSR.CV_ShieldEffects == "All") then -- Disable this if ShieldEffects disables passives
+	if shield and (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_PASSIVE) then -- Disable this if ShieldEffects disables passives
 		-- Reflect projectiles if the player has a Force Shield (also causes homing rings to rebel against their master)
 		if (player.powers[pw_shield] & SH_FORCE) and Valid(inflictor) and (inflictor.flags & MF_MISSILE)
 		and not ((infInfo and (infInfo.dontreflect or infInfo.explosive)) or (inflictor.flags & (MF_ENEMY|MF_GRENADEBOUNCE))) then
@@ -604,9 +604,6 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 		return false
 	else
 		-- Force death if the player's health is 0
-		if RSR.CV_LastLaugh.value then
-			P_SpawnMobjFromMobj(player, 0, 0, player.info.height/2, MT_RSR_PROJECTILE_SUPERBOMB_MISSILEFORM)
-		end
 		if not (damagetype & DMG_DEATHMASK) then
 -- 			player.rsrinfo.removeDeathMask = true
 			player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK
@@ -877,26 +874,22 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 					P_AddPlayerScore(sourcePlayer, 100)
 				end
 			end
-			
-			if Valid(sourcePlayer) then -- Only run this if a player is the source of this kill. Placed here to ensure all other health/armor-granting routines run before TheReaping
-				if RSR.CV_TheReaping.value then -- TheReaping is on
-					local reapingHealth = RSR.MAX_REAPING
-					local reapingArmor = 0
-					if RSR.CV_LimitBreak.value then -- Allow TheReaping to overheal with LimitBreak
-						if sourcePlayer.rsrinfo.health > (RSR.MAX_HEALTH + RSR.MAX_REAPING) then
-							reapingHealth = RSR.MAX_HEALTH_BONUS - sourcePlayer.rsrinfo.health
-							reapingArmor = RSR.MAX_REAPING - reapingHealth
-						end
-					else
-						if RSR.MAX_REAPING < sourcePlayer.rsrinfo.health =< 100 then
-							reapingHealth = RSR.MAX_HEALTH - sourcePlayer.rsrinfo.health
-							reapingArmor = RSR.MAX_REAPING - reapingHealth
-						end
-					end
-					-- Give bonus health and armor when killing an enemy player if TheReaping is on
-					RSR.GiveHealth(sourcePlayer, reapingHealth)
-					RSR.GiveArmor(sourcePlayer, reapingArmor)
+
+			-- Only run this if a player is the source of this kill. Placed here to ensure all other health/armor-granting routines run before TheReaping
+			-- If rsr_thereaping is enabled, give the player 50 effective hit points (health and overflow armor).
+			if RSR.CV_TheReaping.value and Valid(sourcePlayer) and sourcePlayer.rsrinfo then
+				local reapingHealth = RSR.MAX_REAPING
+				local reapingArmor = 0
+				local maxHealth = RSR.MAX_HEALTH
+
+				if RSR.CV_LimitBreak.value then maxHealth = RSR.MAX_HEALTH_BONUS end
+				if sourcePlayer.rsrinfo.health + reapingHealth > maxHealth then
+					reapingHealth = max(0, maxHealth - sourcePlayer.rsrinfo.health) -- Don't let this go below 0
+					reapingArmor = RSR.MAX_REAPING - reapingHealth
 				end
+
+				RSR.GiveHealth(sourcePlayer, reapingHealth)
+				RSR.GiveArmor(sourcePlayer, reapingArmor)
 			end
 
 			-- Points are already awarded to seekers in H&S if a player dies
@@ -972,6 +965,11 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 		end
 	end
 
+	-- Make the player explode if rsr_lastlaugh is active
+	if RSR.CV_LastLaugh.value then
+		P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(P_GetPlayerHeight(player), target.scale)/2, MT_RSR_PROJECTILE_SUPERBOMB_MISSILEFORM)
+	end
+
 	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrloseinvondeath then rsrinfo.starpostData = {} end
 end
 
@@ -1013,7 +1011,7 @@ RSR.PlayerMelee = function(pmo, pmo2)
 
 	-- Damage values are stored in RSR.SHIELD_INFO (located in rsr/base/info.lua)
 	-- -MIDIMan
-	if (RSR.CV_ShieldEffects == "Passive" or RSR.CV_ShieldEffects == "All") then -- Disable this if ShieldEffects disables passives
+	if (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_PASSIVE) then -- Disable this if ShieldEffects disables passives
 		if ((shield ~= SH_ATTRACT and (player.pflags & PF_SHIELDABILITY)) or (shield == SH_ATTRACT and player.rsrinfo.homing))
 		and RSR.SHIELD_INFO[shield] and RSR.SHIELD_INFO[shield].meleedamage then
 			meleeBaseDamage = RSR.SHIELD_INFO[shield].meleedamage

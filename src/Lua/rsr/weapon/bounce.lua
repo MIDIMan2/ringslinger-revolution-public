@@ -350,19 +350,19 @@ pspractions.A_BounceReady = function(player, args)
 	if RSR.CheckPendingWeapon(player) then return end
 
 	local weaponInfo = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon]
-	if (player.cmd.buttons & BT_FIRENORMAL) and not (rsrinfo.lastbuttons & BT_FIRENORMAL) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
+	if (player.cmd.buttons & RSR.GetAttackButton(true)) and not (rsrinfo.lastbuttons & RSR.GetAttackButton(true)) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
 		if Valid(rsrinfo.bounceMega) and (rsrinfo.bounceMega.flags & MF_MISSILE) then
 			P_ExplodeMissile(rsrinfo.bounceMega)
 			return
 		end
 		if RSR.FireWeaponAlt(player) then return end
 		-- Make sure the player has an a altfire attack state and ammo at all before making the sound
-		if not (rsrinfo.lastbuttons & BT_FIRENORMAL) and RSR.CheckAmmo(player) and weaponInfo.states.attackalt then
+		if not (rsrinfo.lastbuttons & RSR.GetAttackButton(true)) and RSR.CheckAmmo(player) and weaponInfo.states.attackalt then
 			S_StartSound(nil, sfx_noammo, player)
 		end
 	end
 
-	if (player.cmd.buttons & BT_ATTACK) then
+	if (player.cmd.buttons & RSR.GetAttackButton()) and RSR.CanUseAttack(player, weaponInfo.emerald) then
 		RSR.FireWeapon(player)
 		return
 	end
@@ -385,8 +385,8 @@ end
 pspractions.A_BounceAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
-	-- Hack to prevents the recover action from immediately detonating the Goldburster ring
-	player.rsrinfo.lastbuttons = $|BT_FIRENORMAL
+	-- Hack to prevent the recover action from immediately detonating the Goldburster ring
+	player.rsrinfo.lastbuttons = $|RSR.GetAttackButton(true)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB, player.mo.angle, player.cmd.aiming<<16)
@@ -427,7 +427,7 @@ pspractions.A_BounceRecover = function(player, args)
 	end
 	player.rsrinfo.weaponDelay = $-1
 
-	if Valid(rsrinfo.bounceMega) and (rsrinfo.bounceMega.flags & MF_MISSILE) and (player.cmd.buttons & BT_FIRENORMAL) and not (rsrinfo.lastbuttons & BT_FIRENORMAL)then
+	if Valid(rsrinfo.bounceMega) and (rsrinfo.bounceMega.flags & MF_MISSILE) and (player.cmd.buttons & RSR.GetAttackButton(true)) and not (rsrinfo.lastbuttons & RSR.GetAttackButton(true))then
 		P_ExplodeMissile(rsrinfo.bounceMega)
 	end
 end

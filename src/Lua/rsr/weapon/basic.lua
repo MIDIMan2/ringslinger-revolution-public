@@ -306,9 +306,9 @@ pspractions.A_BasicAttackAlt = function(player, args)
 	end
 
 	-- Force the player to fire a Charge Shot ring if they no longer have the super powerup or the green emerald.
-	if not (RSR.PlayerHasEmerald(player, EMERALD1) or player.powers[pw_super]) then forceFire = true end
+	if not RSR.CanUseAttack(player, EMERALD1, true) then forceFire = true end
 
-	if forceFire or not (player.cmd.buttons & BT_FIRENORMAL) then
+	if forceFire or not (player.cmd.buttons & RSR.GetAttackButton(true)) then
 		RSR.SetWeaponDelay(player, nil, nil, true)
 
 		RSR.SpawnBasicAlt(player, rsrinfo, chargeSound)

@@ -118,7 +118,7 @@ end
 ---@param ignoreInfinity boolean|nil If true, ammo will be taken away even if the player has the infinity powerup.
 RSR.TakeAmmo = function(player, amount, ammoType, ignoreInfinity)
 	if not (Valid(player) and player.rsrinfo) then return end
-	if (RSR.CV_InfiniteAmmo == "TooMuch") or (not ignoreInfinity and (RSR.HasPowerup(player, RSR.POWERUP_INFINITY) or RSR.CV_InfiniteAmmo == "On")) then return end -- Don't deplete ammo if the player has the infinity powerup or InfiniteAmmo is on. Don't even bother running ignoreInfinity if InfiniteAmmo is set to "TooMuch"
+	if (RSR.CV_InfiniteAmmo.value == RSR.CVINFAMMO_TOOMUCH) or (not ignoreInfinity and (RSR.HasPowerup(player, RSR.POWERUP_INFINITY) or RSR.CV_InfiniteAmmo.value == RSR.CVINFAMMO_ON)) then return end -- Don't deplete ammo if the player has the infinity powerup or InfiniteAmmo is on. Don't even bother running ignoreInfinity if InfiniteAmmo is set to "TooMuch"
 	amount = $ or 0
 
 	local rsrinfo = player.rsrinfo
@@ -147,6 +147,45 @@ RSR.CanUseWeapons = function(player)
 	if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].noweapons then return false end
 
 	return true
+end
+
+--- Returns the correct attack button based on rsr_strangerrings.
+---@param altFire boolean|nil If true, this makes the function return the correct altfire button.
+RSR.GetAttackButton = function(altFire)
+	if altFire then
+		if RSR.CV_StrangerRings.value then return BT_ATTACK end
+		return BT_FIRENORMAL
+	else
+		if RSR.CV_StrangerRings.value then return BT_FIRENORMAL end
+		return BT_ATTACK
+	end
+end
+
+--- Checks if the player can use their primary or secondary fire depending on rsr_strangerrings.
+---@param player player_t
+---@param emerald integer
+---@param altFire boolean|nil If true, check if the player can use their altfire.
+RSR.CanUseAttack = function(player, emerald, altFire)
+	if not (Valid(player) and emerald) then return false end
+
+	-- TODO: Rework this function when the altfires are separated from the emeralds
+
+	-- Swap checks if rsr_strangerrings is on
+	if RSR.CV_StrangerRings.value then
+		if not altFire then
+			if RSR.PlayerHasEmerald(player, emerald) or player.powers[pw_super] then return true end
+		else
+			return true
+		end
+	else
+		if not altFire then
+			-- Player can always use their primary fire
+			return true
+		else
+			-- Player can only use the secondary fire if they have the given emerald
+			if RSR.PlayerHasEmerald(player, emerald) or player.powers[pw_super] then return true end
+		end
+	end
 end
 
 --- Gives a weapon to the player.

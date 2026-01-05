@@ -300,3 +300,21 @@ RSR.PlayerHasEmerald = function(player, emerald)
 
 	return (emeralds & emerald)
 end
+
+--- Returns a randomized damage value based on rsr_randomdamage.
+---@param damage integer
+RSR.GetRandomDamage = function(damage)
+	if not damage then return 0 end
+	-- Randomise damage if RandomDamage is enabled
+	if RSR.CV_RandomDamage.value == RSR.CVRANDMG_PARTIAL then
+		local baseMod = damage * 3*FRACUNIT/4
+		local randomMod = RSR.RandomFixedRange(0, FixedRound(damage * FRACUNIT/2))
+		return max(1, FixedRound(baseMod + randomMod)/FRACUNIT)
+	elseif RSR.CV_RandomDamage.value == RSR.CVRANDMG_DOOM then
+		local doomMod = damage*FRACUNIT/4
+		local doomRandom = P_RandomRange(1, 8)*FRACUNIT
+		return max(1, FixedRound(FixedMul(doomMod, doomRandom))/FRACUNIT)
+	end
+
+	return damage
+end

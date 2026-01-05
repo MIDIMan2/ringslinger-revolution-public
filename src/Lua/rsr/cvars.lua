@@ -1,11 +1,18 @@
 -- Ringslinger Revolution - Console Variables/Commands
 
+RSR.CVRANDMG_PARTIAL = 1
+RSR.CVRANDMG_DOOM = 2
+
 -- Randomises all incoming damage to all entities through damage.lua. Parameters - None: all damage is fixed. Partial: all damage deals a fixed base portion added to a modulated random element. Doom: all damage is fully randomised akin to Doom '93
 RSR.CV_RandomDamage = CV_RegisterVar({
 	name = "rsr_randomdamage",
 	defaultvalue = "None",
 	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = {"None","Partial","Doom"}
+	PossibleValue = {
+		None = 0,
+		Partial = RSR.CVRANDMG_PARTIAL,
+		Doom = RSR.CVRANDMG_DOOM
+	}
 })
 
 -- Lets homing rings target and kill spectators
@@ -74,35 +81,69 @@ RSR.CV_SuperBurnout = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
+RSR.CVSUPERWPN_RAIL = 1
+RSR.CVSUPERWPN_BFR = 2
+RSR.CVSUPERWPN_ASMAP = 3
+RSR.CVSUPERWPN_RANDOM = 4
+RSR.CVSUPERWPN_ALTERNATE = 5
+
 -- Sets superweapons that spawn in the map. Rail/BFR forces all superweapon spawnpoints to spawn Rail/BFR. AsMap doesn't override superweapon spawns (in case both are on the same map), Random respawns a random one each time, Alternate goes back and forth between both each respawn
 -- TODO: implementation at all, this will have to come later when BFR exists. BFR is here but very, very unfinished
 RSR.CV_Superweapon = CV_RegisterVar({
 	name = "rsr_superweapon",
-	defaultvalue = "Rail",
+	defaultvalue = "AsMap",
 	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = {"Rail","BFR","AsMap","Random","Alternate","None"}
+	PossibleValue = {
+		None = 0,
+		Rail = RSR.CVSUPERWPN_RAIL,
+		BFR = RSR.CVSUPERWPN_BFR,
+		AsMap = RSR.CVSUPERWPN_ASMAP,
+		Random = RSR.CVSUPERWPN_RANDOM,
+		Alternate = RSR.CVSUPERWPN_ALTERNATE,
+	}
 })
+
+RSR.CVPOWERRING_INFINITY = 1
+RSR.CVPOWERRING_QUAD = 2
+RSR.CVPOWERRING_ASMAP = 3
+RSR.CVPOWERRING_RANDOM = 4
+RSR.CVPOWERRING_ALTERNATE = 5
 
 -- Sets power-rings that spawn in the map. Infinity/QuadDamage forces all superweapon spawnpoints to spawn Infinity/QuadDamage. AsMap doesn't override power-ring spawns (in case both are on the same map), Random respawns a random one each time, Alternate goes back and forth between both each respawn
 -- TODO: implementation at all, this will have to come later when Quad Damage exists
 RSR.CV_PowerRing = CV_RegisterVar({
 	name = "rsr_powerring",
-	defaultvalue = "Infinity",
+	defaultvalue = "AsMap",
 	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = {"Infinity","QuadDamage","AsMap","Random","Alternate","None"}
+	PossibleValue = {
+		None = 0,
+		Infinity = RSR.CVPOWERRING_INFINITY,
+		QuadDamage = RSR.CVPOWERRING_QUAD,
+		AsMap = RSR.CVPOWERRING_ASMAP,
+		Random = RSR.CVPOWERRING_RANDOM,
+		Alternate = RSR.CVPOWERRING_ALTERNATE,
+	}
 })
 
+RSR.CVSHIELD_PASSIVE = 1
+RSR.CVSHIELD_ACTIVE = 2
+RSR.CVSHIELD_ALL = 3
+
 -- Toggles what part of Shield Effects is valid, if any
--- TODO: still need to figure out how to properly disable shield actives, if that can even be done
+-- TODO: Figure out how to disable certain passives, like underwater breathing(?)
 RSR.CV_ShieldEffects = CV_RegisterVar({
 	name = "rsr_shieldeffects",
 	defaultvalue = "All",
 	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = {"All","Passive","Active","None"}
+	PossibleValue = {
+		None = 0,
+		Passive = RSR.CVSHIELD_PASSIVE,
+		Active = RSR.CVSHIELD_ACTIVE,
+		All = RSR.CVSHIELD_ALL
+	}
 })
 
 -- Makes players explode when killed
--- TODO: implementation at all
 RSR.CV_LastLaugh = CV_RegisterVar({
 	name = "rsr_lastlaugh",
 	defaultvalue = "False",
@@ -110,15 +151,22 @@ RSR.CV_LastLaugh = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
+RSR.CVINFAMMO_ON = 1
+RSR.CVINFAMMO_TOOMUCH = 2
+
 -- Makes firing weapons cost no munitions. "TooMuch" enables infinite superweapons...
 RSR.CV_InfiniteAmmo = CV_RegisterVar({
 	name = "rsr_infiniteammo",
 	defaultvalue = "Off",
 	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = {"Off","On","TooMuch"}
+	PossibleValue = {
+		Off = 0,
+		On = RSR.CVINFAMMO_ON,
+		TooMuch = RSR.CVINFAMMO_TOOMUCH
+	}
 })
 
--- Makes players gain 50 EHP when scoring a kill
+-- Makes players gain 50 EHP (effective hit points) when scoring a kill
 RSR.CV_TheReaping = CV_RegisterVar({
 	name = "rsr_thereaping",
 	defaultvalue = "False",
@@ -143,12 +191,27 @@ RSR.CV_StrangerRings = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
+RSR.CVREGEN_HEALTH = 1
+RSR.CVREGEN_ARMOR = 2
+RSR.CVREGEN_BOTH = 3 -- This should always be 3 so the previous two enums can be used as flags.
+RSR.CVREGEN_OVERFLOW = 4
+RSR.CVREGEN_REVERSE = 5
+RSR.CVREGEN_ALTERNATING = 6
+
 -- Makes players to regenerate 1 of something per second if enabled
 RSR.CV_TitleCard = CV_RegisterVar({
 	name = "rsr_titlecard",
 	defaultvalue = "Off",
 	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = {"Off", "Health", "Armor", "Overflow", "Reverse", "Alternating", "Both"}
+	PossibleValue = {
+		Off = 0,
+		Health = RSR.CVREGEN_HEALTH,
+		Armor = RSR.CVREGEN_ARMOR,
+		Both = RSR.CVREGEN_BOTH,
+		Overflow = RSR.CVREGEN_OVERFLOW,
+		Reverse = RSR.CVREGEN_REVERSE,
+		Alternating = RSR.CVREGEN_ALTERNATING
+	}
 })
 
 COM_AddCommand("rsr_kill", function(player, _)

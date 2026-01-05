@@ -179,7 +179,15 @@ RSR.PlayerThink = function(player)
 		return
 	end
 
+	-- Forcefully disable shield abilities if rsr_shieldeffects is not set to "Active" or "All"
+	if not (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_ACTIVE) then
+		player.charflags = $|SF_NOSHIELDABILITY
+	elseif (player.charflags & SF_NOSHIELDABILITY) ~= (skins[player.skin].flags & SF_NOSHIELDABILITY) then
+		player.charflags = $ ^^ SF_NOSHIELDABILITY
+	end
+
 	if player.playerstate == PST_LIVE then
+		RSR.PlayerRegenerateTick(player)
 		RSR.PlayerFlameShieldTick(player)
 		RSR.PlayerHomingThink(player)
 		RSR.PlayerWeaponChoiceTick(player)
