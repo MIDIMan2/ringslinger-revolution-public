@@ -16,7 +16,10 @@ freeslot(
 	"sfx_atatfr", -- Created by orbitalviolet
 	"sfx_sctrfr",
 	"sfx_scatfr", -- Created by orbitalviolet
+	"sfx_scatab", -- Created by orbitalviolet
 	"sfx_scatxp", -- Created by orbitalviolet
+	"sfx_scatx1", -- Created by orbitalviolet
+	"sfx_scatx2", -- Created by orbitalviolet
 	"sfx_bombfr",
 	"sfx_boatfr",
 	"sfx_grndfr",
