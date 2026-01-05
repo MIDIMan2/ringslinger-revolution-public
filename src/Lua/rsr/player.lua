@@ -61,6 +61,8 @@ RSR.PlayerInit = function(player)
 	RSR.PlayerHealthInit(player)
 	RSR.PlayerWeaponsInit(player)
 	RSR.PlayerPowerupsInit(player)
+	rsrinfo.critcooldown = 0
+	rsrinfo.crithealed = false
 
 	RSR.PlayerStarpostDataInit(player)
 

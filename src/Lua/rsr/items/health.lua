@@ -108,6 +108,18 @@ RSR.HealthTouchSpecial = function(special, toucher, health)
 		end
 	end
 
+	-- If the player is critically low on health, add a flat increase to health yielded from pickups
+	if (player.rsrinfo.health + player.rsrinfo.armor < RSR.CRIT_EHP) and (player.rsrinfo.critcooldown < 1) then
+		health = $ + 8
+		player.rsrinfo.crithealed = true
+	end
+
+	-- If a critical heal brings the player above supercritical health, put this effect on cooldown
+	if ((player.rsrinfo.health + health) + player.rsrinfo.armor >= RSR.SUPERCRIT_EHP) and (player.rsrinfo.crithealed) then
+		player.rsrinfo.critcooldown = RSR.CRIT_COOLDOWN
+		player.rsrinfo.crithealed = false
+	end
+
 	return RSR.SKIN_INFO["DEFAULT"].hooks.touchHealth(special, toucher, health)
 end
 
@@ -138,6 +150,18 @@ RSR.ArmorTouchSpecial = function(special, toucher, armor)
 		if returnValue ~= nil then
 			return returnValue
 		end
+	end
+
+	-- If the player is critically low on health, add a flat increase to armor yielded from pickups
+	if (player.rsrinfo.health + player.rsrinfo.armor < RSR.CRIT_EHP) and (player.rsrinfo.critcooldown < 1) then
+		armor = $ + 8
+		player.rsrinfo.crithealed = true
+	end
+
+	-- If a critical heal brings the player above supercritical health, put this effect on cooldown
+	if (player.rsrinfo.health + (player.rsrinfo.armor + armor) >= RSR.SUPERCRIT_EHP) and (player.rsrinfo.crithealed) then
+		player.rsrinfo.critcooldown = RSR.CRIT_COOLDOWN
+		player.rsrinfo.crithealed = false
 	end
 
 	return RSR.SKIN_INFO["DEFAULT"].hooks.touchArmor(special, toucher, armor)
