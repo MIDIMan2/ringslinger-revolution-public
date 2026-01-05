@@ -189,16 +189,32 @@ RSR.PlayerRegenerateTick = function(player)
 	end
 
 	if medValue == RSR.CVREGEN_OVERFLOW then
-		if player.rsrinfo.health > 99 then
-			RSR.GiveArmor(player, 1)
+		if RSR.CV_LimitBreak.value then
+			if player.rsrinfo.health > 199 then
+				RSR.GiveArmor(player, 1)
+			else
+				RSR.GiveHealth(player, 1)
+			end
 		else
-			RSR.GiveHealth(player, 1)
+			if player.rsrinfo.health > 99 then
+				RSR.GiveArmor(player, 1)
+			else
+				RSR.GiveHealth(player, 1)
+			end
 		end
 	elseif medValue == RSR.CVREGEN_REVERSE then
-		if player.rsrinfo.armor > 99 then
-			RSR.GiveHealth(player, 1)
+		if RSR.CV_LimitBreak.value then
+			if player.rsrinfo.armor > 199 then
+				RSR.GiveHealth(player, 1)
+			else
+				RSR.GiveArmor(player, 1)
+			end
 		else
-			RSR.GiveArmor(player, 1)
+			if player.rsrinfo.armor > 99 then
+				RSR.GiveHealth(player, 1)
+			else
+				RSR.GiveArmor(player, 1)
+			end
 		end
 	elseif medValue == RSR.CVREGEN_ALTERNATING then
 		RSR.GiveHealth(player, 1)
