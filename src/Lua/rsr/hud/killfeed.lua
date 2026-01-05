@@ -50,6 +50,11 @@ RSR.KILLFEED_DMG_INFO = {
 			solo = "$v got nuked.",
 		}
 	},
+	[DMG_INSTAKILL] = {
+		obituary = {
+			solo = "$v spontaneously combusted."
+		}
+	},
 	[DMG_DROWNED] = {
 		icon = "RSRDROWN",
 		obituary = {
@@ -246,6 +251,8 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 			end
 			skincolor = inflictor.player.skincolor
 		end
+	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDKILLCMD) then
+		obituary = "$v couldn't take the heat." -- TODO: Replace this message?
 	end
 
 	-- Don't show highlighted backgrounds in splitscreen
