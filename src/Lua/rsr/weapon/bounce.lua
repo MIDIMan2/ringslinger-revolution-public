@@ -17,7 +17,7 @@ RSR.AddWeapon("BOUNCE", {
 	delayspeed = 4,
 	delayalt = 35,
 	delayaltspeed = 17,
-	emerald = EMERALD4,
+	emerald = EMERALD6,
 	icon = "RSRBNCEI",
 	name = "Bounce Ring",
 	namealt = "Goldburster",

@@ -16,7 +16,7 @@ RSR.AddWeapon("BOMB", {
 	delayspeed = 18,
 	delayalt = 70,
 	delayaltspeed = 35,
-	emerald = EMERALD6,
+	emerald = EMERALD4,
 	icon = "RSRBOMBI",
 	name = "Explosion Ring",
 	namealt = "Self-Propel",
