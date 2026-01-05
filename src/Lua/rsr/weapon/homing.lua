@@ -81,11 +81,14 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if not Valid(mo) then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	-- Produce smoke if the homing ring is locked onto a target
+	-- Produce smoke and sizzle if the homing ring is locked onto a target
 	if not Valid(mo.tracer) then
 		RSR.ProjectileGhostTimer(mo)
 		if mo.rsrLockOnSound then mo.rsrLockOnSound = nil end
 	else
+		if not noPlayerSpeed then
+			S_StartSound(mo, sfx_homiab)
+		end
 		RSR.ProjectileGhostTimer(mo, true)
 	end
 
@@ -168,6 +171,9 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		-- TODO: player.speed might cause problems
 		if player.speed > player.normalspeed then curSpeed = FixedDiv(player.speed, tracer.scale) end -- Go faster if the player is going faster than their normalspeed
 		curSpeed = FixedMul(3*$/4, tracer.scale)
+	end
+	if noPlayerSpeed then
+		S_StartSound(mo, sfx_hoatab)
 	end
 
 	P_InstaThrust(mo, mo.angle, FixedMul(cos(mo.pitch), curSpeed))

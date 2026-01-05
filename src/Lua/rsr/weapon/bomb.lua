@@ -72,6 +72,11 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
+	-- Travelling sound
+	while true then
+		S_StartSound(mo, sfx_bombab)
+	end
+
 	-- Smoke particles
 	RSR.ProjectileGhostTimer(mo, true)
 end, MT_RSR_PROJECTILE_BOMB)
