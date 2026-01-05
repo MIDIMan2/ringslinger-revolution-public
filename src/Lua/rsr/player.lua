@@ -58,6 +58,11 @@ RSR.PlayerInit = function(player)
 	rsrinfo.lastexiting = player.exiting
 	rsrinfo.lastemeralds = player.powers[pw_emeralds]
 
+	-- Player is permanently fast if GottaGoFast is enabled
+	if RSR.CV_GottaGoFast.value then
+		RSR.GivePowerup(player, RSR.POWERUP_SPEED, 1)
+	end
+
 	RSR.PlayerHealthInit(player)
 	RSR.PlayerWeaponsInit(player)
 	RSR.PlayerPowerupsInit(player)
@@ -75,6 +80,7 @@ RSR.PlayerInit = function(player)
 	-- since SRB2 automatically sets player.homing to 0 if the player isn't targetting an enemy
 	rsrinfo.homing = 0
 	rsrinfo.homingThreshold = 0
+	rsrinfo.rapidfire = 0
 
 	rsrinfo.basicCharge = 0 -- Used for the Red Ring's altfire; See weapon/basic.lua for more information
 	rsrinfo.basicChargeSound = 0 -- Used for the Red Ring's altfire; See weapon/basic.lua for more information
@@ -177,6 +183,13 @@ RSR.PlayerThink = function(player)
 	if not RSR.GamemodeActive() then
 		if player.rsrinfo then RSR.PlayerDeinit(player) end
 		return
+	end
+
+	-- Decay rapidfire time if the player has the rapidfire powerup, but also give everyone permanent rapidfire if UltraRapidFire is on
+	if RSR.CV_UltraRapidFire.value then
+		player.rsrinfo.rapidfire = 1
+	elseif player.rsrinfo.rapidfire > 0 then
+		player.rsrinfo.rapidfire = $ - 1
 	end
 
 	-- Forcefully disable shield abilities if rsr_shieldeffects is not set to "Active" or "All"

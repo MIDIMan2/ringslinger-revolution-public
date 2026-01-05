@@ -254,7 +254,7 @@ end
 RSR.SetWeaponDelay = function(player, weapon, speed, useAlt)
 	if not (Valid(player) and player.rsrinfo) then return end
 	if weapon == nil then weapon = player.rsrinfo.readyWeapon end
-	if speed == nil then speed = (player.powers[pw_sneakers] or player.powers[pw_super]) and true end
+	if speed == nil then speed = ((player.rsrinfo.rapidfire > 0) or player.powers[pw_super]) and true end
 
 	local weaponDelay = RSR.GetWeaponDelay(weapon, speed, useAlt)
 	if not speed and (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then -- Don't affect weaponDelay if the player has the super sneakers powerup

@@ -16,6 +16,8 @@ RSR.MAX_HYPE = 3000
 
 RSR.MAX_REAPING = 50
 
+RSR.RAPIDFIRE_TIME = 20*TICRATE
+
 RSR.GAMETYPE_INFO = {}
 
 --- Makes the given gametype use RSR logic.

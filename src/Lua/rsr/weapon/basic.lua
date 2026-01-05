@@ -234,7 +234,7 @@ pspractions.A_BasicAttackAltChoose = function(player, args)
 	player.rsrinfo.basicChareeDontTakeAmmo = false
 
 	-- Use the "ATTACKALTSPEED" state if the player has speed shoes or is super.
-	if player.powers[pw_sneakers] or player.powers[pw_super] then
+	if (player.rsrinfo.rapidfire > 0) or player.powers[pw_super] then
 		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, "S_BASIC_ATTACKALTSPEED")
 	-- Otherwise, use the "ATTACKALTATTRACT" state if the player has the Attraction Shield.
 	elseif (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then

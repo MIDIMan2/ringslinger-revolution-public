@@ -48,7 +48,6 @@ RSR.CV_ArmorSwitch = CV_RegisterVar({
 })
 
 -- Gives everyone the Speed Shoes speed boost
--- TODO: implement this
 RSR.CV_GottaGoFast = CV_RegisterVar({
 	name = "rsr_gottagofast",
 	defaultvalue = "False",
@@ -57,7 +56,6 @@ RSR.CV_GottaGoFast = CV_RegisterVar({
 })
 
 -- Gives everyone the Speed Shoes fire rate boost
--- TODO: implement this
 RSR.CV_UltraRapidFire = CV_RegisterVar({
 	name = "rsr_ultrarapidfire",
 	defaultvalue = "False",

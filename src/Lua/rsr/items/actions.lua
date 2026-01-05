@@ -151,6 +151,7 @@ A_SuperSneakers = function(actor, var1, var2)
 	local player = actor.target.player
 	RSR.BonusFade(player)
 	RSR.GivePowerup(player, RSR.POWERUP_SPEED)
+	player.rsrinfo.rapidfire = RSR.RAPIDFIRE_TIME
 	S_StartSound(actor.target, sfx_ncitem)
 -- 	super(actor, var1, var2)
 end
