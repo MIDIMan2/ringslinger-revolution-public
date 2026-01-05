@@ -57,14 +57,14 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_SCATTER,
 	seesound = sfx_sctrfr,
-	reactiontime = 12,
-	painchance = 80*FRACUNIT,
-	deathstate = S_RSR_RINGEXPLODE,
-	deathsound = sfx_pop,
+	reactiontime = 11,
+	painchance = 192*FRACUNIT,
+	deathstate = S_RSR_RINGXPLDCPUFRIENDLY,
+	deathsound = sfx_none,
 	speed = 45*FRACUNIT,
 	radius = 22*FRACUNIT,
 	height = 22*FRACUNIT,
-	damage = 0,
+	damage = 1,
 	flags = MF_NOBLOCKMAP|MF_MISSILE
 }
 
@@ -74,10 +74,28 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
+	-- Artificial gravity for bomblets
+	mo.momz = $ - 1*FRACUNIT
+
+	-- Bomblet sizzling
+	local playSound == true
+
+	if playSound then
+		S_StartSound(mo, sfx_scatab)
+	end
+
 	-- Smoke particles
 	RSR.ProjectileGhostTimer(mo, true)
 end, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
+-- Randomised death sounds
+addHook("MobjDeath", function(mo)
+	if P_RandomRange(1,2) == 1 then
+		S_StartSound(mo, sfx_scatx1)
+	else
+		S_StartSound(mo, sfx_scatx2)
+	end
+end, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 
 -- --------------------------------
 -- ALTFIRE PROJECTILE
@@ -88,9 +106,9 @@ addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER_
 RSR.ScatterFlakExplode = function(mo)
 	if not Valid(mo) then return end
 
-	mo.rsrPrevMomX = mo.momx/2
-	mo.rsrPrevMomY = mo.momy/2
-	mo.rsrPrevMomZ = mo.momz/2
+	mo.rsrPrevMomX = mo.momx*3/4
+	mo.rsrPrevMomY = mo.momy*3/4
+	mo.rsrPrevMomZ = mo.momz/11
 	P_ExplodeMissile(mo)
 end
 
@@ -162,12 +180,14 @@ RSR.A_ScatterFlakCannon = function(actor, var1, var2)
 			flakShot.pitch = actor.pitch + (flakPitchOffset)
 			flakShot.rsrProjectile = true
 			-- Make it smaller
+			local flakRandomMod = P_RandomRange(4,7) -- Randomise scale between each bomblet a bit
+			local flakVMod = P_RandomRange(2,4) -- Randomise scale between each bomblet a bit
 			flakShot.rsrOrigScale = flakShot.scale
 			flakShot.scalespeed = flakShot.scale
-			flakShot.destscale = flakShot.scale*2/7
+			flakShot.destscale = flakShot.scale*2/flakRandomMod
 			if Valid(flakShot.target) then RSR.ColorTeamMissile(flakShot, flakShot.target.player) end
 
-			RSR.MoveMissile(flakShot, flakShot.angle, flakShot.pitch, flakSpeed)
+			RSR.MoveMissile(flakShot, flakShot.angle, flakShot.pitch, flakSpeed*3/flakVMod)
 		end
 	end
 end
@@ -185,7 +205,7 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON] = {
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
-states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON] =	{SPR_RSBS,	FF_FULLBRIGHT,	0,	RSR.A_ScatterFlakCannon,	0,	0,	S_WPLD1}
+states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON] =	{SPR_RSBS,	FF_FULLBRIGHT,	0,	RSR.A_ScatterFlakCannon,	0,	0,	S_BPLD1}
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON)
 addHook("MobjThinker", function(mo)
@@ -379,7 +399,7 @@ pspractions.A_ScatterAttack = function(player, args)
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
 
---- Fires a Scatter Mass Slug ring from the player.
+--- Fires a Mass Scrambler from the player.
 ---@param player player_t
 pspractions.A_ScatterAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
@@ -395,7 +415,7 @@ pspractions.A_ScatterAttackAlt = function(player, args)
 		missile.destscale = 2 * missile.scale
 		player.rsrinfo.scatterFlak = missile
 	end
-	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.TakeAmmoFromReadyWeapon(player, 4)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end

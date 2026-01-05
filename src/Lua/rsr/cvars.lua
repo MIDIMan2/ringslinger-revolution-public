@@ -38,21 +38,21 @@ COM_AddCommand("rsr_kill", function(player, _)
 end)
 
 -- TODO: Remove or comment this out for public releases
--- COM_AddCommand("rsr_getemeralds", function(player, arg)
--- 	if not Valid(player) then return end
+COM_AddCommand("rsr_getemeralds", function(player, arg)
+	if not Valid(player) then return end
 
--- 	if (gametyperules & GTR_POWERSTONES) then
--- 		player.powers[pw_emeralds] = 127
--- 	else
--- 		emeralds = 127
--- 	end
--- 	player.rsrinfo.hype = RSR.MAX_HYPE
--- end)
+	if (gametyperules & GTR_POWERSTONES) then
+		player.powers[pw_emeralds] = 127
+	else
+		emeralds = 127
+	end
+	player.rsrinfo.hype = RSR.MAX_HYPE
+end)
 
 -- TODO: Remove or comment this out for public releases
--- COM_AddCommand("rsr_killallenemies", function(player, arg)
--- 	for mo in mobjs.iterate() do
--- 		if not (Valid(mo) and (mo.flags & MF_ENEMY)) then continue end
--- 		P_KillMobj(mo)
--- 	end
--- end)
+COM_AddCommand("rsr_killallenemies", function(player, arg)
+	for mo in mobjs.iterate() do
+		if not (Valid(mo) and (mo.flags & MF_ENEMY)) then continue end
+		P_KillMobj(mo)
+	end
+end)

@@ -9,7 +9,8 @@
 ---@param fullDist integer|fixed_t|nil Maximum radius from the splash center to deal full damage (Default is 0.375x the bombDist).
 ---@param thrustDamage integer|nil Maximum thrust dealt to the Object from splash damage (Default is 20).
 ---@param aimThrust boolean|nil Makes mo's target get thrusted in the direction its aiming (used for the Explosion ring's altfire).
-RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDamage, aimThrust)
+---@param scramblerMod boolean|nil Cuts blast thrust by 1/6 (used to prevent Mass Scrambler from sending players to space).
+RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDamage, aimThrust, scramblerMod)
 	if not Valid(mo) then return end
 	if bombDist == nil then bombDist = 128*FRACUNIT end
 	if thrustDist == nil then thrustDist = 6*bombDist/5 end
@@ -20,6 +21,10 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 	bombDist = FixedMul($, mo.scale)
 	thrustDist = FixedMul($, mo.scale)
 	fullDist = FixedMul($, mo.scale)
+
+	if scramblerMod then
+		thrustDamage = FixedMul($,FRACUNIT/6)
+	end
 
 	mo.rsrProjectile = nil
 	mo.rsrRealDamage = true
@@ -165,10 +170,9 @@ A_RSRRingExplode = function(mo, var1, var2)
 	end
 end
 
---- Variant of RSRRingExplode that should have reduced CPU cost.
---- TODO: make this look good
+--- Variant of RSRRingExplode that should have reduced CPU cost. Used for Mass Scrambler bomblets. Note that this blast has reduced thrust compared to the regular blasts!
 ---@param mo mobj_t
-A_RSRRingExplodeLowIntensity = function(mo, var1, var2)
+A_RSRRingXpldCPUFriendly = function(mo, var1, var2)
 	if not Valid(mo) then return end
 
 	local sparkleState = S_NULL
@@ -180,36 +184,37 @@ A_RSRRingExplodeLowIntensity = function(mo, var1, var2)
 		sparkleState = RSR.MOBJ_INFO[mo.type].sparklestate
 	end
 
-	for i = 0, 3 do
-		local spark = P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(target.height, target.scale), sparkleState)
+	for i = 0, 6 do
+		local spark = P_SpawnMobj(mo.x, mo.y, mo.z, MT_NIGHTSPARKLE)
 		if Valid(spark) then
-			spark.dontdrawforviewmobj = target
-			spark.scale = FixedMul($, 2*FRACUNIT/3)
+			spark.state = sparkleState
+			spark.scale = 11*FRACUNIT/5
 			-- Randomize the spark's momentum
-			spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
-			spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
-			spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
+			spark.momx = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
+			spark.momy = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
+			spark.momz = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
 			if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
 			if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
 			if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
 
-			-- Make the spark shrink to scale 0 in roughly 1 second
-			spark.scalespeed = spark.scale/2
+			-- Make the spark shrink to scale 0 in roughly 3 seconds
+			spark.scalespeed = FRACUNIT/18
 			spark.destscale = 0
-			spark.tics = 35
+			spark.tics = 105
 		end
 	end
 	S_StartSound(mo, sfx_prloop)
 
 	if RSR.MOBJ_INFO[mo.type] then
 		local rsrMobjInfo = RSR.MOBJ_INFO[mo.type]
-		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime, rsrMobjInfo.fulldamage, rsrMobjInfo.thrustdamage, rsrMobjInfo.aimthrust)
+		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime, rsrMobjInfo.fulldamage, rsrMobjInfo.thrustdamage, rsrMobjInfo.aimthrust,true)
 	else
 		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime)
 	end
 end
 
 states[S_RSR_RINGEXPLODE] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGXPLDCPUFRIENDLY] =	{SPR_NULL,	0,	0,	A_RSRRingXpldCPUFriendly,	0,	0,	S_RSR_XPLD1}
 
 states[S_RSR_XPLD1] =		{SPR_BOM1,	A,				2,	A_ShadowScream,	0,	0,	S_RSR_XPLD2}
 states[S_RSR_XPLD2] =		{SPR_BOM1,	B,				2,	nil,			0,	0,	S_RSR_XPLD3}
@@ -220,6 +225,7 @@ states[S_RSR_XPLDSOUND] =	{SPR_NULL,	A,				60,	nil,			0,	0,	S_NULL}
 states[S_RSR_NIGHTSPARKLE_GRENADE] =	{SPR_NULL,	0,	0,	A_Dye,	0,	SKINCOLOR_MOSS,	S_NIGHTSPARKLE1}
 states[S_RSR_NIGHTSPARKLE_BOMB] =		{SPR_NULL,	0,	0,	A_Dye,	0,	SKINCOLOR_JET,	S_NIGHTSPARKLE1}
 states[S_RSR_NIGHTSPARKLE_WASP] =		{SPR_NULL,	0,	0,	A_Dye,	0,	SKINCOLOR_TOPAZ,	S_NIGHTSPARKLE1}
+states[S_RSR_NIGHTSPARKLE_SCRAMBLER] =		{SPR_NULL,	0,	0,	A_Dye,	0,	SKINCOLOR_SIBERITE,	S_NIGHTSPARKLE1}
 
 states[S_RSR_INVINSPARKLE] =	{SPR_RSIV,	A|FF_FULLBRIGHT|FF_ANIMATE,	6,	nil,	5,	1,	S_RSR_INVINSPARKLE2}
 states[S_RSR_INVINSPARKLE2] =	{SPR_RSIV,	E|FF_FULLBRIGHT,			1,	nil,	0,	0,	S_RSR_INVINSPARKLE3}
