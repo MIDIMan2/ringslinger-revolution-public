@@ -1,8 +1,8 @@
 ---@diagnostic disable: missing-fields
 -- Ringslinger Revolution - Player Health System
 
-RSR.HOMING_THRESHOLD_THOK = 40
-RSR.HOMING_THRESHOLD_ATTRACT = 45
+RSR.HOMING_THRESHOLD_THOK = 28
+RSR.HOMING_THRESHOLD_ATTRACT = 35
 
 RSR.HITSOUND_HIT = 1
 RSR.HITSOUND_ARMOR = 2

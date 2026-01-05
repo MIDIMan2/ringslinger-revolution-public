@@ -88,10 +88,17 @@ RSR.PlayerHomingAttack = function(player, player2)
 
 	local zDist = 0
 	local ns = 0
+	local nsreduce = 0
 
 	if (player2.realmo.flags & MF_NOCLIPTHING) then return false end
 	if player2.realmo.health <= 0 then return false end
 	if player2.rsrinfo.hurtByMelee then return false end
+
+	-- Tick down homingtimer every tic, then when this goes below 0 start slowing down the pursuer until speed goes to 0, then break lock
+	player.rsrinfo.homingtimer = $ - 1
+	if player.rsrinfo.homingTimer < 0 then
+		nsreduce = player.rsrinfo.homingTimer
+	end
 
 	-- Change angle
 	player.mo.angle = R_PointToAngle2(player.mo.x, player.mo.y, player2.realmo.x, player2.realmo.y)
@@ -108,6 +115,17 @@ RSR.PlayerHomingAttack = function(player, player2)
 		ns = FixedDiv(FixedMul(player.actionspd, player.mo.scale), 3*FRACUNIT/2)
 	else
 		ns = FixedMul(45*FRACUNIT, player.mo.scale)
+	end
+
+	-- Second half of the lock on time limit code
+	ns = $ + nsreduce
+	if ns < 1 then
+		if player.charability == CA_HOMINGTHOK and not (player.pflags & PF_SHIELDABILITY) then
+			S_StartSound(player.mo, sfx_s3k90)
+		else
+			S_StartSound(player.mo, sfx_s3ka6)
+		end
+		return false
 	end
 
 	player.mo.momx = FixedMul(FixedDiv(player2.realmo.x - player.mo.x, dist), ns)
@@ -271,6 +289,7 @@ RSR.PlayerShieldSpecial = function(player)
 		player.mo.state = S_PLAY_ROLL
 		S_StartSound(player.mo, sfx_s3k40)
 		player.rsrinfo.homing = 3*TICRATE
+		player.rsrinfo.homingTimer = RSR.ATTRACT_TIMER
 	else
 		S_StartSound(player.mo, sfx_s3ka6)
 	end
@@ -314,6 +333,7 @@ RSR.PlayerAbilitySpecial = function(player)
 		player.mo.state = S_PLAY_ROLL
 		player.mo.angle = R_PointToAngle2(player.mo.x, player.mo.y, lockOnThok.x, lockOnThok.y)
 		player.rsrinfo.homing = 3*TICRATE
+		player.rsrinfo.homingTimer = RSR.HOMING_TIMER
 	else
 		player.mo.state = S_PLAY_FALL
 		player.pflags = $ & ~PF_JUMPED

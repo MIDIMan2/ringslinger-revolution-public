@@ -55,6 +55,12 @@ RSR.FireWeapon = function(player)
 	if not RSR.CheckAmmo(player) then return end
 	if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attack == nil then return end
 
+	-- Don't fire if using the Attraction Shield or Homing Attack
+	if player.rsrinfo.homing and Valid(player.mo.tracer) then
+		S_StartSound(player,sfx_noammo,player)
+		return
+	end
+
 	PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attack)
 	player.drawangle = player.mo.angle
 end
@@ -70,6 +76,12 @@ RSR.FireWeaponAlt = function(player)
 		if not (RSR.HasPowerup(player, RSR.POWERUP_INFINITY) and RSR.CheckAmmo(player)) then return end
 	end
 	if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attackalt == nil then return end
+
+	-- Don't fire if using the Attraction Shield or Homing Attack
+	if player.rsrinfo.homing and Valid(player.mo.tracer) then
+		S_StartSound(player,sfx_noammo,player)
+		return
+	end
 
 	PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attackalt)
 	player.drawangle = player.mo.angle
