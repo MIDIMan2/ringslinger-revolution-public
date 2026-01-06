@@ -82,6 +82,11 @@ RSR.PlayerInit = function(player)
 	rsrinfo.scatterFlak = nil -- Used for the Scatter Ring's altfire; See weapon/scatter.lua for more information
 	rsrinfo.bounceMega = nil -- Used for the Bounce Ring's altfire; See weapon/bounce.lua for more information
 	rsrinfo.waspTime = RSR.HOMING_WASP_MAX -- Used for the Homing Ring's altfire; See weapon/homing.lua for more information
+	-- Used for toasty deaths; See player/toastydeath.lua for more information
+	rsrinfo.preburncolor = nil
+	rsrinfo.explodeTime = 0
+	rsrinfo.explodeOnTimer = false
+	rsrinfo.haveIExplodedYet = false
 
 	rsrinfo.useZoom = false
 	rsrinfo.fovZoom = 0
@@ -261,10 +266,6 @@ RSR.PlayerThink = function(player)
 	player.rsrinfo.lastbuttons = player.cmd.buttons
 	player.rsrinfo.lastexiting = player.exiting
 	player.rsrinfo.lastemeralds = player.powers[pw_emeralds]
-	player.rsrinfo.preburncolor = nil
-	player.rsrinfo.explodeTime = 0
-	player.rsrinfo.explodeOnTimer = false
-	player.rsrinfo.haveIExplodedYet = false
 
 	if player.playerstate == PST_LIVE then
 		player.mo.rsrPrevMomX = player.mo.momx
