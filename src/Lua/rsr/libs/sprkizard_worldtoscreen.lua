@@ -128,7 +128,7 @@ local function R_World2Screen3FPS(v, player, cam, point, reverse)
 	end
 
 	// Set results relative to top left!
-	result.x = FixedMul(tan(da), fg)
+	result.x = FixedMul(-tan(da), fg)
 	result.y = FixedMul((tan(viewpointAiming) - FixedDiv((point.z - viewz), 1 + FixedMul(cos(da), h))), fg)
 
 	result.angle = da
