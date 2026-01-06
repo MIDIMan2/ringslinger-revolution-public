@@ -276,9 +276,18 @@ NoZone = true
 Music = RUMBLE
 TypeOfLevel = RSRMatch,RSRTag
 SelectHeading = RSR Standard
-NextLevel = O0
+NextLevel = OJ
 SkyNum = 700
 Skyboxscale = 4
+
+Level OJ
+LevelName = Red Barrage
+NoZone = true
+Music = BARAGE
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O0
+SkyNum = 666
 
 Level P0
 LevelName = Starlit Warehouse
