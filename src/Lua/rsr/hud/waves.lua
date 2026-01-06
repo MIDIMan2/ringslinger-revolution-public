@@ -11,6 +11,7 @@ end
 RSR.HUDWavesEnemyRadar = function(v, player, thiscam)
 	if not v then return end
 	if not RSR.WavesGamemodeActive() then return end
+	if not Valid(player) and Valid(player.realmo) then return end
 
 	-- Display an enemy radar to make enemies easier to find in large maps
 	if #RSR.WAVE_ENEMIES then
@@ -33,7 +34,7 @@ RSR.HUDWavesEnemyRadar = function(v, player, thiscam)
 				local transFlag = FixedMul(9, min(transScale, FRACUNIT))*V_10TRANS
 				local eggmanPatch = v.cachePatch("RSREGGM")
 				v.drawCropped(
-					160*FRACUNIT + (160*FRACUNIT - result.x) - 64*result.scale,
+					result.x - 64*result.scale,
 					result.y - 64*result.scale,
 					8*max(FRACUNIT/32, result.scale),
 					8*max(FRACUNIT/32, result.scale),

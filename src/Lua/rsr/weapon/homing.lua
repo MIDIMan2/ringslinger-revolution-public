@@ -285,8 +285,8 @@ pspractions.A_HomingAttack = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
 	RSR.SetWeaponDelay(player)
-	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING, player.mo.angle, player.cmd.aiming<<16)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
@@ -321,6 +321,7 @@ pspractions.A_HomingAttackAlt = function(player, args)
 		S_StopSoundByID(player.mo, sfx_hoatsk)
 		if Valid(lockOn) and (player.rsrinfo.waspTime < 1) then
 			RSR.SetWeaponDelay(player)
+			RSR.TakeAmmoFromReadyWeapon(player, 3)
 			local homing = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING_BOMB, player.mo.angle, player.cmd.aiming<<16)
 			if Valid(homing) then
 				homing.tracer = lockOn
@@ -332,7 +333,6 @@ pspractions.A_HomingAttackAlt = function(player, args)
 			if Valid(lockOn) then
 				S_StartSound(lockOn, sfx_hoattg)
 			end
-			RSR.TakeAmmoFromReadyWeapon(player, 3)
 			player.rsrinfo.waspTime = RSR.HOMING_WASP_MAX
 
 			if pspractions.A_RSRCheckAmmo(player, {}) then return end
