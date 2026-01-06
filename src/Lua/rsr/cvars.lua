@@ -1,6 +1,19 @@
 -- Ringslinger Revolution - Console Variables/Commands
 
 -- Lets homing rings target and kill spectators
+RSR.CV_Viewmodel = CV_RegisterVar({
+	name = "rsr_viewmodel",
+	defaultvalue = "Right",
+	flags = CV_SAVE,
+	PossibleValue = {
+		Right = RSR.CVVIEWMODEL_RIGHT,
+		Left = RSR.CVVIEWMODEL_LEFT,
+		Center = RSR.CVVIEWMODEL_CENTER,
+		Off = RSR.CVVIEWMODEL_NONE
+	}
+})
+
+-- Lets homing rings target and kill spectators
 RSR.CV_Ghostbusters = CV_RegisterVar({
 	name = "rsr_ghostbusters",
 	defaultvalue = "False",

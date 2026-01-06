@@ -16,9 +16,14 @@ RSR.HUDPSprites = function(v, player, camera)
 	if not RSR.GamemodeActive() then return end
 	if not (v and Valid(player) and Valid(player.mo) and player.rsrinfo and camera) then return end
 	if not (not camera.chase and player.psprites) then return end
+	if RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_NONE then return end
 
 	local scale = FixedDiv(v.height(), 200)
-	local xOffset = (v.width()*FRACUNIT - 320*scale)/2
+	if RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_CENTER then
+		local xOffset = 0
+	else
+		local xOffset = (v.width()*FRACUNIT - 320*scale)/2
+	end
 	local yOffset = 32*scale
 
 	for _, pspr in ipairs(player.psprites) do
@@ -64,18 +69,35 @@ RSR.HUDPSprites = function(v, player, camera)
 		local colormap = v.getColormap(skin, color, transmap)
 
 		-- drawCropped automatically crops the bottom of the patch for splitscreen, so use it instead of drawStretched
-		v.drawCropped(
-			FixedMul(x, scale) + xOffset,
-			FixedMul(y, scale) + yOffset,
-			scale,
-			scale,
-			patch,
-			V_NOSCALESTART|V_NOSCALEPATCH|V_SNAPTOBOTTOM|V_PERPLAYER,
-			colormap,
-			0,
-			0,
-			patch.width*FRACUNIT,
-			patch.height*FRACUNIT
-		)
+		-- TODO: add support for center view!
+		if RSR.CV_Viewmodel.value == RSR.CV_VIEWMODEL_LEFT then
+			v.drawCropped(
+				FixedMul(x, scale) + xOffset,
+				FixedMul(y, scale) + yOffset,
+				scale,
+				scale,
+				patch,
+				V_NOSCALESTART|V_NOSCALEPATCH|V_SNAPTOBOTTOM|V_PERPLAYER|V_FLIP,
+				colormap,
+				0,
+				0,
+				patch.width*FRACUNIT,
+				patch.height*FRACUNIT
+			)
+		else
+			v.drawCropped(
+				FixedMul(x, scale) + xOffset,
+				FixedMul(y, scale) + yOffset,
+				scale,
+				scale,
+				patch,
+				V_NOSCALESTART|V_NOSCALEPATCH|V_SNAPTOBOTTOM|V_PERPLAYER,
+				colormap,
+				0,
+				0,
+				patch.width*FRACUNIT,
+				patch.height*FRACUNIT
+			)
+		end
 	end
 end
