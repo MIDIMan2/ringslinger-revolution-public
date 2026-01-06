@@ -9,7 +9,6 @@ SkyNum = 700
 TypeOfLevel = Singleplayer,Co-op
 Lua.RingslingerRev = true
 Lua.RSRWavesTags = 1,601,721,2
-Lua.RSRWaveNumber = 3
 
 Level 60
 LevelName = Rumble Rift
@@ -20,7 +19,6 @@ SkyNum = 700
 TypeOfLevel = Singleplayer,Co-op
 Lua.RingslingerRev = true
 Lua.RSRWavesTags = 1,601,721,2
-Lua.RSRWaveNumber = 3
 
 # Techno Madness
 
