@@ -14,7 +14,7 @@ end)
 
 -- Get the game to recognise what a death to fire/exploding damage is.
 addHook("MobjDeath", function(player, inflictor, source, dmg)
-	if dmg == DMG_FIRE or RSR.MOBJ_INFO[inflictor.type].explosive or player.rsrinfo.explodeTime > 0 == true then
+	if dmg == DMG_FIRE or dmg == DMG_NUKE or RSR.MOBJ_INFO[inflictor.type].explosive or player.rsrinfo.explodeTime > 0 == true then
 		player.rsrinfo.preburncolor = player.color
 		if player.rsrinfo.explodeTime > 0 then
 			player.rsrinfo.explodeOnTimer = true
