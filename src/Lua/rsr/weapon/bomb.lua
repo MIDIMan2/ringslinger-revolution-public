@@ -11,12 +11,12 @@ RSR.AddWeapon("BOMB", {
 	ammotype = RSR.AMMO_BOMB,
 	ammoamount = 10,
 	ammoalt = 3,
-	class = 6,
+	class = 4,
 	delay = 36,
 	delayspeed = 18,
 	delayalt = 70,
 	delayaltspeed = 35,
-	emerald = EMERALD6,
+	emerald = EMERALD4,
 	icon = "RSRBOMBI",
 	name = "Explosion Ring",
 	namealt = "Self-Propel",
@@ -42,7 +42,7 @@ mobjinfo[MT_RSR_PROJECTILE_BOMB] = {
 	painchance = 192*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
-	speed = 90*FRACUNIT,
+	speed = 60*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
 	damage = 20,
@@ -174,9 +174,8 @@ pspractions.A_BombAttack = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.SetWeaponDelay(player)
-
-	local bomb = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOMB, player.mo.angle, player.cmd.aiming<<16)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOMB, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
@@ -187,12 +186,10 @@ pspractions.A_BombAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
+	RSR.TakeAmmoFromReadyWeapon(player, 3)
 
 	local bomb = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOMB_MISSILEFORM, player.mo.angle, player.cmd.aiming<<16)
-	if Valid(bomb) then
-		P_ExplodeMissile(bomb)
-	end
-	RSR.TakeAmmoFromReadyWeapon(player, 3)
+	if Valid(bomb) then P_ExplodeMissile(bomb) end
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end

@@ -1,5 +1,6 @@
 ---@diagnostic disable: missing-fields
 -- Ringslinger Revolution - Bounce Weapon
+-- TODO: Use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
 
 RSR.AddAmmo("BOUNCE", {
 	amount = 16,
@@ -11,12 +12,12 @@ RSR.AddWeapon("BOUNCE", {
 	ammotype = RSR.AMMO_BOUNCE,
 	ammoamount = 16,
 	ammoalt = 3,
-	class = 4,
+	class = 6,
 	delay = 7,
 	delayspeed = 4,
 	delayalt = 35,
 	delayaltspeed = 17,
-	emerald = EMERALD4,
+	emerald = EMERALD6,
 	icon = "RSRBNCEI",
 	name = "Bounce Ring",
 	namealt = "Goldburster",
@@ -374,8 +375,8 @@ pspractions.A_BounceAttack = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
 	RSR.SetWeaponDelay(player)
-	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOUNCE, player.mo.angle, player.cmd.aiming<<16)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOUNCE, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
@@ -389,6 +390,7 @@ pspractions.A_BounceAttackAlt = function(player, args)
 	player.rsrinfo.lastbuttons = $|RSR.GetAttackButton(true)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
+	RSR.TakeAmmoFromReadyWeapon(player, 3)
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then
 		missile.rsrOrigScale = missile.scale
@@ -396,7 +398,6 @@ pspractions.A_BounceAttackAlt = function(player, args)
 		missile.destscale = 2 * missile.scale
 		player.rsrinfo.bounceMega = missile
 	end
-	RSR.TakeAmmoFromReadyWeapon(player, 3)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end

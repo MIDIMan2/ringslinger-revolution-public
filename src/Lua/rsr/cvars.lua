@@ -229,7 +229,7 @@ COM_AddCommand("rsr_kill", function(player, _)
 	end
 
 	if not (Valid(player) and Valid(player.realmo)) then return end
-	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK end
+	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_USEDKILLCMD end
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 

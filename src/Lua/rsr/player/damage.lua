@@ -22,6 +22,7 @@ RSR.HITSOUND_TO_SFX = {
 
 RSR.DEATH_REMOVEDEATHMASK = 1
 RSR.DEATH_MAKESPECTATOR = 2
+RSR.DEATH_USEDKILLCMD = 4
 
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end

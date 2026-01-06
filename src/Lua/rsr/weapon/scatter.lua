@@ -1,5 +1,6 @@
 ---@diagnostic disable: missing-fields
 -- Ringslinger Revolution - Scatter Weapon
+-- TODO: Use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
 
 RSR.AddAmmo("SCATTER", {
 	amount = 20,
@@ -364,6 +365,7 @@ pspractions.A_ScatterAttack = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
 	RSR.SetWeaponDelay(player)
+	RSR.TakeAmmoFromReadyWeapon(player, 1)
 
 	local angle = player.mo.angle
 	local pitch = player.cmd.aiming<<16
@@ -376,7 +378,6 @@ pspractions.A_ScatterAttack = function(player, args)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_SCATTER, angle, pitch + pitchOffset)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_SCATTER, angle - angleOffset, pitch)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_SCATTER, angle, pitch - pitchOffset)
-	RSR.TakeAmmoFromReadyWeapon(player, 1)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
@@ -390,6 +391,8 @@ pspractions.A_ScatterAttackAlt = function(player, args)
 	player.rsrinfo.lastbuttons = $|RSR.GetAttackButton(true)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
+	RSR.TakeAmmoFromReadyWeapon(player, 1)
+
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then
 		missile.rsrOrigScale = missile.scale
@@ -397,7 +400,6 @@ pspractions.A_ScatterAttackAlt = function(player, args)
 		missile.destscale = 2 * missile.scale
 		player.rsrinfo.scatterFlak = missile
 	end
-	RSR.TakeAmmoFromReadyWeapon(player, 1)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end

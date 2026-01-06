@@ -215,12 +215,12 @@ pspractions.A_BasicAttack = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
 	RSR.SetWeaponDelay(player)
+	RSR.TakeAmmoFromReadyWeapon(player, 1)
 
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BASIC, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) and not (missile.color or missile.translation) then
 		missile.color = SKINCOLOR_RED
 	end
-	RSR.TakeAmmoFromReadyWeapon(player, 1)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
@@ -286,10 +286,6 @@ pspractions.A_BasicAttackAlt = function(player, args)
 	end
 
 	local forceFire = false
-	if not RSR.CanUseWeapons(player) or RSR.CheckPendingWeapon(player) then
-		RSR.SpawnBasicAlt(player, rsrinfo, chargeSound)
-		return
-	end
 
 	if args[1] then
 		if rsrinfo.basicCharge > 35 then
@@ -303,6 +299,11 @@ pspractions.A_BasicAttackAlt = function(player, args)
 				RSR.TakeAmmoFromReadyWeapon(player, 1)
 			end
 		end
+	end
+
+	if not RSR.CanUseWeapons(player) or RSR.CheckPendingWeapon(player) then
+		RSR.SpawnBasicAlt(player, rsrinfo, chargeSound)
+		return
 	end
 
 	-- Force the player to fire a Charge Shot ring if they no longer have the super powerup or the green emerald.
