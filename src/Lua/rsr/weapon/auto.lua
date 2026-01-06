@@ -43,7 +43,7 @@ mobjinfo[MT_RSR_PROJECTILE_AUTO] = {
 	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 14,
+	damage = 11,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
@@ -61,10 +61,10 @@ mobjinfo[MT_RSR_PROJECTILE_AUTO_SNP] = {
 	seesound = sfx_atatfr,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	speed = 80*FRACUNIT,
+	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 10,
+	damage = 11,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
@@ -126,8 +126,8 @@ pspractions.A_AutoAttack = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.SetWeaponDelay(player)
-	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_AUTO, player.mo.angle, player.cmd.aiming<<16)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_AUTO, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
@@ -138,13 +138,13 @@ pspractions.A_AutoAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
+	RSR.TakeAmmoFromReadyWeapon(player, 3)
 
 	local angle = player.mo.angle
 	local pitch = player.cmd.aiming<<16
-
 	for i = 0, 2 do
-		local angleOffset = FixedAngle(P_RandomRange(5,-5)*FRACUNIT/2) -- Random horizontal spread between 2.5 and -2.5 degrees
-		local pitchOffset = FixedAngle(P_RandomRange(4,-4)*FRACUNIT/2) -- Random vertical spread between 2 and -2 degrees
+		local angleOffset = FixedAngle(P_RandomRange(6,-6)*FRACUNIT/2) -- Random horizontal spread between 3 and -3 degrees
+		local pitchOffset = FixedAngle(P_RandomRange(3,-3)*FRACUNIT/2) -- Random vertical spread between 1.5 and -1.5 degrees
 		local leadSplit = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_AUTO_SNP, angle + angleOffset, pitch + pitchOffset)
 		if Valid(leadSplit) then
 			-- Make it smaller
@@ -153,7 +153,6 @@ pspractions.A_AutoAttackAlt = function(player, args)
 			leadSplit.destscale = 9*leadSplit.scale/10
 		end
 	end
-	RSR.TakeAmmoFromReadyWeapon(player, 3)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
