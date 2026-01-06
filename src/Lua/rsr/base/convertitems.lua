@@ -93,6 +93,33 @@ RSR.RSMOBJ_TO_RSRMOBJ = {
 	}
 }
 
+RSR.REMOVE_SHIELDS = {
+	[MT_ELEMENTAL_BOX] = {
+		motype = MT_PITY_BOX
+	},
+	[MT_FORCEBOX] = {
+		motype = MT_PITY_BOX
+	},
+	[MT_WHIRLWIND_BOX] = {
+		motype = MT_RING_BOX
+	},
+	[MT_BUBBLEWRAP_BOX] = {
+		motype = MT_RING_BOX
+	},
+	[MT_FLAMEAURA_BOX] = {
+		motype = MT_RING_BOX
+	},
+	[MT_THUNDERCOIN_BOX] = {
+		motype = MT_PITY_BOX
+	},
+	[MT_ARMAGEDDON_BOX] = {
+		motype = MT_1UP_BOX
+	},
+	[MT_ATTRACT_BOX] = {
+		motype = MT_INVULN_BOX
+	}
+}
+
 RSR.ConvertItemsMapLoad = function()
 	if not (RSR.GamemodeActive() and G_RingSlingerGametype()) then return end
 	if RSR.MAP_HAS_RSR_MOBJS then
@@ -165,6 +192,83 @@ RSR.ConvertItemsMapLoad = function()
 		end
 		if moInfo.floatoffset then mo.rsrFloatOffset = FixedAngle(P_RandomKey(360)*FRACUNIT) end
 		mo.shadowscale = 2*FRACUNIT/3
+	end
+end
+
+RSR.RemoveShieldsMapLoad = function()
+	if not (RSR.GamemodeActive() and G_RingSlingerGametype() and (not RSR.CV_ShieldEffects.value)) then return end
+
+	if RSR.MAP_HAS_RSR_MOBJS then
+		for mo in mobjs.iterate() do
+			if not Valid(mo) then continue end
+			if not RSR.REMOVE_SHIELDS[mo.type] then continue end
+			mo.flags2 = $|MF2_DONTRESPAWN
+			P_RemoveMobj(mo)
+		end
+		return
+	end
+
+	if not RSR.CV_ShieldEffects.value then -- Extra failsafe to make sure this only runs if ShieldEffects are off!
+		for mo in mobjs.iterate() do
+			if not Valid(mo) then continue end
+			if not RSR.REMOVE_SHIELDS[mo.type] then continue end
+			local moInfo = RSR.REMOVE_SHIELDS[mo.type]
+			local moRespawnType = 0
+
+			 if (mo.info.flags & MF_MONITOR) and (mo.flags2 & (MF2_AMBUSH)) then
+				if mo.flags2 & MF2_STRONGBOX then
+					respawnType = 2
+				else
+					respawnType = 1
+				end
+			end
+
+			local origDamage = mo.info.damage
+			if type(moInfo.motype) == "table" and Valid(mo.spawnpoint) then
+				mo.type = moInfo.motype[(#mo.spawnpoint % #moInfo.motype) + 1]
+			else
+				mo.type = moInfo.motype
+			end
+			if Valid(mo.spawnpoint) then
+				mo.radius = FixedMul(mo.info.radius, mo.spawnpoint.scale)
+				mo.height = FixedMul(mo.info.height, mo.spawnpoint.scale)
+			else
+				mo.radius = mo.info.radius
+				mo.height = mo.info.height
+			end
+			mo.flags = mo.info.flags
+			-- Don't set to spawnstate if the object is a strong random monitor
+			if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) and origDamage ~= mo.info.damage then
+				if Valid(mo.rsrStrongBoxIcon) then
+					local sprite, frame = SPR_TVMY, C
+					if mo.info.damage ~= MT_UNKNOWN and mo.info.damage ~= MT_1UP_ICON then
+						sprite = states[mobjinfo[mo.info.damage].spawnstate].sprite
+						frame = (states[mobjinfo[mo.info.damage].spawnstate].frame & FF_FRAMEMASK)
+					end
+					mo.rsrStrongBoxIcon.sprite = sprite
+					mo.rsrStrongBoxIcon.frame = frame
+				end
+			else
+				mo.state = mo.info.spawnstate
+			end
+			-- Attempt to keep WRMs and SRMs as WRMs and SRMs post-conversion...
+			if respawnType = 1 then
+				mo.flags2 = $|MF2_AMBUSH
+			end
+			if respawnType = 2 then
+				mo.flags2 = $|MF2_AMBUSH|MF2_STRONGBOX
+			end
+			if moInfo.zoffset then
+				local zScale = FRACUNIT
+				if Valid(mo.spawnpoint) then zScale = mo.spawnpoint.scale end
+				if Valid(mo.spawnpoint) and (mo.spawnpoint.options & MTF_OBJECTFLIP) then
+					mo.z = $ - FixedMul(moInfo.zoffset, zScale)
+				else
+					mo.z = $ + FixedMul(moInfo.zoffset, zScale)
+				end
+			end
+			mo.shadowscale = 2*FRACUNIT/3
+		end
 	end
 end
 

@@ -12,6 +12,7 @@ end)
 
 addHook("MapLoad", function(_)
 	RSR.ConvertItemsMapLoad()
+	RSR.RemoveShieldsMapLoad()
 	RSR.EmeraldsMapLoad()
 	RSR.WavesMapLoad()
 end)
