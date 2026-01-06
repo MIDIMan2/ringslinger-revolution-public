@@ -277,15 +277,14 @@ pspractions.A_RailAttack = function(player, args)
 	S_StartSound(nil, sfx_railec)
 
 	RSR.SetWeaponDelay(player)
+	RSR.TakeAmmoFromReadyWeapon(player, 1, true) -- Force the rail ring to take ammo away even if the player has the infinity powerup
+
 	RSR.SpawnRailRing(player.mo, player.mo.angle, player.cmd.aiming<<16)
 
 	if P_IsLocalPlayer(player) then
  		-- P_StartQuake(64*FRACUNIT, 12, {x = player.mo.x, y = player.mo.y, z = player.mo.z + player.mo.height/2}, 64*player.mo.scale)
 		P_StartQuake(64*FRACUNIT, 12, nil, nil)
 	end
-
-	-- Force the rail ring to take ammo away even if the player has the infinity powerup
-	RSR.TakeAmmoFromReadyWeapon(player, 1, true)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then
 		player.rsrinfo.useZoom = false
