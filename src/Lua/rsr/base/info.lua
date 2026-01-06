@@ -308,6 +308,13 @@ RSR.MOBJ_INFO[MT_MINECART] = {
 		solo = "$v went off the rails."
 	}
 }
+RSR.MOBJ_INFO[MT_TNTBARREL] = {
+	killfeedIcon = "RSRTNT",
+	killfeedObituary = {
+		attacker = "$a blew $v to smithereens with a TNT barrel.",
+		solo = "$v was blown to smithereens by a TNT barrel."
+	}
+}
 RSR.MOBJ_INFO[MT_BLASTEXECUTOR] = {health = 1, nothomable = true} -- Don't let homing rings home in on blast executors
 
 -- --------------------------------
