@@ -37,6 +37,28 @@ COM_AddCommand("rsr_kill", function(player, _)
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 
+COM_AddCommand("rsr_explode", function(player, _)
+	if not RSR.GamemodeActive() then
+		print("You must be in a Ringslinger Revolution level or gametype to use this.")
+		return
+	end
+
+	if not (netgame or multiplayer) then
+		print("You can't use this in Single Player! Use \"retry\" instead.")
+		return
+	end
+
+	if G_PlatformGametype() then
+		print("You can't use this in co-op, race, or competition! Use \"suicide\" instead.")
+		return
+	end
+
+	if not (Valid(player) and Valid(player.realmo)) then return end
+	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK end
+	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
+	player.rsrinfo.explodeTime = 3*TICRATE/4
+end)
+
 -- TODO: Remove or comment this out for public releases
 -- COM_AddCommand("rsr_getemeralds", function(player, arg)
 -- 	if not Valid(player) then return end

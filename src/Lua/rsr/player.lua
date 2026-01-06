@@ -261,6 +261,10 @@ RSR.PlayerThink = function(player)
 	player.rsrinfo.lastbuttons = player.cmd.buttons
 	player.rsrinfo.lastexiting = player.exiting
 	player.rsrinfo.lastemeralds = player.powers[pw_emeralds]
+	player.rsrinfo.preburncolor = nil
+	player.rsrinfo.explodeTime = 0
+	player.rsrinfo.explodeOnTimer = false
+	player.rsrinfo.haveIExplodedYet = false
 
 	if player.playerstate == PST_LIVE then
 		player.mo.rsrPrevMomX = player.mo.momx
