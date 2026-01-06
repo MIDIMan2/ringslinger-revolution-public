@@ -120,6 +120,7 @@ RSR.ConvertItemsMapLoad = function()
 			continue
 		end
 
+		local origDamage = mo.info.damage
 		if type(moInfo.motype) == "table" and Valid(mo.spawnpoint) then
 			mo.type = moInfo.motype[(#mo.spawnpoint % #moInfo.motype) + 1]
 		else
@@ -137,7 +138,20 @@ RSR.ConvertItemsMapLoad = function()
 			mo.rsrIsPanel = true
 			mo.state = mo.info.seestate
 		else
-			mo.state = mo.info.spawnstate
+			-- Don't set to spawnstate if the object is a strong random monitor
+			if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) and origDamage ~= mo.info.damage then
+				if Valid(mo.rsrStrongBoxIcon) then
+					local sprite, frame = SPR_TVMY, C
+					if mo.info.damage ~= MT_UNKNOWN and mo.info.damage ~= MT_1UP_ICON then
+						sprite = states[mobjinfo[mo.info.damage].spawnstate].sprite
+						frame = (states[mobjinfo[mo.info.damage].spawnstate].frame & FF_FRAMEMASK)
+					end
+					mo.rsrStrongBoxIcon.sprite = sprite
+					mo.rsrStrongBoxIcon.frame = frame
+				end
+			else
+				mo.state = mo.info.spawnstate
+			end
 		end
 		if moInfo.ammo ~= nil then mo.rsrAmmoAmount = moInfo.ammo end
 		if moInfo.zoffset then
