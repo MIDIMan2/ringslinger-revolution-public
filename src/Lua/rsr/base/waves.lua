@@ -228,8 +228,8 @@ mobjinfo[MT_RSR_ENEMYSPAWNER] = {
 	--$Category Ringslinger Revolution
 	--$Arg0 "Wave #s"
 	--$Arg0Type 12
-	--$Arg0Tooltip "Use this to specify what wave(s) the spawner should work in (out of 3)."
-	--$Arg0Enum {1 = "Wave 1"; 2 = "Wave 2"; 4 = "Wave 3";}
+	--$Arg0Tooltip "Use this to specify what wave(s) the spawner should work in (out of 10)."
+	--$Arg0Enum {1 = "Wave 1"; 2 = "Wave 2"; 4 = "Wave 3"; 8 = "Wave 4"; 16 = "Wave 5"; 32 = "Wave 6"; 64 = "Wave 7"; 128 = "Wave 8"; 256 = "Wave 9"; 512 = "Wave 10";}
 	--$StringArg0 "Object type"
 	doomednum = 360,
 	spawnstate = S_INVISIBLE,
