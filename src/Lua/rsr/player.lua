@@ -214,9 +214,7 @@ RSR.PlayerThink = function(player)
 	end
 
 	-- Don't let the NiGHTS timer time out on the player in "Waves" maps
-	if G_IsSpecialStage(gamemap) and player.nightstime then
-		player.nightstime = -1
-	end
+	if RSR.WavesGamemodeActive() then player.nightstime = -1 end
 
 	local destBobY = 0
 	local bobAngle = FixedDiv((leveltime%45)*FRACUNIT, 45*FRACUNIT/2) * 360
