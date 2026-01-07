@@ -15,6 +15,7 @@ dofolder("powerups.lua")
 dofolder("super.lua")
 dofolder("homing.lua")
 dofolder("flame.lua")
+dofolder("toastydeath.lua")
 dofolder("ghostbusters.lua")
 dofolder("skininfo.lua")
 
@@ -82,11 +83,6 @@ RSR.PlayerInit = function(player)
 	rsrinfo.scatterFlak = nil -- Used for the Scatter Ring's altfire; See weapon/scatter.lua for more information
 	rsrinfo.bounceMega = nil -- Used for the Bounce Ring's altfire; See weapon/bounce.lua for more information
 	rsrinfo.waspTime = RSR.HOMING_WASP_MAX -- Used for the Homing Ring's altfire; See weapon/homing.lua for more information
-	-- Used for toasty deaths; See player/toastydeath.lua for more information
-	rsrinfo.preburncolor = nil
-	rsrinfo.explodeTime = 0
-	rsrinfo.explodeOnTimer = false
-	rsrinfo.haveIExplodedYet = false
 
 	rsrinfo.useZoom = false
 	rsrinfo.fovZoom = 0
@@ -200,6 +196,7 @@ RSR.PlayerThink = function(player)
 	end
 
 	if player.playerstate == PST_DEAD then
+		RSR.PlayerToastyTick(player)
 		-- Force momentum on the player if they have died
 		if player.mo.rsrPrevMomX or player.mo.rsrPrevMomY or player.mo.rsrPrevMomZ then
 			player.mo.momx = $ + (player.mo.rsrPrevMomX or 0)
@@ -215,7 +212,7 @@ RSR.PlayerThink = function(player)
 			player.mo.spriteroll = $ - FixedAngle(min(45*FRACUNIT, horiMom/2))
 		end
 		player.mo.flags = $|MF_NOCLIP|MF_NOCLIPHEIGHT
-		if player.mo.fuse < TICRATE then player.mo.flags2 = $ ^^ MF2_DONTDRAW end
+		if player.mo.fuse < TICRATE and not (player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then player.mo.flags2 = $ ^^ MF2_DONTDRAW end
 	end
 
 	-- Don't let the NiGHTS timer time out on the player in "Waves" maps
@@ -287,6 +284,17 @@ RSR.PlayerMobjFuse = function(mo)
 	mo.momx = 0
 	mo.momy = 0
 	mo.momz = 0
+	if mo.player.rsrinfo and (mo.player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD)then
+		for i = 1, 12 do
+			local explosion = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SONIC3KBOSSEXPLODE)
+			if Valid(explosion) then
+				explosion.momx = FixedMul(RSR.RandomFixedRange(-16*FRACUNIT, 16*FRACUNIT), explosion.scale)
+				explosion.momy = FixedMul(RSR.RandomFixedRange(-16*FRACUNIT, 16*FRACUNIT), explosion.scale)
+				explosion.momz = FixedMul(RSR.RandomFixedRange(-16*FRACUNIT, 16*FRACUNIT), explosion.scale)
+			end
+		end
+		S_StartSound(mo, sfx_cvxpld)
+	end
 end
 
 addHook("PlayerSpawn", RSR.PlayerSpawn)
