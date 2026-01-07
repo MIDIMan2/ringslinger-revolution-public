@@ -94,7 +94,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON] = {
 	killfeedName = "Mass Scrambler",
 	killfeedObituary = {
 		attacker = "$a's $rMass Scrambler blasted $v.",
-		solo = "$v was blasted by a $rMass Scramble."
+		solo = "$v was blasted by a $rMass Scrambler."
 	}
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {

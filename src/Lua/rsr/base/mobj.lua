@@ -135,6 +135,7 @@ end
 
 --- Makes the actor explode like an Explosion Ring or Grenade Ring, but for RSR.
 ---@param mo mobj_t
+---@param var1 integer Determines the explosion FX type. 0 is for the normal paraloop-based explosion; 1 is for the Mass Scrambler's bomblets.
 A_RSRRingExplode = function(mo, var1, var2)
 	if not Valid(mo) then return end
 
@@ -147,18 +148,40 @@ A_RSRRingExplode = function(mo, var1, var2)
 		sparkleState = RSR.MOBJ_INFO[mo.type].sparklestate
 	end
 
-	for d = 0, 15 do
-		P_SpawnParaloop(
-			mo.x,
-			mo.y,
-			mo.z + mo.height/2,
-			FixedMul(mo.info.painchance, mo.scale),
-			16,
-			MT_NIGHTSPARKLE,
-			d * ANGLE_22h,
-			sparkleState,
-			true
-		)
+	if var1 == 1 then
+		for i = 0, 6 do
+			local spark = P_SpawnMobj(mo.x, mo.y, mo.z, MT_NIGHTSPARKLE)
+			if Valid(spark) then
+				spark.state = sparkleState
+				spark.scale = 11*FRACUNIT/5
+				-- Randomize the spark's momentum
+				spark.momx = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
+				spark.momy = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
+				spark.momz = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
+				if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
+				if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
+				if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+
+				-- Make the spark shrink to scale 0 in roughly 3 seconds
+				spark.scalespeed = FRACUNIT/18
+				spark.destscale = 0
+				spark.tics = 105
+			end
+		end
+	else
+		for d = 0, 15 do
+			P_SpawnParaloop(
+				mo.x,
+				mo.y,
+				mo.z + mo.height/2,
+				FixedMul(mo.info.painchance, mo.scale),
+				16,
+				MT_NIGHTSPARKLE,
+				d * ANGLE_22h,
+				sparkleState,
+				true
+			)
+		end
 	end
 	S_StartSound(mo, sfx_prloop)
 
@@ -170,51 +193,8 @@ A_RSRRingExplode = function(mo, var1, var2)
 	end
 end
 
---- Variant of RSRRingExplode that should have reduced CPU cost. Used for Mass Scrambler bomblets. Note that this blast has reduced thrust compared to the regular blasts!
----@param mo mobj_t
-A_RSRRingXpldCPUFriendly = function(mo, var1, var2)
-	if not Valid(mo) then return end
-
-	local sparkleState = S_NULL
-	if G_GametypeHasTeams() and Valid(mo.target) and Valid(mo.target.player) then
-		if mo.target.player.ctfteam == 1 then
-			sparkleState = S_NIGHTSPARKLESUPER1 -- Red
-		end
-	elseif RSR.MOBJ_INFO[mo.type] and RSR.MOBJ_INFO[mo.type].sparklestate then
-		sparkleState = RSR.MOBJ_INFO[mo.type].sparklestate
-	end
-
-	for i = 0, 6 do
-		local spark = P_SpawnMobj(mo.x, mo.y, mo.z, MT_NIGHTSPARKLE)
-		if Valid(spark) then
-			spark.state = sparkleState
-			spark.scale = 11*FRACUNIT/5
-			-- Randomize the spark's momentum
-			spark.momx = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
-			spark.momy = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
-			spark.momz = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
-			if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
-			if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
-			if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
-
-			-- Make the spark shrink to scale 0 in roughly 3 seconds
-			spark.scalespeed = FRACUNIT/18
-			spark.destscale = 0
-			spark.tics = 105
-		end
-	end
-	S_StartSound(mo, sfx_prloop)
-
-	if RSR.MOBJ_INFO[mo.type] then
-		local rsrMobjInfo = RSR.MOBJ_INFO[mo.type]
-		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime, rsrMobjInfo.fulldamage, rsrMobjInfo.thrustdamage, rsrMobjInfo.aimthrust,true)
-	else
-		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime)
-	end
-end
-
-states[S_RSR_RINGEXPLODE] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
-states[S_RSR_RINGXPLDCPUFRIENDLY] =	{SPR_NULL,	0,	0,	A_RSRRingXpldCPUFriendly,	0,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODE] =		{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODEALT] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	1,	0,	S_RSR_XPLD1}
 
 states[S_RSR_XPLD1] =		{SPR_BOM1,	A,				2,	A_ShadowScream,	0,	0,	S_RSR_XPLD2}
 states[S_RSR_XPLD2] =		{SPR_BOM1,	B,				2,	nil,			0,	0,	S_RSR_XPLD3}
