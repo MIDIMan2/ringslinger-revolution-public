@@ -212,7 +212,14 @@ RSR.PlayerThink = function(player)
 			player.mo.spriteroll = $ - FixedAngle(min(45*FRACUNIT, horiMom/2))
 		end
 		player.mo.flags = $|MF_NOCLIP|MF_NOCLIPHEIGHT
-		if player.mo.fuse < TICRATE and not (player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then player.mo.flags2 = $ ^^ MF2_DONTDRAW end
+		if player.mo.fuse < TICRATE then
+			if (player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
+				player.mo.spritexoffset = P_RandomRange(-8, 8)*FRACUNIT
+				player.mo.spriteyoffset = P_RandomRange(-8, 8)*FRACUNIT
+			else
+				player.mo.flags2 = $ ^^ MF2_DONTDRAW
+			end
+		end
 	end
 
 	-- Don't let the NiGHTS timer time out on the player in "Waves" maps

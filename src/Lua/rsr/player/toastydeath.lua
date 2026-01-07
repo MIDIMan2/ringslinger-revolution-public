@@ -23,7 +23,7 @@ RSR.PlayerToastyTick = function(player)
 	player.mo.color = SKINCOLOR_CARBON
 	if (player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) and player.mo.fuse > 3*TICRATE/4 then player.mo.fuse = 3*TICRATE/4 end
 	-- Only run this if we haven't exploded from rsr_explode yet.
-	if not (leveltime % 2) and not P_IsObjectOnGround(player.mo) and player.mo.fuse then
+	if not (leveltime % 2) and player.mo.fuse and (player.mo.z > player.mo.floorz and player.mo.z + player.mo.height < player.mo.ceilingz) then
 		A_BossScream(player.mo, 0, MT_FIREBALLTRAIL)
 		if not (leveltime % 4) then S_StartSound(player.mo, sfx_s3kc2s) end
 	end
