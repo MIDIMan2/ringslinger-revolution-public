@@ -57,7 +57,7 @@ RSR.FireWeapon = function(player)
 
 	-- Don't fire if using the Attraction Shield or Homing Attack
 	if player.rsrinfo.homing and Valid(player.mo.tracer) then
-		S_StartSound(player,sfx_noammo,player)
+		if not (player.rsrinfo.lastbuttons & BT_ATTACK) then S_StartSound(nil, sfx_noammo, player) end -- TODO: Replace BT_ATTACK in mutators branch
 		return
 	end
 
@@ -79,7 +79,7 @@ RSR.FireWeaponAlt = function(player)
 
 	-- Don't fire if using the Attraction Shield or Homing Attack
 	if player.rsrinfo.homing and Valid(player.mo.tracer) then
-		S_StartSound(player,sfx_noammo,player)
+		if not (player.rsrinfo.lastbuttons & BT_FIRENORMAL) then S_StartSound(nil, sfx_noammo, player) end -- TODO: Replace BT_FIRENORMAL in mutators branch
 		return
 	end
 

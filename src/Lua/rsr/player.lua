@@ -75,7 +75,6 @@ RSR.PlayerInit = function(player)
 	-- since SRB2 automatically sets player.homing to 0 if the player isn't targetting an enemy
 	rsrinfo.homing = 0
 	rsrinfo.homingThreshold = 0
-	rsrinfo.homingTimer = 0
 
 	rsrinfo.basicCharge = 0 -- Used for the Red Ring's altfire; See weapon/basic.lua for more information
 	rsrinfo.basicChargeSound = 0 -- Used for the Red Ring's altfire; See weapon/basic.lua for more information
