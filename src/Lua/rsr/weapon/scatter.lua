@@ -92,7 +92,7 @@ addHook("MobjThinker", function(mo)
 	P_SetObjectMomZ(mo, -abs(2*P_GetMobjGravity(mo)), true)
 
 	-- Bomblet sizzling
-	if not (leveltime % 4) then S_StartSound(mo, sfx_scatab) end
+	if not (leveltime % 3) then S_StartSound(mo, sfx_scatab) end
 
 	-- Smoke particles
 	RSR.ProjectileGhostTimer(mo, true)
