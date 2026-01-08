@@ -74,7 +74,7 @@ RSR.CV_FistsForGuns = CV_RegisterVar({
 -- Makes players lose their emeralds when "de-supering"
 RSR.CV_SuperBurnout = CV_RegisterVar({
 	name = "rsr_superburnout",
-	defaultvalue = "False",
+	defaultvalue = "True",
 	flags = CV_NETVAR|CV_SHOWMODIF,
 	PossibleValue = CV_TrueFalse
 })

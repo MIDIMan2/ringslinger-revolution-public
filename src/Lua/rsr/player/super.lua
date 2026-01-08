@@ -51,8 +51,8 @@ RSR.PlayerSuperTick = function(player)
 		player.rings = 0
 	end
 
-	-- Don't let the player lose their emeralds when detransforming (unless rsr_superburnout is activated)
-	if player.playerstate == PST_LIVE and not player.powers[pw_emeralds] and player.rsrinfo.lastemeralds and not RSR.CV_SuperBurnout.value then
+	-- Don't let the player lose their emeralds when detransforming (unless rsr_superburnout is disabled)
+	if player.playerstate == PST_LIVE and not player.powers[pw_emeralds] and player.rsrinfo.lastemeralds and RSR.CV_SuperBurnout.value then
 		-- for spawner in mobjs.iterate() do
 		-- 	if not (Valid(spawner) and spawner.type == MT_EMERALDSPAWN) then return end
 		-- 	spawner.threshold = 0 -- Reset the counter so the emeralds don't spawn
