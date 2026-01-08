@@ -92,6 +92,7 @@ addHook("MobjThinker", function(mo)
 	P_SetObjectMomZ(mo, -abs(2*P_GetMobjGravity(mo)), true)
 
 	-- Bomblet sizzling
+	-- TODO: rewrite this to use RSR.ProjectileTravelSound when we merge all the branches!
 	if not (leveltime % 3) then S_StartSound(mo, sfx_scatab) end
 
 	-- Smoke particles
