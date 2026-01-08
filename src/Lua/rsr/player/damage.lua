@@ -396,7 +396,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		-- Give the source player an armor boost if the damage was from a manually detonated Armageddon Blast
 		if damagetype == DMG_NUKE and (source.player.pflags & PF_SHIELDABILITY) and source.player.rsrinfo.armor > 0 then
 			-- Dampen this bonus if armor is at critical health to encourage earlier Armageddon detonations
-			if source.player.rsrinfo.armor < 25 then
+			if source.player.rsrinfo.armor < 26 then
 				RSR.GiveArmor(source.player, damageReal/2)
 			else
 				RSR.GiveArmor(source.player, damageReal)
