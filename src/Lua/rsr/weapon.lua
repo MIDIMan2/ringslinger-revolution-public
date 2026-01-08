@@ -309,7 +309,7 @@ end
 
 --- Makes the projectile emit a sound as it travels.
 ---@param mo mobj_t The projectile.
----@param repeat integer|Tics between repeats of the sound effect.
+---@param repeatTime integer|Tics between repeats of the sound effect.
 ---@param sound string|nil The sound to play as the projectile travels.
 RSR.ProjectileTravelSound = function(mo, repeatTime, sound)
 	if not Valid(mo) then return end
