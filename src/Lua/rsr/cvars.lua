@@ -63,13 +63,20 @@ RSR.CV_UltraRapidFire = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
--- Gives everyone the tripled melee damage from Invincibility
+-- Permanently enables the tripled melee damage part of Invincibility buffs. "Tyson" mode makes this STACK with Invincibility for a x9 multiplier...
 RSR.CV_FistsForGuns = CV_RegisterVar({
 	name = "rsr_fistsforguns",
-	defaultvalue = "False",
+	defaultvalue = "Off",
 	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = CV_TrueFalse
+	PossibleValue = {
+		Off = 0,
+		On = RSR.CVPUNCHOUT_ON,
+		Tyson = RSR.CVPUNCHOUT_TYSON,
+	}
 })
+
+RSR.CVPUNCHOUT_ON = 1
+RSR.CVPUNCHOUT_TYSON = 2
 
 -- Makes players lose their emeralds when "de-supering"
 RSR.CV_SuperBurnout = CV_RegisterVar({

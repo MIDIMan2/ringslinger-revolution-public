@@ -1041,16 +1041,25 @@ RSR.PlayerMelee = function(pmo, pmo2)
 	end
 
 	-- Invincibility, Super, or FistsForGuns: x3 damage
-	if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) or player.powers[pw_invulnerability] or player.powers[pw_super] or RSR.CV_FistsForGuns.value then
+	   -- "Tyson" mode makes the FistsForGuns buff stack with the invulnerability buff. Please don't do this
+	if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) or player.powers[pw_invulnerability] or player.powers[pw_super] or RSR.CV_FistsForGuns.value == RSR.CVPUNCHOUT_ON then
 		meleeMult = 3
 	else
 		meleeMult = 1
 	end
 
-	if RSR.HasPowerup(player2, RSR.POWERUP_INVINCIBILITY) or player2.powers[pw_invulnerability] or player2.powers[pw_super] or RSR.CV_FistsForGuns.value then
+	if RSR.CV_FistsForGuns.value == RSR.CVPUNCHOUT_TYSON then
+		meleeMult = $ * 3
+	end
+
+	if RSR.HasPowerup(player2, RSR.POWERUP_INVINCIBILITY) or player2.powers[pw_invulnerability] or player2.powers[pw_super] or RSR.CV_FistsForGuns.value == RSR.CVPUNCHOUT_ON then
 		meleeMult2 = 3
 	else
 		meleeMult2 = 1
+	end
+
+	if RSR.CV_FistsForGuns.value == RSR.CVPUNCHOUT_TYSON then
+		meleeMult2 = $ * 3
 	end
 
 	local playerDamage = meleeBaseDamage * meleeMult
