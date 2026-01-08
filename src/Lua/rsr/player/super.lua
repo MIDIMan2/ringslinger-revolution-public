@@ -51,7 +51,7 @@ RSR.PlayerSuperTick = function(player)
 		player.rings = 0
 	end
 
-	-- Don't let the player lose their emeralds when detransforming
+	-- This code used to prevent the player from losing their emeralds when detransforming, but this was changed for being too strong. Code is still here in case we need to reuse this for the next update
 	-- if player.playerstate == PST_LIVE and not player.powers[pw_emeralds] and player.rsrinfo.lastemeralds then
 		-- for spawner in mobjs.iterate() do
 		-- 	if not (Valid(spawner) and spawner.type == MT_EMERALDSPAWN) then return end
