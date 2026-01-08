@@ -287,8 +287,7 @@ end
 --- Spawns ghost mobjs from the given projectile.
 ---@param mo mobj_t The projectile.
 ---@param doSmoke boolean|nil Spawns smoke instead of ghosts around the projectile if set to true.
----@param sound soundnum_t|nil If set to a sound, play that sound every four tics.
-RSR.ProjectileGhostTimer = function(mo, doSmoke, sound)
+RSR.ProjectileGhostTimer = function(mo, doSmoke)
 	if not Valid(mo) then return end
 	if not ((mo.flags & MF_MISSILE) and mo.health > 0) then return end
 
@@ -305,7 +304,6 @@ RSR.ProjectileGhostTimer = function(mo, doSmoke, sound)
 		else
 			P_SpawnGhostMobj(mo)
 		end
-		if sound then S_StartSound(mo, sound) end
 		mo.rsrGhostTimer = 4
 	end
 end
