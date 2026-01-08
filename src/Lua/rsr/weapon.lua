@@ -307,6 +307,22 @@ RSR.ProjectileGhostTimer = function(mo, doSmoke)
 	end
 end
 
+--- Makes the projectile emit a sound as it travels.
+---@param mo mobj_t The projectile.
+---@param repeat integer|Tics between repeats of the sound effect.
+---@param sound string|nil The sound to play as the projectile travels.
+RSR.ProjectileTravelSound = function(mo, repeatTime, sound)
+	if not Valid(mo) then return end
+	if repeatTime == nil then return end
+	if sound == nil then return end
+
+	mo.rsrSoundTimer = $-1
+	if mo.rsrSoundTimer < 1 then
+		S_StartSound(mo,sound)
+		mo.rsrSoundTimer = repeatTime
+	end
+end
+
 --- Default function for SKIN_INFO's touchWeapon hook.
 ---@param special mobj_t The weapon pickup being touched.
 ---@param toucher mobj_t The player object touching the weapon.

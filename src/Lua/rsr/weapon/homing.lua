@@ -87,7 +87,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		if mo.rsrLockOnSound then mo.rsrLockOnSound = nil end
 	else
 		if not noPlayerSpeed then
-			S_StartSound(mo, sfx_homiab)
+			RSR.ProjectileTravelSound(mo, 3, "sfx_homiab")
 		end
 		RSR.ProjectileGhostTimer(mo, true)
 	end
@@ -173,7 +173,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		curSpeed = FixedMul(3*$/4, tracer.scale)
 	end
 	if noPlayerSpeed then
-		S_StartSound(mo, sfx_hoatab)
+		RSR.ProjectileTravelSound(mo, 3, "sfx_hoatab")
 	end
 
 	P_InstaThrust(mo, mo.angle, FixedMul(cos(mo.pitch), curSpeed))
