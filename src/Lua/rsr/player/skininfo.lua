@@ -1,20 +1,20 @@
--- Ringslinger Revolution - Skin Info
+-- -- Ringslinger Revolution - Skin Info
 
-if not RSR.SKIN_INFO then
-	---@type rsrskininfo_t[]
-	RSR.SKIN_INFO = {}
-end
+-- if not RSR.SKIN_INFO then
+-- 	---@type rsrskininfo_t[]
+-- 	RSR.SKIN_INFO = {}
+-- end
 
-RSR.SKIN_INFO["DEFAULT"] = {
-	hooks = {
-		touchWeapon = RSR.TouchWeaponDefault,
-		touchPowerup = RSR.TouchPowerupDefault,
-		touchHealth = RSR.TouchHealthDefault,
-		touchArmor = RSR.TouchArmorDefault
-	}
-}
+-- RSR.SKIN_INFO["DEFAULT"] = {
+-- 	hooks = {
+-- 		touchWeapon = RSR.TouchWeaponDefault,
+-- 		touchPowerup = RSR.TouchPowerupDefault,
+-- 		touchHealth = RSR.TouchHealthDefault,
+-- 		touchArmor = RSR.TouchArmorDefault
+-- 	}
+-- }
 
-RSR.SKIN_INFO["amy"] = {
-	meleeicon = "RSRHAMMR",
-	meleeobituary = "$a's Piko Piko Hammer whacked $v."
-}
+-- RSR.SKIN_INFO["amy"] = {
+-- 	meleeicon = "RSRHAMMR",
+-- 	meleeobituary = "$a's Piko Piko Hammer whacked $v."
+-- }
