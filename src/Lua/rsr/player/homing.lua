@@ -271,9 +271,9 @@ RSR.PlayerShieldSpecial = function(player)
 		player.mo.state = S_PLAY_ROLL
 		S_StartSound(player.mo, sfx_s3k40)
 		player.rsrinfo.homing = 3*TICRATE
+		if Valid(lockOnShield.player) then S_StartSound(nil, sfx_rsralk, lockOnShield.player) end -- Play the attraction indicator sound only on the opposing player's end
 	else
 		S_StartSound(player.mo, sfx_s3ka6)
-		S_StartSound(player.mo.target, sfx_rsralk)
 	end
 
 	return true
@@ -315,6 +315,7 @@ RSR.PlayerAbilitySpecial = function(player)
 		player.mo.state = S_PLAY_ROLL
 		player.mo.angle = R_PointToAngle2(player.mo.x, player.mo.y, lockOnThok.x, lockOnThok.y)
 		player.rsrinfo.homing = 3*TICRATE
+		if Valid(lockOnThok.player) then S_StartSound(nil, sfx_rsrhlk, lockOnThok.player) end -- Play the homing indicator sound only on the opposing player's end
 	else
 		player.mo.state = S_PLAY_FALL
 		player.pflags = $ & ~PF_JUMPED
@@ -326,7 +327,6 @@ RSR.PlayerAbilitySpecial = function(player)
 
 	if player.mo.info.attacksound and not player.spectator then
 		S_StartSound(player.mo, player.mo.info.attacksound)
-		S_StartSound(player.mo.target, sfx_rsrhlk)
 	end
 
 	P_SpawnThokMobj(player)
