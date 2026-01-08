@@ -344,7 +344,7 @@ RSR.SHIELD_INFO[SH_ATTRACT] = {
 	icon = "RSRATTRI",
 	name = "Attraction Shield",
 	obituary = "$a's Attraction Shield shocked $v.",
-	meleedamage = 20
+	meleedamage = 15
 }
 RSR.SHIELD_INFO[SH_FORCE] = {
 	icon = "RSRFORCI",
