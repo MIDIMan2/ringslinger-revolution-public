@@ -233,6 +233,7 @@ RSR.ProjectileSpawn = function(mo)
 	mo.shadowscale = 2*FRACUNIT/3
 	mo.rsrProjectile = true
 	mo.rsrGhostTimer = 4
+	mo.rsrSoundTimer = 1
 end
 
 --- MobjMoveCollide hook code for projectiles.
@@ -286,7 +287,8 @@ end
 --- Spawns ghost mobjs from the given projectile.
 ---@param mo mobj_t The projectile.
 ---@param doSmoke boolean|nil Spawns smoke instead of ghosts around the projectile if set to true.
-RSR.ProjectileGhostTimer = function(mo, doSmoke)
+---@param sound soundnum_t|nil If set to a sound, play that sound every four tics.
+RSR.ProjectileGhostTimer = function(mo, doSmoke, sound)
 	if not Valid(mo) then return end
 	if not ((mo.flags & MF_MISSILE) and mo.health > 0) then return end
 
@@ -303,22 +305,23 @@ RSR.ProjectileGhostTimer = function(mo, doSmoke)
 		else
 			P_SpawnGhostMobj(mo)
 		end
+		if sound then S_StartSound(mo, sound) end
 		mo.rsrGhostTimer = 4
 	end
 end
 
 --- Makes the projectile emit a sound as it travels.
 ---@param mo mobj_t The projectile.
----@param repeatTime integer|Tics between repeats of the sound effect.
----@param sound string|nil The sound to play as the projectile travels.
+---@param repeatTime integer Tics between repeats of the sound effect.
+---@param sound soundnum_t|nil The sound to play as the projectile travels. Default is the projectile type's activesound.
 RSR.ProjectileTravelSound = function(mo, repeatTime, sound)
 	if not Valid(mo) then return end
-	if repeatTime == nil then return end
-	if sound == nil then return end
+	if not repeatTime then return end -- Shouldn't be nil or 0
+	if not sound then sound = mo.info.activesound end
 
 	mo.rsrSoundTimer = $-1
 	if mo.rsrSoundTimer < 1 then
-		S_StartSound(mo,sound)
+		S_StartSound(mo, sound)
 		mo.rsrSoundTimer = repeatTime
 	end
 end
