@@ -238,7 +238,7 @@ RSR.PlayerThink = function(player)
 		if player.rsrinfo.fovZoom < 9 then
 			player.rsrinfo.fovZoom = $+1
 		end
-		player.fovadd = -30*FRACUNIT
+		player.fovadd = -65*FRACUNIT
 	else
 		if player.rsrinfo.fovZoom then S_StartSound(player.mo, sfx_epocs) end
 		player.rsrinfo.fovZoom = 0
