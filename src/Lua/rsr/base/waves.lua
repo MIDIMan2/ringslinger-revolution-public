@@ -6,6 +6,7 @@
 RSR.WAVE_NUM = 0
 RSR.WAVE_NUM_MAX_DEFAULT = 3
 RSR.WAVE_NUM_MAX = RSR.WAVE_NUM_MAX_DEFAULT
+RSR.WAVE_NUM_HARDLIMIT = 10 -- This can theoretically up to 31, but 10 is a more reasonable number
 RSR.WAVE_TIMER_MAX = 5*TICRATE
 RSR.WAVE_TIMER = RSR.WAVE_TIMER_MAX
 RSR.WAVE_SPAWNERS = {}
@@ -37,8 +38,13 @@ RSR.WavesMapLoad = function()
 	if mapheaderinfo[gamemap].rsrwavescount then
 		local waveCount = tonumber(mapheaderinfo[gamemap].rsrwavescount)
 		if waveCount ~= nil then
-			-- TODO: Make a hard limit of 10(?) (we can technically go as high as 31, but who's going to set it that high?)
-			RSR.WAVE_NUM_MAX = waveCount
+			-- Don't let the wave count be lower than 1 or higher than the hard limit
+			if waveCount > RSR.WAVE_NUM_HARDLIMIT then
+				print("\x82WARNING:\x80 RSRWavesCount parameter is set too high! Setting to 10...") -- TODO: Change the number if the hard limit increases
+			elseif waveCount <= 0 then
+				print("\x82WARNING:\x80 RSRWavesCount parameter must be greater than 0! Setting to 1...")
+			end
+			RSR.WAVE_NUM_MAX = min(RSR.WAVE_NUM_HARDLIMIT, max(1, waveCount))
 		else
 			print("\x82WARNING:\x80 Bad RSRWavesCount parameter provided! Are you sure the LevelHeader supplies an integer for rsrwavescount?")
 		end
