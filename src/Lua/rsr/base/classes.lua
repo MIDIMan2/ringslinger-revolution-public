@@ -199,3 +199,4 @@
 ---@field rsrloseinvondeath string If true, players will lose their weapons upon death.
 ---@field rsrwaves string If true, the map is a "Waves" map.
 ---@field rsrwavestags string Determines what linedef tags are executed in specific waves in a "Waves" map.
+---@field rsrwavescount string Determines how many waves are in the "Waves" map. Default is 3.
