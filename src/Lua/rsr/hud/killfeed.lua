@@ -254,6 +254,8 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		end
 	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDKILLCMD) then
 		obituary = "$v couldn't take the heat." -- TODO: Replace this message?
+	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
+		obituary = "$v's head asplode."
 	end
 
 	-- Don't show highlighted backgrounds in splitscreen
