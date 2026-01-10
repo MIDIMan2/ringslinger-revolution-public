@@ -4,7 +4,9 @@
 -- Main Code
 
 RSR.WAVE_NUM = 0
-RSR.WAVE_NUM_MAX = 3
+RSR.WAVE_NUM_MAX_DEFAULT = 3
+RSR.WAVE_NUM_MAX = RSR.WAVE_NUM_MAX_DEFAULT
+RSR.WAVE_NUM_HARDLIMIT = 10 -- This can theoretically up to 31, but 10 is a more reasonable number
 RSR.WAVE_TIMER_MAX = 5*TICRATE
 RSR.WAVE_TIMER = RSR.WAVE_TIMER_MAX
 RSR.WAVE_SPAWNERS = {}
@@ -23,14 +25,32 @@ end
 RSR.WavesMapLoad = function()
 	if not RSR.WavesGamemodeActive() then return end
 	stagefailed = true -- Assume the stage is failed until at least one player completes it
-	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrwavestags then
-		for tString in string.gmatch(mapheaderinfo[gamemap].rsrwavestags, "[^,]+") do
-			if tonumber(tString) == nil then
-				print("\x82WARNING:\x80 Linedef tag couldn't be converted to a number in RSRWaveTags parameter!")
+	if not mapheaderinfo[gamemap] then return end -- Don't run this code unless there is a level header for the current map
+	if mapheaderinfo[gamemap].rsrwavestags then
+		for tagString in string.gmatch(mapheaderinfo[gamemap].rsrwavestags, "[^,]+") do
+			if tonumber(tagString) == nil then
+				print("\x82WARNING:\x80 Linedef tag couldn't be converted to a number in RSRWavesTags parameter!")
 				continue
 			end
-			table.insert(RSR.WAVE_LINEDEFTAGS, tonumber(tString))
+			table.insert(RSR.WAVE_LINEDEFTAGS, tonumber(tagString))
 		end
+	end
+	if mapheaderinfo[gamemap].rsrwavescount then
+		local waveCount = tonumber(mapheaderinfo[gamemap].rsrwavescount)
+		if waveCount ~= nil then
+			-- Don't let the wave count be lower than 1 or higher than the hard limit
+			if waveCount > RSR.WAVE_NUM_HARDLIMIT then
+				print("\x82WARNING:\x80 RSRWavesCount parameter is set too high! Setting to 10...") -- TODO: Change the number if the hard limit increases
+			elseif waveCount <= 0 then
+				print("\x82WARNING:\x80 RSRWavesCount parameter must be greater than 0! Setting to 1...")
+			end
+			RSR.WAVE_NUM_MAX = min(RSR.WAVE_NUM_HARDLIMIT, max(1, waveCount))
+		else
+			print("\x82WARNING:\x80 Bad RSRWavesCount parameter provided! Are you sure the LevelHeader supplies an integer for rsrwavescount?")
+		end
+	else
+		-- print("\x82WARNING:\x80 RSRWavesCount not found in the level header! Defaulting to 3...")
+		RSR.WAVE_NUM_MAX = RSR.WAVE_NUM_MAX_DEFAULT
 	end
 end
 
@@ -214,8 +234,8 @@ mobjinfo[MT_RSR_ENEMYSPAWNER] = {
 	--$Category Ringslinger Revolution
 	--$Arg0 "Wave #s"
 	--$Arg0Type 12
-	--$Arg0Tooltip "Use this to specify what wave(s) the spawner should work in (out of 3)."
-	--$Arg0Enum {1 = "Wave 1"; 2 = "Wave 2"; 4 = "Wave 3";}
+	--$Arg0Tooltip "Use this to specify what wave(s) the spawner should work in (out of 10)."
+	--$Arg0Enum {1 = "Wave 1"; 2 = "Wave 2"; 4 = "Wave 3"; 8 = "Wave 4"; 16 = "Wave 5"; 32 = "Wave 6"; 64 = "Wave 7"; 128 = "Wave 8"; 256 = "Wave 9"; 512 = "Wave 10";}
 	--$StringArg0 "Object type"
 	doomednum = 360,
 	spawnstate = S_INVISIBLE,
@@ -292,8 +312,8 @@ mobjinfo[MT_RSR_ITEMSPAWNER] = {
 	--$Arg0Enum {1 = "Don't float (non-monitors only)"; 2 = "Don't spawn as panel (weapons only)"; 4 = "Strong random (monitors only)"; 8 = "Weak random (monitors only)"; 16 = "Don't respawn";}
 	--$Arg1 "Wave #s"
 	--$Arg1Type 12
-	--$Arg1Tooltip "Use this to specify what wave(s) the spawner should work in (out of 3)."
-	--$Arg1Enum {1 = "Wave 1"; 2 = "Wave 2"; 4 = "Wave 3";}
+	--$Arg1Tooltip "Use this to specify what wave(s) the spawner should work in (out of 10)."
+	--$Arg1Enum {1 = "Wave 1"; 2 = "Wave 2"; 4 = "Wave 3"; 8 = "Wave 4"; 16 = "Wave 5"; 32 = "Wave 6"; 64 = "Wave 7"; 128 = "Wave 8"; 256 = "Wave 9"; 512 = "Wave 10";}
 	--$StringArg0 "Object type"
 	doomednum = 361,
 	spawnstate = S_INVISIBLE,
