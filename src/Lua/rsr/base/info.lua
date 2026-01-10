@@ -312,6 +312,7 @@ RSR.MOBJ_INFO[MT_MINECART] = {
 	}
 }
 RSR.MOBJ_INFO[MT_TNTBARREL] = {
+	explosive = true,
 	killfeedIcon = "RSRTNT",
 	killfeedObituary = {
 		attacker = "$a blew $v to smithereens with a TNT barrel.",
