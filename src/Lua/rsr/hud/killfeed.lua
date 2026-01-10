@@ -233,11 +233,12 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 			inflictorPatch = "RSRINVNI"
 			obituary = "$a's invincibility killed $v."
 		elseif inflictor.player.charability2 == CA2_MELEE then
-			inflictorPatch = "RSRHAMMR"
-			obituary = "$a's Piko Piko Hammer whacked $v."
 			if RSR.SKIN_INFO[skins[inflictor.player.skin].name] then
 				inflictorPatch = RSR.SKIN_INFO[skins[inflictor.player.skin].name].meleeicon
 				obituary = RSR.SKIN_INFO[skins[inflictor.player.skin].name].meleeobituary
+			else
+				inflictorPatch = RSR.SKIN_INFO["DEFAULT"].meleeicon
+				obituary = RSR.SKIN_INFO["DEFAULT"].meleeobituary
 			end
 		else
 			inflictorPatch = "RSRMELEE"

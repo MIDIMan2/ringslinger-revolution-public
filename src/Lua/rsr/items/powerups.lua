@@ -76,7 +76,7 @@ RSR.GivePowerup = function(player, powerup, addTics)
 	end
 end
 
---- Default function for SKIN_INFO's touchWeapon hook
+--- Default function for the "TouchPowerup" hook.
 ---@param special mobj_t The powerup pickup being touched.
 ---@param toucher mobj_t The player object touching the pickup.
 ---@param powerup integer The powerup to give the player (RSR.POWERUP_* constants).
@@ -95,15 +95,18 @@ RSR.PowerupTouchSpecial = function(special, toucher, powerupType)
 	local player = toucher.player
 	if not (Valid(player) and player.rsrinfo) then return end
 
-	local skinInfo = RSR.SKIN_INFO[skins[player.skin].name]
-	if skinInfo and skinInfo.hooks and skinInfo.hooks.touchPowerup then
-		local returnValue = skinInfo.hooks.touchPowerup(special, toucher, powerupType)
-		if returnValue ~= nil then
-			return returnValue
+	local hookEvent, hookName = RSR.findEvent("TouchPowerup")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, special, toucher, powerupType)
+			if result ~= nil then return result end
 		end
 	end
 
-	return RSR.SKIN_INFO["DEFAULT"].hooks.touchPowerup(special, toucher, powerupType)
+	return RSR.TouchPowerupDefault(special, toucher, powerupType)
 end
 
 mobjinfo[MT_RSR_POWERUP_INFINITY] = {

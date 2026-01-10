@@ -123,18 +123,11 @@
 ---@field color integer Color of the screen fade (palette index).
 ---@field strength integer Strength of the screen fade (0 to FRCAUNIT).
 
----@class rsrskinhooks_t
----@field touchWeapon function Determines what happens when the player picks up a weapon. Uses three parameters: special, toucher, and weaponType.
----@field touchPowerup function Determines what happens when the player picks up a powerup. Uses three parameters: special, toucher, and powerupType.
----@field touchHealth function Determines what happens when the player picks up health. Uses three parameters: special, toucher, and health.
----@field touchArmor function Determines what happens when the player picks up armor. Uses three parameters: special, toucher, and armor.
-
 ---@class rsrskininfo_t
 ---@field noweapons boolean Disables RSR's weapon system for this character/skin.
 ---@field nodamage boolean Disables RSR's player damage system for this character/skin.
 ---@field noenemydamage boolean Disables RSR's enemy damage system for this character/skin.
 ---@field nohud boolean Disables RSR's HUD for this character/skin.
----@field hooks rsrskinhooks_t Table of functions for overriding RSR behaviors for this character/skin.
 ---@field meleeicon string Name of the graphic to use for the melee killfeed icon for this character/skin.
 ---@field meleeobituary string Melee killfeed text for this character/skin (%s must be used to define attacker and victim, in that order).
 

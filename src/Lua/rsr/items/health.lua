@@ -69,7 +69,7 @@ RSR.HealthMobjSpawn = function(mo)
 	end
 end
 
---- Default function for SKIN_INFO's touchHealth hook
+--- Default function for the "TouchHealth" hook.
 ---@param special mobj_t The powerup pickup being touched.
 ---@param toucher mobj_t The player object touching the pickup.
 ---@param health integer The amount of health given to the player by the pickup.
@@ -90,18 +90,21 @@ RSR.HealthTouchSpecial = function(special, toucher, health)
 	local player = toucher.player
 	if not (Valid(player) and player.rsrinfo) then return end
 
-	local skinInfo = RSR.SKIN_INFO[skins[player.skin].name]
-	if skinInfo and skinInfo.hooks and skinInfo.hooks.touchHealth then
-		local returnValue = skinInfo.hooks.touchHealth(special, toucher, health)
-		if returnValue ~= nil then
-			return returnValue
+	local hookEvent, hookName = RSR.findEvent("TouchHealth")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, special, toucher, health)
+			if result ~= nil then return result end
 		end
 	end
 
-	return RSR.SKIN_INFO["DEFAULT"].hooks.touchHealth(special, toucher, health)
+	return RSR.TouchHealthDefault(special, toucher, health)
 end
 
---- Default function for SKIN_INFO's touchArmor hook
+--- Default function for the "TouchArmor" hook.
 ---@param special mobj_t The powerup pickup being touched.
 ---@param toucher mobj_t The player object touching the pickup.
 ---@param armor integer The amount of armor given to the player by the pickup.
@@ -122,15 +125,18 @@ RSR.ArmorTouchSpecial = function(special, toucher, armor)
 	local player = toucher.player
 	if not (Valid(player) and player.rsrinfo) then return end
 
-	local skinInfo = RSR.SKIN_INFO[skins[player.skin].name]
-	if skinInfo and skinInfo.hooks and skinInfo.hooks.touchArmor then
-		local returnValue = skinInfo.hooks.touchArmor(special, toucher, armor)
-		if returnValue ~= nil then
-			return returnValue
+	local hookEvent, hookName = RSR.findEvent("TouchArmor")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, special, toucher, armor)
+			if result ~= nil then return result end
 		end
 	end
 
-	return RSR.SKIN_INFO["DEFAULT"].hooks.touchArmor(special, toucher, armor)
+	return RSR.TouchArmorDefault(special, toucher, armor)
 end
 
 mobjinfo[MT_RSR_HEALTH_SMALL] = {
