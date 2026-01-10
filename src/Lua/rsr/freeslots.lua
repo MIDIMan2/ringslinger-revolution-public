@@ -3,6 +3,7 @@
 -- SFX
 freeslot(
 	"sfx_noammo",
+	"sfx_cvxpld",
 	"sfx_redfir",
 	"sfx_redal1",
 	"sfx_redal2",
@@ -291,6 +292,7 @@ freeslot(
 
 -- Weapons
 sfxinfo[sfx_noammo].caption = "Not enough Rings..."
+sfxinfo[sfx_cvxpld].caption = "Player exploded..."
 sfxinfo[sfx_redfir].caption = "Red Ring fired"
 sfxinfo[sfx_redal1].caption = "Charged Ring 1"
 sfxinfo[sfx_redal2].caption = "Charged Ring 2"
