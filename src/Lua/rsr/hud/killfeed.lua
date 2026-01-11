@@ -254,10 +254,15 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		end
 	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDKILLCMD) then
 		obituary = "$v's existence critically failed."
+		if Valid(attacker) then obituary = "$a critically failed $v's existence." end
 	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
+		inflictorPatch = "RSRXPLD"
 		obituary = "$v's head asplode."
+		if Valid(attacker) then obituary = "$a made $v's head asplode." end
 	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) then
+		inflictorPatch = "RSRDISNT"
 		obituary = "$v was abducted by aliens."
+		if Valid(attacker) then obituary = "$a abducted $v." end
 	end
 
 	-- Don't show highlighted backgrounds in splitscreen

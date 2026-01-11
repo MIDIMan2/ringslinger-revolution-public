@@ -752,7 +752,6 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	rsrinfo.useZoom = false
 	RSR.PlayerSetChasecam(player, true)
 	RSR.PlayerToastyDeath(player, inflictor, damagetype)
-	if player.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD then player.mo.fuse = 0 end
 
 	-- Only run this code in multiplayer gamemodes
 	if multiplayer or netgame then

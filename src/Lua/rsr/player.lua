@@ -159,6 +159,38 @@ RSR.PlayerSpawn = function(player)
 	end
 end
 
+--- Handles player death logic.
+---@param player player_t
+RSR.PlayerDeathTick = function(player)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
+
+	RSR.PlayerToastyTick(player)
+	if (player.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) and player.mo.fuse > 1 then player.mo.fuse = 1 end
+	-- Force momentum on the player if they have died
+	if player.mo.rsrPrevMomX or player.mo.rsrPrevMomY or player.mo.rsrPrevMomZ then
+		player.mo.momx = $ + (player.mo.rsrPrevMomX or 0)
+		player.mo.momy = $ + (player.mo.rsrPrevMomY or 0)
+		player.mo.momz = $ + (player.mo.rsrPrevMomZ or 0) -- TODO: This is supposed to make the player go up...
+		player.mo.rsrPrevMomX = 0
+		player.mo.rsrPrevMomY = 0
+		player.mo.rsrPrevMomZ = 0
+	end
+	-- TODO: Comment this out if it causes memory issues
+	local horiMom = FixedDiv(FixedHypot(player.mo.momx, player.mo.momy), player.mo.scale)
+	if horiMom > 8*FRACUNIT then
+		player.mo.spriteroll = $ - FixedAngle(min(45*FRACUNIT, horiMom/2))
+	end
+	player.mo.flags = $|MF_NOCLIP|MF_NOCLIPHEIGHT
+	if player.mo.fuse < TICRATE then
+		if (player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
+			player.mo.spritexoffset = P_RandomRange(-8, 8)*FRACUNIT
+			player.mo.spriteyoffset = P_RandomRange(-8, 8)*FRACUNIT
+		else
+			player.mo.flags2 = $ ^^ MF2_DONTDRAW
+		end
+	end
+end
+
 --- PlayerThink hook code for the player.
 ---@param player player_t
 RSR.PlayerThink = function(player)
@@ -195,32 +227,7 @@ RSR.PlayerThink = function(player)
 		-- end
 	end
 
-	if player.playerstate == PST_DEAD then
-		RSR.PlayerToastyTick(player)
-		-- Force momentum on the player if they have died
-		if player.mo.rsrPrevMomX or player.mo.rsrPrevMomY or player.mo.rsrPrevMomZ then
-			player.mo.momx = $ + (player.mo.rsrPrevMomX or 0)
-			player.mo.momy = $ + (player.mo.rsrPrevMomY or 0)
-			player.mo.momz = $ + (player.mo.rsrPrevMomZ or 0) -- TODO: This is supposed to make the player go up...
-			player.mo.rsrPrevMomX = 0
-			player.mo.rsrPrevMomY = 0
-			player.mo.rsrPrevMomZ = 0
-		end
-		-- TODO: Comment this out if it causes memory issues
-		local horiMom = FixedDiv(FixedHypot(player.mo.momx, player.mo.momy), player.mo.scale)
-		if horiMom > 8*FRACUNIT then
-			player.mo.spriteroll = $ - FixedAngle(min(45*FRACUNIT, horiMom/2))
-		end
-		player.mo.flags = $|MF_NOCLIP|MF_NOCLIPHEIGHT
-		if player.mo.fuse < TICRATE then
-			if (player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
-				player.mo.spritexoffset = P_RandomRange(-8, 8)*FRACUNIT
-				player.mo.spriteyoffset = P_RandomRange(-8, 8)*FRACUNIT
-			else
-				player.mo.flags2 = $ ^^ MF2_DONTDRAW
-			end
-		end
-	end
+	if player.playerstate == PST_DEAD then RSR.PlayerDeathTick(player) end
 
 	-- Don't let the NiGHTS timer time out on the player in "Waves" maps
 	if G_IsSpecialStage(gamemap) and player.nightstime then
@@ -307,7 +314,9 @@ RSR.PlayerMobjFuse = function(mo)
 			end
 			S_StartSound(mo, sfx_cvxpld)
 		elseif (mo.player.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) then
-			P_SpawnParaloop(mo.x,mo.y,mo.z + mo.height/2, FixedMul(192, mo.scale), 16, MT_THUNDERCOIN_SPARK, d * ANGLE_22h, S_THUNDERCOIN_SPARK, true)
+			for d = 0, 15 do
+				P_SpawnParaloop(mo.x, mo.y, mo.z + mo.height/2, FixedMul(192*FRACUNIT, mo.scale), 16, MT_THUNDERCOIN_SPARK, d * ANGLE_22h, S_THUNDERCOIN_SPARK, true)
+			end
 			S_StartSound(mo, sfx_s3k66)
 		end
 	end
