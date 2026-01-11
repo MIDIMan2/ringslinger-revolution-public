@@ -233,10 +233,10 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 			if RSR.SHIELD_INFO[infShield].obituary then obituary = RSR.SHIELD_INFO[infShield].obituary end
 		elseif inflictor.player.powers[pw_super] then
 			inflictorPatch = "RSRSUPRI"
-			obituary = "$a's super form killed $v."
+			obituary = "$a's Super form defeated $v in righteous combat."
 		elseif RSR.HasPowerup(inflictor.player, RSR.POWERUP_INVINCIBILITY) or inflictor.player.powers[pw_invulnerability] then
 			inflictorPatch = "RSRINVNI"
-			obituary = "$a's invincibility killed $v."
+			obituary = "$a's invincibility bested $v."
 		elseif inflictor.player.charability2 == CA2_MELEE then
 			inflictorPatch = "RSRHAMMR"
 			obituary = "$a's Piko Piko Hammer whacked $v."
