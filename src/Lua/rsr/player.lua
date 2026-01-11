@@ -291,16 +291,25 @@ RSR.PlayerMobjFuse = function(mo)
 	mo.momx = 0
 	mo.momy = 0
 	mo.momz = 0
-	if mo.player.rsrinfo and (mo.player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD)then
-		for i = 1, 12 do
-			local explosion = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SONIC3KBOSSEXPLODE)
-			if Valid(explosion) then
-				explosion.momx = FixedMul(RSR.RandomFixedRange(-16*FRACUNIT, 16*FRACUNIT), explosion.scale)
-				explosion.momy = FixedMul(RSR.RandomFixedRange(-16*FRACUNIT, 16*FRACUNIT), explosion.scale)
-				explosion.momz = FixedMul(RSR.RandomFixedRange(-16*FRACUNIT, 16*FRACUNIT), explosion.scale)
+	if mo.player.rsrinfo then
+		if (mo.player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
+			for i = 1, 12 do
+				local explosion = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SONIC3KBOSSEXPLODE)
+				if Valid(explosion) then
+					explosion.momx = FixedMul(RSR.RandomFixedRange(-16*FRACUNIT, 16*FRACUNIT), explosion.scale)
+					explosion.momy = FixedMul(RSR.RandomFixedRange(-16*FRACUNIT, 16*FRACUNIT), explosion.scale)
+					explosion.momz = FixedMul(RSR.RandomFixedRange(-16*FRACUNIT, 16*FRACUNIT), explosion.scale)
+				end
 			end
+			local explosion2 = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SONIC3KBOSSEXPLODE)
+			if Valid(explosion2) then
+				explosion2.scale = $ * 2
+			end
+			S_StartSound(mo, sfx_cvxpld)
+		elseif (mo.player.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) then
+			P_SpawnParaloop(mo.x,mo.y,mo.z + mo.height/2, FixedMul(192, mo.scale), 16, MT_THUNDERCOIN_SPARK, d * ANGLE_22h, S_THUNDERCOIN_SPARK, true)
+			S_StartSound(mo, sfx_s3k66)
 		end
-		S_StartSound(mo, sfx_cvxpld)
 	end
 end
 

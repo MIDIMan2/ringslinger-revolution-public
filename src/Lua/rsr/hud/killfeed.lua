@@ -87,7 +87,7 @@ RSR.KILLFEED_DMG_INFO = {
 		icon = "RSRSPECT",
 		obituary = {
 			attacker = "$a fractured $v's ego.",
-			solo = "$v became a spectator.",
+			solo = "$v couldn't take the heat.",
 		}
 	}
 }
@@ -253,9 +253,11 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 			skincolor = inflictor.player.skincolor
 		end
 	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDKILLCMD) then
-		obituary = "$v couldn't take the heat." -- TODO: Replace this message?
+		obituary = "$v's existence critically failed."
 	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
 		obituary = "$v's head asplode."
+	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) then
+		obituary = "$v was abducted by aliens."
 	end
 
 	-- Don't show highlighted backgrounds in splitscreen
