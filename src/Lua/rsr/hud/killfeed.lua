@@ -50,6 +50,11 @@ RSR.KILLFEED_DMG_INFO = {
 			solo = "$v is blasting off again.",
 		}
 	},
+	[DMG_INSTAKILL] = {
+		obituary = {
+			solo = "$v spontaneously combusted.",
+		}
+	},
 	[DMG_DROWNED] = {
 		icon = "RSRDROWN",
 		obituary = {
