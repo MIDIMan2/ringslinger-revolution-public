@@ -82,6 +82,13 @@ RSR.KILLFEED_DMG_INFO = {
 			attacker = "$a flattened $v.",
 			solo = "$v was crushed.",
 		}
+	},
+	[DMG_SPECTATOR] = {
+		icon = "RSRSPECT",
+		obituary = {
+			attacker = "$a angered $v's ghost.",
+			solo = "$v went to the shadow realm.",
+		}
 	}
 }
 
