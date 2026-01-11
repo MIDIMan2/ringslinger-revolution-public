@@ -11,21 +11,21 @@ RSR.KILLFEED_DMG_INFO = {
 		icon = "RSRELEMI", -- TODO: Replace this with a clearer icon
 		obituaryMobj = {
 			attacker = "$a poisoned $v.",
-			solo = "$v was poisoned."
+			solo = "$v had too much poison to drink."
 		},
 		obituarySector = {
-			attacker = "$a gave $v too much poison to drink.",
-			solo = "$v had too much poison to drink."
+			attacker = "$a volunteered $v for a chemistry experiment.",
+			solo = "$v became a chemistry demonstration."
 		}
 	},
 	[DMG_FIRE] = {
 		icon = "RSRFLAMI",
 		obituaryMobj = {
-			attacker = "$a burnt $v.",
-			solo = "$v was burnt."
+			attacker = "$a incinerated $v.",
+			solo = "$v became very toasty."
 		},
 		obituarySector = {
-			attacker = "$a threw $v into the lava.",
+			attacker = "$a threw $v into lava.",
 			solo = "$v melted in lava."
 		}
 	},
@@ -33,13 +33,13 @@ RSR.KILLFEED_DMG_INFO = {
 		icon = "RSRTHNDI",
 		obituary = {
 			attacker = "$a electrocuted $v.",
-			solo = "$v got electrocuted.",
+			solo = "$v proved conductive.",
 		}
 	},
 	[DMG_SPIKE] = {
 		icon = "RSRSPIKE",
 		obituary = {
-			attacker = "$a spiked $v.",
+			attacker = "$v walked into a spike whilst trying to escape $a.",
 			solo = "$v got spiked.",
 		}
 	},
@@ -47,47 +47,35 @@ RSR.KILLFEED_DMG_INFO = {
 		icon = "RSRARMAI",
 		obituary = {
 			attacker = "$a's Armageddon Shield nuked $v.",
-			solo = "$v got nuked.",
-		}
-	},
-	[DMG_INSTAKILL] = {
-		obituary = {
-			solo = "$v spontaneously combusted."
+			solo = "$v is blasting off again.",
 		}
 	},
 	[DMG_DROWNED] = {
 		icon = "RSRDROWN",
 		obituary = {
-			attacker = "$a drowned $v.",
+			attacker = "$a thought $v was a fish.",
 			solo = "$v drowned.",
 		}
 	},
 	[DMG_SPACEDROWN] = {
 		icon = "RSRDROWN",
 		obituary = {
-			attacker = "$a drowned $v in space.",
-			solo = "$v drowned in space.",
+			attacker = "$a threw $v out the airlock.",
+			solo = "$v asphyxiated.",
 		}
 	},
 	[DMG_DEATHPIT] = {
 		icon = "RSRPIT",
 		obituary = {
-			attacker = "$a knocked $v into a pit.",
-			solo = "$v fell into a pit.",
+			attacker = "$a gave $v a little push.",
+			solo = "$v didn't stick the landing.",
 		}
 	},
 	[DMG_CRUSHED] = {
 		icon = "RSRCRUSH",
 		obituary = {
-			attacker = "$a knocked $v into a crusher.",
+			attacker = "$a flattened $v.",
 			solo = "$v was crushed.",
-		}
-	},
-	[DMG_SPECTATOR] = { -- TODO: See if there's a way to overwrite the vanilla "Player became a spectator." message
-		icon = "RSRSPECT",
-		obituary = {
-			attacker = "$a fractured $v's ego.",
-			solo = "$v couldn't take the heat.",
 		}
 	}
 }
@@ -201,7 +189,12 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	local inflictorPatch = "RSREGGM" -- Always show Eggman for unknown causes of death
 	-- local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen (keeping this line as a comment, because it's funny -MIDIMan)
 	local obituary = "$v died."
-	local meleeRandInt = P_RandomRange(1,4)
+	local meleeRandInt = 0
+	if P_RandomRange(1,100) == 42 then
+		meleeRandInt = 5
+	else
+		meleeRandInt = P_RandomRange(1,4)
+	end
 	local infReflected = false
 	local attackerName = nil
 	local highlight = false
@@ -247,18 +240,20 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 				obituary = "$a threw hands with $v."
 			elseif meleeRandInt == 3 then
 				obituary = "$a beat up $v."
+			elseif meleeRandInt == 5 then
+				obituary = "$v death.melee.inflictor.$a"
 			else
 				obituary = "$a KO'd $v."
 			end
 			skincolor = inflictor.player.skincolor
 		end
 	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDKILLCMD) then
-		obituary = "$v's existence critically failed."
-		if Valid(attacker) then obituary = "$a critically failed $v's existence." end
+		obituary = "$v stopped being."
+		if Valid(attacker) then obituary = "$a jumpscared $v." end
 	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
 		inflictorPatch = "RSRXPLD"
 		obituary = "$v's head asplode."
-		if Valid(attacker) then obituary = "$a made $v's head asplode." end
+		if Valid(attacker) then obituary = "$a made $v blow a fuse." end
 	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) then
 		inflictorPatch = "RSRDISNT"
 		obituary = "$v was abducted by aliens."
