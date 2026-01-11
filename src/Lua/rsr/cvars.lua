@@ -93,7 +93,7 @@ COM_AddCommand("rsr_disintegrate", function(player, _)
 		return
 	end
 
-	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_USEDKILLCMD|RSR.DEATH_USEDDISINTEGRATECMD end
+	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_USEDDISINTEGRATECMD end
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 
