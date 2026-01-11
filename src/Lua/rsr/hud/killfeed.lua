@@ -86,7 +86,7 @@ RSR.KILLFEED_DMG_INFO = {
 	[DMG_SPECTATOR] = {
 		icon = "RSRSPECT",
 		obituary = {
-			attacker = "$a angered $v's ghost.",
+			attacker = "$a showed that $v couldn't take the heat.",
 			solo = "$v went to the shadow realm.",
 		}
 	}
