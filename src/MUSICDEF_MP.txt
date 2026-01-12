@@ -21,3 +21,11 @@ Authors = Aaron_Cherof
 Soundtestpage = 1
 Soundtestcond = 0
 BPM = 150
+
+Lump BARAGE
+Title = Red_Barrage
+AltTitle = BFG_Labs_(Unofficial_DOOM_Eternal_music)
+Authors = Alfie_Bradic
+Soundtestpage = 1
+Soundtestcond = 0
+BPM = 151

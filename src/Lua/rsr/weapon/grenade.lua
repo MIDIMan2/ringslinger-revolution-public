@@ -62,8 +62,8 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	-- Smoke particles
-	RSR.ProjectileGhostTimer(mo, true)
+	RSR.ProjectileTravelSound(mo, 3, sfx_grndab) -- Travelling sound
+	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
 
 	if mo.fuse % TICRATE == 0 then
 		S_StartSound(mo, mo.info.attacksound)
@@ -205,8 +205,8 @@ addHook("MobjThinker", function(mo)
 			return true -- Stop the blockmap search
 		end, mo, mo.x - proxDist, mo.x + proxDist, mo.y - proxDist, mo.y + proxDist)
 	else
-		-- Ghost trail
-		RSR.ProjectileGhostTimer(mo)
+		RSR.ProjectileTravelSound(mo, 3, sfx_gratab) -- Travelling sound
+		RSR.ProjectileGhostTimer(mo) -- Ghost trail
 	end
 
 	if mo.fuse % 50 == 0 then
