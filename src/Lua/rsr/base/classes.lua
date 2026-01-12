@@ -168,6 +168,7 @@
 ---@field rsrSpawnHealth integer|nil Spawn health value of the enemy in RSR gamemodes; Automatically set when the enemy first takes damage.
 ---@field rsrKilled boolean|nil Automatically set to true when the enemy is killed in RSR gamemodes.
 ---@field rsrGhostTimer integer|nil Timer for spawning a ghost from a projectile.
+---@field rsrSoundTimer integer|nil Timer for playing a projectile's travelling sound.
 ---@field rsrIsPanel boolean|nil Determines if the weapon pickup is a panel.
 ---@field rsrAmmoAmount integer|nil Custom amount for the ammo pickup.
 ---@field rsrDontDespawn boolean|nil Makes the item not disappear when collected in co-op.
