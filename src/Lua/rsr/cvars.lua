@@ -15,6 +15,24 @@ RSR.CV_RandomDamage = CV_RegisterVar({
 	}
 })
 
+RSR.CVVIEWMODEL_NONE = 0
+RSR.CVVIEWMODEL_RIGHT = 1
+RSR.CVVIEWMODEL_LEFT = 2
+RSR.CVVIEWMODEL_CENTER = 3
+
+-- Lets the player choose the position of their "viewmodel"
+RSR.CV_Viewmodel = CV_RegisterVar({
+	name = "rsr_viewmodel",
+	defaultvalue = "Right",
+	flags = CV_SAVE,
+	PossibleValue = {
+		Off = RSR.CVVIEWMODEL_NONE,
+		Right = RSR.CVVIEWMODEL_RIGHT,
+		Left = RSR.CVVIEWMODEL_LEFT,
+		Center = RSR.CVVIEWMODEL_CENTER
+	}
+})
+
 -- Lets homing rings target and kill spectators
 RSR.CV_Ghostbusters = CV_RegisterVar({
 	name = "rsr_ghostbusters",
@@ -219,57 +237,50 @@ RSR.CV_TitleCard = CV_RegisterVar({
 	}
 })
 
-COM_AddCommand("rsr_kill", function(player, _)
+--- Checks if the player can use any of the kill commands.
+---@param player player_t
+---@return boolean
+RSR.CanUserKillCMD = function(player)
 	if not RSR.GamemodeActive() then
 		print("You must be in a Ringslinger Revolution level or gametype to use this.")
-		return
+		return false
 	end
 
 	if not (netgame or multiplayer) then
 		print("You can't use this in Single Player! Use \"retry\" instead.")
-		return
+		return false
 	end
 
 	if G_PlatformGametype() then
 		print("You can't use this in co-op, race, or competition! Use \"suicide\" instead.")
-		return
+		return false
 	end
 
-	if not (Valid(player) and Valid(player.realmo)) then return end
+	if not (Valid(player) and Valid(player.realmo)) then return false end
 
 	if player.playerstate == PST_DEAD then
 		CONS_Printf(player, "You're already dead!")
-		return
+		return false
 	end
 
+	return true
+end
+
+COM_AddCommand("rsr_kill", function(player, _)
+	if not RSR.CanUserKillCMD(player) then return end
 	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_USEDKILLCMD end
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 
 COM_AddCommand("rsr_explode", function(player, _)
-	if not RSR.GamemodeActive() then
-		CONS_Printf(player, "You must be in a Ringslinger Revolution level or gametype to use this.")
-		return
-	end
-
-	if not (netgame or multiplayer) then
-		CONS_Printf(player, "You can't use this in Single Player! Use \"retry\" instead.")
-		return
-	end
-
-	if G_PlatformGametype() then
-		CONS_Printf(player, "You can't use this in co-op, race, or competition! Use \"suicide\" instead.")
-		return
-	end
-
-	if not (Valid(player) and Valid(player.realmo)) then return end
-
-	if player.playerstate == PST_DEAD then
-		CONS_Printf(player, "You're already dead!")
-		return
-	end
-
+	if not RSR.CanUserKillCMD(player) then return end
 	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_GOTBURNT|RSR.DEATH_USEDEXPLODECMD end
+	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
+end)
+
+COM_AddCommand("rsr_disintegrate", function(player, _)
+	if not RSR.CanUserKillCMD(player) then return end
+	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_USEDDISINTEGRATECMD end
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 

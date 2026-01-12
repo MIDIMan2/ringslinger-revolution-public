@@ -1,8 +1,8 @@
 ---@diagnostic disable: missing-fields
 -- Ringslinger Revolution - Player Health System
 
-RSR.HOMING_THRESHOLD_THOK = 40
-RSR.HOMING_THRESHOLD_ATTRACT = 45
+RSR.HOMING_THRESHOLD_THOK = 28
+RSR.HOMING_THRESHOLD_ATTRACT = 27
 
 RSR.HITSOUND_HIT = 1
 RSR.HITSOUND_ARMOR = 2
@@ -25,6 +25,7 @@ RSR.DEATH_MAKESPECTATOR = 2
 RSR.DEATH_GOTBURNT = 4
 RSR.DEATH_USEDKILLCMD = 8
 RSR.DEATH_USEDEXPLODECMD = 16
+RSR.DEATH_USEDDISINTEGRATECMD = 32
 
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
@@ -485,7 +486,12 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		RSR.PlayerAddAttacker(player, source.player, damage)
 		-- Give the source player an armor boost if the damage was from a manually detonated Armageddon Blast
 		if damagetype == DMG_NUKE and (source.player.pflags & PF_SHIELDABILITY) and source.player.rsrinfo.armor > 0 then
-			RSR.GiveArmor(source.player, damageReal)
+			-- Dampen this bonus if armor is below 1/4 to encourage earlier Armageddon detonations
+			if source.player.rsrinfo.armor < 26 then
+				RSR.GiveArmor(source.player, damageReal/2)
+			else
+				RSR.GiveArmor(source.player, damageReal)
+			end
 			RSR.BonusFade(source.player)
 			S_StartSound(nil, sfx_shield, source.player)
 		end

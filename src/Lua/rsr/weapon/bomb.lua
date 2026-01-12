@@ -38,14 +38,15 @@ mobjinfo[MT_RSR_PROJECTILE_BOMB] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_BOMB,
 	seesound = sfx_bombfr,
-	reactiontime = 70,
-	painchance = 192*FRACUNIT,
+	reactiontime = 62,
+	painchance = 224*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
 	speed = 60*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 20,
+	damage = 4,
+	activesound = sfx_bombab,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
@@ -53,14 +54,14 @@ mobjinfo[MT_RSR_PROJECTILE_BOMB_MISSILEFORM] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_BOMB,
 	seesound = sfx_boatfr,
-	reactiontime = 40,
+	reactiontime = 37,
 	painchance = 256*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
 	speed = 60*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 20,
+	damage = 1,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
@@ -88,8 +89,8 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	-- Smoke particles
-	RSR.ProjectileGhostTimer(mo, true)
+	RSR.ProjectileTravelSound(mo, 3) -- Travelling sound
+	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
 end, MT_RSR_PROJECTILE_BOMB)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOMB)
 
@@ -103,8 +104,7 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	-- Smoke particles
-	RSR.ProjectileGhostTimer(mo, true)
+	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
 end, MT_RSR_PROJECTILE_BOMB_MISSILEFORM)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOMB_MISSILEFORM)
 
