@@ -1,5 +1,5 @@
 MIDIMan: mod author, MIDI sequencing, map design
-orbitalviolet: primary mapper
+orbitalviolet: mod co-author, primary mapper
 
 Othius: polishing pass on Rumble Rift, initial playtesting
 GomaTheMascar: initial playtesting
