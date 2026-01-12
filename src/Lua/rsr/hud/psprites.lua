@@ -14,12 +14,15 @@ RSR.BLENDMODE_TO_VFLAG = {
 ---@param camera camera_t
 RSR.HUDPSprites = function(v, player, camera)
 	if not RSR.GamemodeActive() then return end
+	if RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_NONE then return end
 	if not (v and Valid(player) and Valid(player.mo) and player.rsrinfo and camera) then return end
 	if not (not camera.chase and player.psprites) then return end
 
 	local scale = FixedDiv(v.height(), 200)
 	local xOffset = (v.width()*FRACUNIT - 320*scale)/2
 	local yOffset = 32*scale
+	local vFlags = V_NOSCALESTART|V_NOSCALEPATCH|V_SNAPTOBOTTOM|V_PERPLAYER
+	if RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_LEFT then vFlags = $|V_FLIP end -- TODO: V_FLIP doesn't work in v.drawCropped yet, working on an MR to fix that
 
 	for _, pspr in ipairs(player.psprites) do
 		if not pspr then continue end
@@ -63,6 +66,12 @@ RSR.HUDPSprites = function(v, player, camera)
 		-- TODO: Revive my old MR adding translation map support to v.getSectorColormap so I can use it here
 		local colormap = v.getColormap(skin, color, transmap)
 
+		if RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_LEFT then
+			x = 320*FRACUNIT - $
+		elseif RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_CENTER then
+			x = $ - 113*FRACUNIT
+		end
+
 		-- drawCropped automatically crops the bottom of the patch for splitscreen, so use it instead of drawStretched
 		v.drawCropped(
 			FixedMul(x, scale) + xOffset,
@@ -70,7 +79,7 @@ RSR.HUDPSprites = function(v, player, camera)
 			scale,
 			scale,
 			patch,
-			V_NOSCALESTART|V_NOSCALEPATCH|V_SNAPTOBOTTOM|V_PERPLAYER,
+			vFlags,
 			colormap,
 			0,
 			0,

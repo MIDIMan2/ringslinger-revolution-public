@@ -105,8 +105,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	killfeedIcon = "RSRSCALI",
 	killfeedName = "Mass Scrambler bomblet",
 	killfeedObituary = {
-		attacker = "$a's $rMass Scrambler debris scrambled $v.",
-		solo = "$v was scrambled by $rMass Scrambler debris."
+		attacker = "$a's $rMass Scrambler bomblets scrambled $v.",
+		solo = "$v was scrambled by $rMass Scrambler bomblets."
 	}
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_AUTO] = {
@@ -115,7 +115,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_AUTO] = {
 	killfeedName = "Automatic Ring",
 	killfeedObituary = {
 		attacker = "$a's $rAutomatic Ring riddled $v with holes.",
-		solo = "$v was riddled with holes by a(n) $rAutomatic Ring."
+		solo = "$v was riddled with holes by an $rAutomatic Ring."
 	}
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_AUTO_SNP] = {
@@ -123,7 +123,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_AUTO_SNP] = {
 	killfeedIcon = "RSRAUALI",
 	killfeedName = "Spray&Pray",
 	killfeedObituary = {
-		attacker = "$a's $r Spray&Pray overwhelmed $v.",
+		attacker = "$a's $rSpray&Pray overwhelmed $v.",
 		solo = "$v was overwhelmed by $rSpray&Pray."
 	}
 }
@@ -143,8 +143,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOUNCE_MEGABOMB] = {
 	killfeedIcon = "RSRBNALI",
 	killfeedName = "Goldburster",
 	killfeedObituary = {
-		attacker = "$a's $rGoldburster concussed $v very hard.",
-		solo = "$v was severely concussed by a $rGoldburster."
+		attacker = "$a's $rGoldburster gave $v a headache.",
+		solo = "$v contracted a concussion from a $rGoldburster."
 	}
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION] = {
@@ -203,7 +203,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOMB_MISSILEFORM] = {
 	killfeedIcon = "RSRBMALI",
 	killfeedName = "Self-Propel",
 	killfeedObituary = {
-		attacker = "$a's Self-Propel collaterally damaged $v.",
+		attacker = "$v stood too close to $a for Self-Proplusion.",
 		hurtself = "$v propelled themself elsewhere.",
 		solo = "$v was collaterally damaged by a Self-Propel."
 	}
@@ -316,7 +316,7 @@ RSR.MOBJ_INFO[MT_TNTBARREL] = {
 	killfeedIcon = "RSRTNT",
 	killfeedObituary = {
 		attacker = "$a blew $v to smithereens with a TNT barrel.",
-		solo = "$v was blown to smithereens by a TNT barrel."
+		solo = "$v bought an ACME TNT barrel."
 	}
 }
 RSR.MOBJ_INFO[MT_BLASTEXECUTOR] = {health = 1, nothomable = true} -- Don't let homing rings home in on blast executors
@@ -348,7 +348,7 @@ RSR.SHIELD_INFO[SH_ATTRACT] = {
 	icon = "RSRATTRI",
 	name = "Attraction Shield",
 	obituary = "$a's Attraction Shield shocked $v.",
-	meleedamage = 20
+	meleedamage = 15
 }
 RSR.SHIELD_INFO[SH_FORCE] = {
 	icon = "RSRFORCI",
