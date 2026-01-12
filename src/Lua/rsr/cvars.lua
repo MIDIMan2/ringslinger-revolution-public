@@ -34,57 +34,50 @@ RSR.CV_LaserTag = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
-COM_AddCommand("rsr_kill", function(player, _)
+--- Checks if the player can use any of the kill commands.
+---@param player player_t
+---@return boolean
+RSR.CanUserKillCMD = function(player)
 	if not RSR.GamemodeActive() then
 		print("You must be in a Ringslinger Revolution level or gametype to use this.")
-		return
+		return false
 	end
 
 	if not (netgame or multiplayer) then
 		print("You can't use this in Single Player! Use \"retry\" instead.")
-		return
+		return false
 	end
 
 	if G_PlatformGametype() then
 		print("You can't use this in co-op, race, or competition! Use \"suicide\" instead.")
-		return
+		return false
 	end
 
-	if not (Valid(player) and Valid(player.realmo)) then return end
+	if not (Valid(player) and Valid(player.realmo)) then return false end
 
 	if player.playerstate == PST_DEAD then
 		CONS_Printf(player, "You're already dead!")
-		return
+		return false
 	end
 
+	return true
+end
+
+COM_AddCommand("rsr_kill", function(player, _)
+	if not RSR.CanUserKillCMD(player) then return end
 	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_USEDKILLCMD end
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 
 COM_AddCommand("rsr_explode", function(player, _)
-	if not RSR.GamemodeActive() then
-		CONS_Printf(player, "You must be in a Ringslinger Revolution level or gametype to use this.")
-		return
-	end
-
-	if not (netgame or multiplayer) then
-		CONS_Printf(player, "You can't use this in Single Player! Use \"retry\" instead.")
-		return
-	end
-
-	if G_PlatformGametype() then
-		CONS_Printf(player, "You can't use this in co-op, race, or competition! Use \"suicide\" instead.")
-		return
-	end
-
-	if not (Valid(player) and Valid(player.realmo)) then return end
-
-	if player.playerstate == PST_DEAD then
-		CONS_Printf(player, "You're already dead!")
-		return
-	end
-
+	if not RSR.CanUserKillCMD(player) then return end
 	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_GOTBURNT|RSR.DEATH_USEDEXPLODECMD end
+	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
+end)
+
+COM_AddCommand("rsr_disintegrate", function(player, _)
+	if not RSR.CanUserKillCMD(player) then return end
+	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_USEDDISINTEGRATECMD end
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 

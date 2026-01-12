@@ -1,5 +1,9 @@
 -- Ringslinger Revolution - Attraction Shield for Deathmatch
 
+RSR.PLAYER_HOMING_TIMER = 2*TICRATE
+RSR.HOMING_TIMER = 35
+RSR.ATTRACT_TIMER = 87
+
 --- Version of P_LookForEnemies that also looks for players.
 ---@param player player_t
 ---@param maxDist fixed_t|nil Maximum distance to search for enemies (Default is RING_DIST).
@@ -86,12 +90,21 @@ RSR.PlayerHomingAttack = function(player, player2)
 	if not (Valid(player) and Valid(player.mo) and Valid(player2) and Valid(player2.realmo) and player2.rsrinfo) then return false end
 	-- Use realmo in case we're targetting a spectator
 
-	local zDist = 0
-	local ns = 0
-
 	if (player2.realmo.flags & MF_NOCLIPTHING) then return false end
 	if player2.realmo.health <= 0 then return false end
 	if player2.rsrinfo.hurtByMelee then return false end
+
+	local zDist = 0
+	local ns = 0
+	local usingHomingThok = false
+	if player.charability == CA_HOMINGTHOK and not (player.pflags & PF_SHIELDABILITY) then usingHomingThok = true end
+	-- local nsreduce = 0
+
+	-- Tick down homingtimer every tic, then when this goes below 0 start slowing down the pursuer until speed goes to 0, then break lock
+	-- player.rsrinfo.homingtimer = $ - 1
+	-- if player.rsrinfo.homingTimer < 0 then
+	-- 	nsreduce = player.rsrinfo.homingTimer
+	-- end
 
 	-- Change angle
 	player.mo.angle = R_PointToAngle2(player.mo.x, player.mo.y, player2.realmo.x, player2.realmo.y)
@@ -104,10 +117,25 @@ RSR.PlayerHomingAttack = function(player, player2)
 
 	if dist < 1 then dist = 1 end
 
-	if player.charability == CA_HOMINGTHOK and not (player.pflags & PF_SHIELDABILITY) then
+	if usingHomingThok then
 		ns = FixedDiv(FixedMul(player.actionspd, player.mo.scale), 3*FRACUNIT/2)
 	else
 		ns = FixedMul(45*FRACUNIT, player.mo.scale)
+	end
+
+	-- Second half of the lock on time limit code
+	if player.rsrinfo.homing < RSR.PLAYER_HOMING_TIMER then
+		if player.rsrinfo.homing <= 1 then
+			if usingHomingThok then
+				S_StartSound(player.mo, sfx_s3k90)
+			else
+				P_SetObjectMomZ(player.mo, 16*FRACUNIT)
+				S_StartSound(player.mo, sfx_s3ka6)
+			end
+			player.rsrinfo.homing = 0
+			return true
+		end
+		ns = FixedMul($, FixedDiv(player.rsrinfo.homing, RSR.PLAYER_HOMING_TIMER))
 	end
 
 	player.mo.momx = FixedMul(FixedDiv(player2.realmo.x - player.mo.x, dist), ns)
@@ -270,7 +298,7 @@ RSR.PlayerShieldSpecial = function(player)
 		player.pflags = $ & ~PF_NOJUMPDAMAGE
 		player.mo.state = S_PLAY_ROLL
 		S_StartSound(player.mo, sfx_s3k40)
-		player.rsrinfo.homing = 3*TICRATE
+		player.rsrinfo.homing = RSR.PLAYER_HOMING_TIMER + RSR.ATTRACT_TIMER
 		if Valid(lockOnShield.player) then S_StartSound(nil, sfx_rsralk, lockOnShield.player) end -- Play the attraction indicator sound only on the opposing player's end
 	else
 		S_StartSound(player.mo, sfx_s3ka6)
@@ -314,7 +342,7 @@ RSR.PlayerAbilitySpecial = function(player)
 	if Valid(lockOnThok) then
 		player.mo.state = S_PLAY_ROLL
 		player.mo.angle = R_PointToAngle2(player.mo.x, player.mo.y, lockOnThok.x, lockOnThok.y)
-		player.rsrinfo.homing = 3*TICRATE
+		player.rsrinfo.homing = RSR.PLAYER_HOMING_TIMER + RSR.HOMING_TIMER
 		if Valid(lockOnThok.player) then S_StartSound(nil, sfx_rsrhlk, lockOnThok.player) end -- Play the homing indicator sound only on the opposing player's end
 	else
 		player.mo.state = S_PLAY_FALL
