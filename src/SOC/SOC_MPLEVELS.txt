@@ -276,9 +276,18 @@ NoZone = true
 Music = RUMBLE
 TypeOfLevel = RSRMatch,RSRTag
 SelectHeading = RSR Standard
-NextLevel = O0
+NextLevel = OJ
 SkyNum = 700
 Skyboxscale = 4
+
+Level OJ
+LevelName = Red Barrage
+NoZone = true
+Music = BARAGE
+TypeOfLevel = RSRMatch,RSRTag
+SelectHeading = RSR Standard
+NextLevel = O0
+SkyNum = 666
 
 Level P0
 LevelName = Starlit Warehouse
@@ -305,41 +314,106 @@ SkyNum = 2
 SelectHeading = RSR Classic
 
 Level P3
-LevelName = Infernal Cavern
-Music = FDEMO7
-TypeOfLevel = RSRMatch,RSRTag
-NextLevel = P4
-SkyNum = 7
-SelectHeading = RSR Classic
-
-Level P4
 LevelName = Blizzard Fortress
 SubTitle = RSR Legacy: Summit Showdown
 Music = BLZFRT
 TypeOfLevel = RSRMatch,RSRTag
-NextLevel = P5
+NextLevel = P4
 Weather = PRECIP_SNOW
 SkyNum = 17
 SkyboxScale = 0
 SelectHeading = RSR Classic
 
-Level P5
-LevelName = Legacy Factory
-SubTitle = RSR Legacy: Noxious Factory
-Music = THZ1
-TypeOfLevel = RSRMatch,RSRTag
-NextLevel = P6
-SkyNum = 4
-SelectHeading = RSR Classic
-
-Level P6
+Level P4
 LevelName = GET 180 RINGS!
 SubTitle = RSR Legacy: Rumble Rift
 NoZone = true
 Music = 20SP1
 TypeOfLevel = RSRMatch,RSRTag
-NextLevel = P0
+NextLevel = P5
 SkyNum = 50
+SelectHeading = RSR Classic
+
+Level P5
+LevelName = Legacy Valley
+SubTitle = RSR Legacy: Jade Valley
+Music = MP_SUN
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = P6
+SkyNum = 1
+SelectHeading = RSR Classic
+
+Level P6
+LevelName = Legacy Factory
+SubTitle = RSR Legacy: Noxious Factory
+Music = FDEMO3
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = P7
+SkyNum = 4
+SelectHeading = RSR Classic
+
+Level P7
+LevelName = Legacy Citadel
+SubTitle = RSR Legacy: Thunder Citadel
+Music = FDEMO6
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = P8
+Weather = 1
+SkyNum = 10
+SelectHeading = RSR Classic
+
+Level P8
+LevelName = Legacy Twilight
+SubTitle = RSR Legacy: Desolate Twilight
+Music = MP_DES
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = P9
+SkyNum = 21
+SelectHeading = RSR Classic
+
+Level P9
+LevelName = Infernal Cavern
+Music = FDEMO7
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = PA
+SkyNum = 7
+SelectHeading = RSR Classic
+
+Level PA
+LevelName = Legacy Falls
+SubTitle = RSR Legacy: Sapphire Falls
+Music = OLDGHZ
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = PB
+SkyNum = 2
+SelectHeading = RSR Classic
+
+Level PB
+LevelName = Legacy Blizzard
+SubTitle = RSR Legacy: Diamond Blizzard
+Music = MP_AI2
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = PC
+Weather = 2
+SkyNum = 55
+SelectHeading = RSR Classic
+
+Level PC
+LevelName = Legacy Sanctuary
+SubTitle = RSR Legacy: Celestial Sanctuary
+Music = OLDAGZ
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = PD
+SkyNum = 40
+SelectHeading = RSR Classic
+
+Level PD
+LevelName = Legacy Lake
+SubTitle = RSR Legacy: Granite Lake
+Music = OLDGLZ
+TypeOfLevel = RSRMatch,RSRTag
+NextLevel = P0
+SkyNum = 2
 SelectHeading = RSR Classic
 
 Level H0
@@ -467,7 +541,36 @@ Level I2
 LevelName = Isolated Canyon
 Act = 0
 Music = MP_GL2
-NextLevel = I0
+NextLevel = I3
 TypeOfLevel = RSRCTF
 SkyNum = 2
+SelectHeading = RSR Classic
+
+Level I3
+Levelname = Legacy Forest
+SubTitle = RSR Legacy: Lime Forest
+Music = FDEMO1
+TypeOfLevel = RSRCTF
+NextLevel = I4
+SkyNum = 1
+SelectHeading = RSR Classic
+
+Level I4
+Levelname = Legacy Cascade
+SubTitle = RSR Legacy: Silver Cascade
+Music = MP_WT3
+TypeOfLevel = RSRCTF
+NextLevel = I5
+Weather = 3
+SkyNum = 20
+SelectHeading = RSR Classic
+
+#Name chosen since "Legacy Falls" could be confused with the legacy "Sapphire Falls"
+Level I5
+Levelname = Icicle Legacy
+SubTitle = RSR Legacy: Icicle Falls
+Music = OLDICE
+TypeOfLevel = RSRCTF
+NextLevel = I0
+Skynum = 55
 SelectHeading = RSR Classic
