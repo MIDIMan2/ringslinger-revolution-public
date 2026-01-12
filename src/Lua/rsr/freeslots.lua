@@ -19,9 +19,12 @@ freeslot(
 	"sfx_scatfr", -- Created by orbitalviolet
 	"sfx_scatxp", -- Created by orbitalviolet
 	"sfx_bombfr",
+	"sfx_bombab", -- Created by orbitalviolet
 	"sfx_boatfr",
 	"sfx_grndfr",
+	"sfx_grndab", -- Created by orbitalviolet
 	"sfx_gratfr",
+	"sfx_gratab", -- Created by orbitalviolet
 	"sfx_gratrm", -- Created by orbitalviolet
 	"sfx_stikbp", -- Created by orbitalviolet
 	"sfx_gratrd", -- Created by orbitalviolet
@@ -30,10 +33,12 @@ freeslot(
 	"sfx_bcatfr", -- Created by orbitalviolet
 	"sfx_bcmega", -- Created by orbitalviolet
 	"sfx_homifr", -- Created by orbitalviolet
+	"sfx_homiab", -- Created by orbitalviolet
 	"sfx_homitg",
 	"sfx_homiwn", -- Created by orbitalviolet
 	"sfx_hoatsk",
 	"sfx_hoatfr",
+	"sfx_hoatab", -- Created by orbitalviolet
 	"sfx_hoattg", -- Created by orbitalviolet
 	"sfx_hoatpt",
 	"sfx_hoatno",
@@ -59,6 +64,8 @@ freeslot(
 	"sfx_rsrsp1",
 	"sfx_rsrsp2",
 	"sfx_rsrsp3",
+	"sfx_rsrhlk", -- Created by orbitalviolet
+	"sfx_rsralk", -- Created by orbitalviolet
 	"sfx_wvstrt",
 	"sfx_wvdone",
 	"sfx_wvpass"
@@ -301,9 +308,12 @@ sfxinfo[sfx_sctrfr].caption = "Scatter fired"
 sfxinfo[sfx_scatfr].caption = "Scatter: Mass Slug"
 sfxinfo[sfx_scatxp].caption = "Mass Slug scattering"
 sfxinfo[sfx_bombfr].caption = "Explosion fired"
+sfxinfo[sfx_bombab].caption = "Explosion travelling"
 sfxinfo[sfx_boatfr].caption = "Explosion: Self-Propel"
 sfxinfo[sfx_grndfr].caption = "Grenade fired"
+sfxinfo[sfx_grndab].caption = "Grenade travelling"
 sfxinfo[sfx_gratfr].caption = "Grenade: Stickybomb"
+sfxinfo[sfx_gratab].caption = "Stickybomb travelling"
 sfxinfo[sfx_gratrm].caption = "Stickybomb attach"
 sfxinfo[sfx_stikbp].caption = "Stickybomb nearby"
 sfxinfo[sfx_stikbp].flags = SF_X4AWAYSOUND -- Easier to detect nearby Stickybombs
@@ -314,8 +324,10 @@ sfxinfo[sfx_bcatfr].caption = "Bounce: Goldburster"
 sfxinfo[sfx_bcmega].caption = "Goldburster explosion"
 sfxinfo[sfx_homifr].caption = "Homing fired"
 sfxinfo[sfx_homitg].caption = "Homing lock-on"
+sfxinfo[sfx_homiab].caption = "Homing locked-on and seeking"
 sfxinfo[sfx_homiwn].caption = "Homing incoming!"
 sfxinfo[sfx_hoatfr].caption = "Homing: Router RPB"
+sfxinfo[sfx_hoatab].caption = "Router RPB travelling"
 sfxinfo[sfx_hoatsk].caption = "Router RPB seeking..."
 sfxinfo[sfx_hoattg].caption = "Router RPB incoming!"
 sfxinfo[sfx_hoatpt].caption = "Router RPB ready"
@@ -347,6 +359,10 @@ sfxinfo[sfx_rsrkil].caption = "Scored kill!"
 sfxinfo[sfx_rsrsp1].caption = "Player spawned"
 sfxinfo[sfx_rsrsp2].caption = "Enemy spawned"
 sfxinfo[sfx_rsrsp3].caption = "Item respawned"
+
+-- Powers
+sfxinfo[sfx_rsrhlk].caption = "Homing attack incoming!"
+sfxinfo[sfx_rsralk].caption = "Attraction Shot incoming!"
 
 -- Waves
 sfxinfo[sfx_wvstrt].caption = "Wave start..."
