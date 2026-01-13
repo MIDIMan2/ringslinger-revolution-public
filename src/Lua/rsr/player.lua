@@ -62,8 +62,6 @@ RSR.PlayerInit = function(player)
 	RSR.PlayerHealthInit(player)
 	RSR.PlayerWeaponsInit(player)
 	RSR.PlayerPowerupsInit(player)
-	rsrinfo.critcooldown = 0
-	rsrinfo.crithealed = false
 
 	RSR.PlayerStarpostDataInit(player)
 
@@ -218,8 +216,8 @@ RSR.PlayerThink = function(player)
 		RSR.PlayerFlameShieldTick(player)
 		RSR.PlayerHomingThink(player)
 		RSR.PlayerWeaponChoiceTick(player)
-		if player.rsrinfo.critcooldown > 0 then
-			player.rsrinfo.critcooldown = $ - 1
+		if player.rsrinfo.critCooldown > 0 then
+			player.rsrinfo.critCooldown = $ - 1
 		end
 		-- Give the player a speed boost if they have the attraction shield (unless they have speed shoes or super)
 		-- TODO: This might break some momentum and/or character mods...

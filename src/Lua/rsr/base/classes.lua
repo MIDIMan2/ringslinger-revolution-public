@@ -45,6 +45,7 @@
 ---@field boostNormalspeed boolean Determines if normalspeed should be boosted or not (UNUSED).
 ---@field useZoom boolean Determines if the weapon zoom should be active or not.
 ---@field fovZoom integer Timer for the weapon zoom (max is 14).
+---@field critCooldown tic_t Cooldown timer for critical healing.
 
 ---@class rsrmobjinfo_t
 ---@field health integer Health of the mobj.

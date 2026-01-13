@@ -109,7 +109,7 @@ RSR.SpawnDamageSplatter = function(target, damage)
 	end
 end
 
---- Initializes the player's health system
+--- Initializes the player's health system.
 ---@param player player_t
 RSR.PlayerHealthInit = function(player)
 	if not (Valid(player) and player.rsrinfo) then return end
@@ -118,7 +118,6 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.health = RSR.MAX_HEALTH
 -- 	rsrinfo.health = 1 -- For testing purposes only
 	rsrinfo.armor = 0
-
 	rsrinfo.hype = 0
 
 	rsrinfo.hurtByEnemy = 0
@@ -129,6 +128,9 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.deathFlags = 0
 	rsrinfo.attackerInfo = {}
 	rsrinfo.knockedByAttacker = false -- TODO: Maybe remove this since it's not being used for assists anymore???
+
+	rsrinfo.critHealed = false
+	rsrinfo.critCooldown = 0
 
 	if G_RingSlingerGametype() then -- Replaces the Pity Shield with a "pity armor start" feature
 		if (player.powers[pw_shield] & SH_NOSTACK) then
