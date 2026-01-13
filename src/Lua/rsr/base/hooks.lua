@@ -90,9 +90,24 @@ events["PlayerKnockback"] = {
     --typefor = typefor_mobj
 }
 
+events["PlayerShouldDamage"] = {
+    handler = handler_snapany;
+    typefor = typefor_skin
+}
+
 events["PlayerDamage"] = {
     handler = handler_snapany;
-    --typefor = typefor_mobj
+    typefor = typefor_skin
+}
+
+events["PlayerDeath"] = {
+	handler = handler_snaptrue;
+	typefor = typefor_skin
+}
+
+events["PlayerDeathThink"] = {
+	handler = handler_snaptrue;
+	typefor = typefor_skin
 }
 
 events["DeathFling"] = {
@@ -100,14 +115,19 @@ events["DeathFling"] = {
     --typefor = typefor_mobj
 }
 
-events["HealthTake"] = {
+events["GetHealth"] = {
     handler = handler_snapany;
-    --typefor = typefor_mobj
+    typefor = typefor_skin
 }
 
-events["ArmorTake"] = {
+events["GetArmor"] = {
     handler = handler_snapany;
-    --typefor = typefor_mobj
+    typefor = typefor_mobj
+}
+
+events["GetHype"] = {
+    handler = handler_snapany;
+    typefor = typefor_mobj
 }
 
 local deprecated = {

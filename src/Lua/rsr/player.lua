@@ -164,6 +164,17 @@ end
 RSR.PlayerDeathTick = function(player)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
+	local hookEvent, hookName = RSR.findEvent("PlayerDeathThink")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, player)
+			if result then return end
+		end
+	end
+
 	RSR.PlayerToastyTick(player)
 	if (player.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) and player.mo.fuse > 1 then player.mo.fuse = 1 end
 	-- Force momentum on the player if they have died
@@ -291,6 +302,8 @@ RSR.PlayerThink = function(player)
 	end
 end
 
+--- Stops the player's momentum when their fuse runs out. Used for deaths.
+---@param mo mobj_t
 RSR.PlayerMobjFuse = function(mo)
 	if not RSR.GamemodeActive() then return end
 	if not (Valid(mo) and Valid(mo.player) and mo.player.playerstate == PST_DEAD) then return end

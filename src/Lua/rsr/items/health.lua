@@ -8,8 +8,18 @@
 ---@param isBonus boolean|nil If true, the player's health will go past 100 and up to 200.
 RSR.GiveHealth = function(player, health, isBonus)
 	if not (Valid(player) and player.rsrinfo) then return false end
-	-- Don't run this function if the player's skin has been exempt from the damage system
-	if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].nodamage then return false end
+
+	local hookEvent, hookName = RSR.findEvent("GetHealth")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, player, health, isBonus)
+			if result ~= nil then return result end
+		end
+	end
+
 	if health == nil then health = 1 end
 
 	if not isBonus and player.rsrinfo.health >= RSR.MAX_HEALTH then return false end
@@ -27,8 +37,18 @@ end
 ---@param isBonus boolean|nil If true, the player's armor will go past 100 and up to 200.
 RSR.GiveArmor = function(player, armor, isBonus)
 	if not (Valid(player) and player.rsrinfo) then return false end
-	-- Don't run this function if the player's skin has been exempt from the damage system
-	if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].nodamage then return false end
+
+	local hookEvent, hookName = RSR.findEvent("GetArmor")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, player, armor, isBonus)
+			if result ~= nil then return result end
+		end
+	end
+
 	if armor == nil then armor = 1 end
 
 	if not isBonus and player.rsrinfo.armor >= RSR.MAX_ARMOR then return false end
@@ -45,8 +65,18 @@ end
 ---@param hype integer Amount of hype to give the player (Default is 1).
 RSR.GiveHype = function(player, hype)
 	if not (Valid(player) and player.rsrinfo) then return false end
-	-- Don't run this function if the player's skin has been exempt from the damage system
-	if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].nodamage then return false end
+
+	local hookEvent, hookName = RSR.findEvent("GetHype")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, player, hype)
+			if result ~= nil then return result end
+		end
+	end
+
 	if not (emeralds == 127 or player.powers[pw_emeralds] == 127) then return false end -- Don't give hype if the player doesn't have all the emeralds.
 	if hype == nil then hype = 1 end
 

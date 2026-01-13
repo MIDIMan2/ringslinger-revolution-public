@@ -247,6 +247,32 @@ RSR.GetInflictorDamage = function(target, inflictor, source, damage, damagetype)
 	return damageInfo
 end
 
+-- TODO: Figure out how to implement the DeathFling hook (or if it's even needed)
+
+--- Sets how far the player gets flung when dying.
+---@param target mobj_t
+---@param inflictor mobj_t
+---@param source mobj_t
+---@param damage integer
+---@param damagetype integer
+RSR.SetPlayerDeathFling = function(target, inflictor, source, damage, damagetype)
+	if not (Valid(target) and Valid(target.player) and target.player.rsrinfo) then return end
+
+	-- No crazy shenanigans if the player drowned, fell down a pit, etc.
+	if (damagetype & DMG_DEATHMASK) and not (Valid(inflictor) or Valid(source))
+	and not (damagetype == DMG_INSTAKILL and (target.player.rsrinfo.deathFlags & RSR.DEATH_REMOVEDEATHMASK)) then
+		target.rsrPrevMomX = 0
+		target.rsrPrevMomY = 0
+		target.rsrPrevMomZ = 0
+		return
+	end
+
+	-- So the player can get flung during death
+	target.rsrPrevMomX = target.momx
+	target.rsrPrevMomY = target.momy
+	target.rsrPrevMomZ = target.momz - P_MobjFlip(target)*FixedMul(7*FRACUNIT, target.scale) -- Negate SOME of the upward fling we get from dying normally
+end
+
 --- MobjDamage hook code for player Objects.
 ---@param target mobj_t
 ---@param inflictor mobj_t
@@ -258,11 +284,18 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	if not Valid(target) then return end
 	if target.health <= 0 then return end
 	local player = target.player
+	if not (Valid(player) and player.rsrinfo) then return end -- Don't run this code if the target is not a player in RSR
 
-	if RSR.SKIN_INFO[target.skin] and RSR.SKIN_INFO[target.skin].nodamage then return end
-
-	-- Don't run this code if the target is not a player in RSR
-	if not (Valid(player) and player.rsrinfo) then return end
+	local hookEvent, hookName = RSR.findEvent("PlayerDamage")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
+			if result then return end
+		end
+	end
 
 	-- Don't run this code if DMG_DEATHMASK is in effect
 	if ((damagetype or 0) & DMG_DEATHMASK) then return end
@@ -490,15 +523,12 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 			end
 		end
 
-		-- So the player can get flung during death
-		target.rsrPrevMomX = target.momx
-		target.rsrPrevMomY = target.momy
-		target.rsrPrevMomZ = target.momz - P_MobjFlip(target)*FixedMul(7*FRACUNIT, target.scale) -- Negate SOME of the upward fling we get from dying normally
-
 		-- Do this to prevent the player from standing still when thrusted while not moving
 		player.rmomx = target.momx + player.cmomx
 		player.rmomy = target.momy + player.cmomy
 	end
+
+	RSR.SetPlayerDeathFling(target, inflictor, source, damage, damagetype)
 
 	if rsrinfo.health <= 0 then
 		player.powers[pw_shield] = SH_NONE
@@ -606,23 +636,26 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
 	damagetype = $ or 0 -- TODO: See if this is even necessary
-
-	if RSR.SKIN_INFO[target.skin] and RSR.SKIN_INFO[target.skin].nodamage then return end
-
 	local player = target.player
 	if not (Valid(player) and player.rsrinfo) then return end
+
+	local hookEvent, hookName = RSR.findEvent("PlayerShouldDamage")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
+			if result ~= nil then return end
+		end
+	end
+
 	local rsrinfo = player.rsrinfo
 
 	if (player.pflags & PF_GODMODE) or player.exiting then return end
 
 	if (damagetype & DMG_DEATHMASK) then
-		-- No crazy shenanigans if the player drowned, fell down a pit, etc.
-		if not (Valid(inflictor) or Valid(source))
-		and not (damagetype == DMG_INSTAKILL and (rsrinfo.deathFlags & RSR.DEATH_REMOVEDEATHMASK)) then
-			target.rsrPrevMomX = 0
-			target.rsrPrevMomY = 0
-			target.rsrPrevMomZ = 0
-		end
+		RSR.SetPlayerDeathFling(target, inflictor, source, damage, damagetype)
 		return
 	end
 
@@ -724,8 +757,81 @@ end
 ---@param team integer
 RSR.TeamSwitch = function(player, team)
 	if not (Valid(player) and player.rsrinfo) then return end
-
 	if team == 0 then player.rsrinfo.deathFlags = $|RSR.DEATH_MAKESPECTATOR end
+end
+
+--- Drop the player's items when they die.
+---@param player player_t
+RSR.PlayerDropItems = function(player)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
+	local rsrinfo = player.rsrinfo
+
+	-- Let players keep their weapons and some of their ammo when dying in co-op
+	if G_CoopGametype() and rsrinfo.starpostData then
+		local starpostData = rsrinfo.starpostData
+		starpostData.weapons = RSR.DeepCopy(rsrinfo.weapons)
+		starpostData.ammo = RSR.DeepCopy(rsrinfo.ammo)
+		starpostData.readyWeapon = rsrinfo.readyWeapon
+
+		for ammoType, ammoAmount in ipairs(rsrinfo.ammo) do
+			local newAmount = RSR.AMMO_INFO[ammoType].amount
+			if starpostData.ammo[ammoType] <= newAmount then continue end
+			starpostData.ammo[ammoType] = newAmount
+		end
+	end
+
+	-- Do this here so players blowing themselves up can still spill emeralds
+	if (gametyperules & GTR_POWERSTONES) then
+		-- lastemeralds is a hack that gets around P_KillPlayer resetting pw_emeralds to 0
+		player.powers[pw_emeralds] = rsrinfo.lastemeralds or 0
+		P_PlayerEmeraldBurst(player, false)
+		player.powers[pw_emeralds] = 0
+	end
+
+	-- Go through each weapon in the player's inventory and drop them
+	for weapon, inInventory in ipairs(rsrinfo.weapons) do
+		if not inInventory then continue end
+		---@type rsrweaponinfo_t
+		local weaponInfo = RSR.WEAPON_INFO[weapon]
+		if not (weaponInfo and weaponInfo.pickup) then continue end
+		local ammoAmount = rsrinfo.ammo[weaponInfo.ammotype]
+		if ammoAmount < 1 then continue end -- If the player has no ammo for this weapon, move on to the next weapon
+
+		local angle = FixedAngle(weapon * (360*FRACUNIT / #rsrinfo.weapons))
+
+		local pickup = P_SpawnMobjFromMobj(player.mo, 0, 0, FRACUNIT, weaponInfo.pickup)
+		if Valid(pickup) then
+			pickup.rsrAmmoAmount = ammoAmount
+			if pickup.info.seestate then pickup.state = pickup.info.seestate end
+			pickup.flags = $ & ~(MF_NOGRAVITY|MF_NOCLIPHEIGHT) -- Make the dropped weapon affected by gravity
+			pickup.flags2 = $|MF2_DONTRESPAWN -- Don't respawn
+			pickup.fuse = 12*TICRATE -- Don't linger forever
+			P_SetObjectMomZ(pickup, 3*FRACUNIT)
+			P_InstaThrust(pickup, angle, 3*pickup.scale)
+		end
+	end
+end
+
+RSR.PlayerReplenishPowerups = function(player)
+	if not Valid(player) then return end
+
+	if player.powers[pw_super] then -- Player is super
+		RSR.GiveHype(player, 400) -- Give bonus hype for killing an enemy player
+		RSR.BonusFade(player) -- Give the player an indicator that they just got hype
+	end
+
+	-- TODO: Give the time boost for only one of these powerups???
+	-- Give the player a time boost if they have invincibility
+	if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) then
+		RSR.GivePowerup(player, RSR.POWERUP_INVINCIBILITY, 10*TICRATE)
+		RSR.BonusFade(player) -- Give the player an indicator that they got more invincibility time
+	end
+
+	-- Give the player a time boost if they have infinity
+	if RSR.HasPowerup(player, RSR.POWERUP_INFINITY) then
+		RSR.GivePowerup(player, RSR.POWERUP_INFINITY, 10*TICRATE)
+		RSR.BonusFade(player) -- Give the player an indicator that they just got more infinity time
+	end
 end
 
 --- MobjDeath hook code for players.
@@ -736,6 +842,17 @@ end
 RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
+
+	local hookEvent, hookName = RSR.findEvent("PlayerDeath")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damagetype)
+			if result then return end
+		end
+	end
 
 	local player = target.player
 	if not (Valid(player) and player.rsrinfo) then return end
@@ -769,24 +886,8 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			rsrinfo.forceInflictorType = nil
 			rsrinfo.forceInflictorReflected = nil
 
-			if Valid(sourcePlayer) then -- Only run this if a player is the source of this kill
-				if sourcePlayer.powers[pw_super] then -- Player is super
-					RSR.GiveHype(sourcePlayer, 400) -- Give bonus hype for killing an enemy player
-					-- Give the player an indicator that they just got hype
-					RSR.BonusFade(sourcePlayer)
-				end
-
-				-- TODO: Give the time boost for only one of these powerups???
-				-- Give the source player a time boost if they have invincibility
-				if RSR.HasPowerup(sourcePlayer, RSR.POWERUP_INVINCIBILITY) then
-					RSR.GivePowerup(sourcePlayer, RSR.POWERUP_INVINCIBILITY, 10*TICRATE)
-				end
-
-				-- Give the source player a time boost if they have infinity
-				if RSR.HasPowerup(sourcePlayer, RSR.POWERUP_INFINITY) then
-					RSR.GivePowerup(sourcePlayer, RSR.POWERUP_INFINITY, 10*TICRATE)
-				end
-			end
+			-- Only run this if a player is the source of this kill
+			RSR.PlayerReplenishPowerups(sourcePlayer)
 
 			-- Melee attacks always have the player object be the inflictor
 			if Valid(inflictor) and Valid(inflictor.player) and inflictor.player.rsrinfo then
@@ -835,57 +936,10 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			rsrinfo.attackerInfo = {} -- Clear attackerInfo since we've already died
 		end
 
-		-- Let players keep their weapons and some of their ammo when dying in co-op
-		if G_CoopGametype() and rsrinfo.starpostData then
-			local starpostData = rsrinfo.starpostData
-			starpostData.weapons = RSR.DeepCopy(rsrinfo.weapons)
-			starpostData.ammo = RSR.DeepCopy(rsrinfo.ammo)
-			starpostData.readyWeapon = rsrinfo.readyWeapon
-
-			for ammoType, ammoAmount in ipairs(rsrinfo.ammo) do
-				local newAmount = RSR.AMMO_INFO[ammoType].amount
-				if starpostData.ammo[ammoType] <= newAmount then continue end
-				starpostData.ammo[ammoType] = newAmount
-			end
-		end
-
-		-- Do this here so players blowing themselves up can still spill emeralds
-		if (gametyperules & GTR_POWERSTONES) then
-			-- lastemeralds is a hack that gets around P_KillPlayer resetting pw_emeralds to 0
-			player.powers[pw_emeralds] = rsrinfo.lastemeralds or 0
-			P_PlayerEmeraldBurst(player, false)
-			player.powers[pw_emeralds] = 0
-		end
-
-		for weapon, inInventory in ipairs(rsrinfo.weapons) do
-			if not inInventory then continue end
-			---@type rsrweaponinfo_t
-			local weaponInfo = RSR.WEAPON_INFO[weapon]
-			if not (weaponInfo and weaponInfo.pickup) then continue end
-			-- local ammoInfo = RSR.AMMO_INFO[weaponInfo.ammotype]
-			local ammoAmount = rsrinfo.ammo[weaponInfo.ammotype]
-			if ammoAmount < 1 then continue end
-			-- if (G_CoopGametype() or G_RingSlingerGametype()) and ammoAmount <= ammoInfo.amount then continue end
-
-			local angle = FixedAngle(weapon * (360*FRACUNIT / #rsrinfo.weapons))
-
-			local pickup = P_SpawnMobjFromMobj(target, 0, 0, FRACUNIT, weaponInfo.pickup)
-			if Valid(pickup) then
-				-- if G_CoopGametype() or G_RingSlingerGametype() and ammoAmount >= ammoInfo.amount then
-				-- 	pickup.rsrAmmoAmount = ammoAmount - ammoInfo.amount
-				-- else
-					pickup.rsrAmmoAmount = ammoAmount
-				-- end
-				if pickup.info.seestate then pickup.state = pickup.info.seestate end
-				pickup.flags = $ & ~(MF_NOGRAVITY|MF_NOCLIPHEIGHT)
-				pickup.flags2 = $|MF2_DONTRESPAWN
-				pickup.fuse = 12*TICRATE -- Don't linger forever
-				P_SetObjectMomZ(pickup, 3*FRACUNIT)
-				P_InstaThrust(pickup, angle, 3*pickup.scale)
-			end
-		end
+		RSR.PlayerDropItems(player)
 	end
 
+	-- Clear the player's "starpost data" if the map's level header forces players to lose their inventory on death
 	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrloseinvondeath then rsrinfo.starpostData = {} end
 end
 
