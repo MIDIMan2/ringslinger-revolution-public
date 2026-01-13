@@ -102,6 +102,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	dontreflect = true,
 	explosive = true,
 	sparklestate = S_RSR_NIGHTSPARKLE_SCRAMBLER,
+	thrustdamage = 3, -- Roughly 1/6th of 20
 	killfeedIcon = "RSRSCALI",
 	killfeedName = "Mass Scrambler bomblet",
 	killfeedObituary = {

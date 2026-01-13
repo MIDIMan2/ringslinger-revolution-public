@@ -9,8 +9,7 @@
 ---@param fullDist integer|fixed_t|nil Maximum radius from the splash center to deal full damage (Default is 0.375x the bombDist).
 ---@param thrustDamage integer|nil Maximum thrust dealt to the Object from splash damage (Default is 20).
 ---@param aimThrust boolean|nil Makes mo's target get thrusted in the direction its aiming (used for the Explosion ring's altfire).
----@param scramblerMod boolean|nil Cuts blast thrust by 1/6 (used to prevent Mass Scrambler from sending players to space).
-RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDamage, aimThrust, scramblerMod)
+RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDamage, aimThrust)
 	if not Valid(mo) then return end
 	if bombDist == nil then bombDist = 128*FRACUNIT end
 	if thrustDist == nil then thrustDist = 6*bombDist/5 end
@@ -18,13 +17,12 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 	if fullDist == nil then fullDist = 3*bombDist/8 end
 	if not thrustDamage then thrustDamage = 20 end
 
-	bombDist = FixedMul($, mo.scale)
-	thrustDist = FixedMul($, mo.scale)
-	fullDist = FixedMul($, mo.scale)
+	local moScale = mo.scale
+	if mo.rsrOrigScale then moScale = mo.rsrOrigScale end
 
-	if scramblerMod then
-		thrustDamage = FixedMul($,FRACUNIT/6)
-	end
+	bombDist = FixedMul($, moScale)
+	thrustDist = FixedMul($, moScale)
+	fullDist = FixedMul($, moScale)
 
 	mo.rsrProjectile = nil
 	mo.rsrRealDamage = true
@@ -55,9 +53,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 		if not (enemy.info.flags & MF_MONITOR) then
 			if dist <= bombDist then
 				local damage = bombDamage * min(FixedDiv(bombDist - dist, max(bombDist - fullDist, mo.scale)), FRACUNIT) / FRACUNIT
-				if damage > 0 then
-					P_DamageMobj(enemy, bomb, source, damage, damagetype)
-				end
+				if damage > 0 then P_DamageMobj(enemy, bomb, source, damage, damagetype) end
 			end
 		end
 
