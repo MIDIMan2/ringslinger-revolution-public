@@ -77,6 +77,7 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	radius = 22*FRACUNIT,
 	height = 22*FRACUNIT,
 	damage = 1,
+	activesound = sfx_scatab,
 	flags = MF_NOBLOCKMAP|MF_MISSILE
 }
 
@@ -88,15 +89,9 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	-- Artificial gravity for bomblets
-	P_SetObjectMomZ(mo, -abs(2*P_GetMobjGravity(mo)), true)
-
-	-- Bomblet sizzling
-	-- TODO: rewrite this to use RSR.ProjectileTravelSound when we merge all the branches!
-	if not (leveltime % 3) then S_StartSound(mo, sfx_scatab) end
-
-	-- Smoke particles
-	RSR.ProjectileGhostTimer(mo, true)
+	P_SetObjectMomZ(mo, -abs(2*P_GetMobjGravity(mo)), true) -- Artificial gravity for bomblets
+	RSR.ProjectileTravelSound(mo, 3) -- Bomblet sizzling
+	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
 end, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 
@@ -183,6 +178,7 @@ RSR.A_ScatterFlakCannon = function(actor, var1, var2)
 			flakShot.pitch = actor.pitch + (flakPitchOffset)
 			flakShot.target = actor.target -- Don't let players hurt themselves with a Mass Scrambler
 			flakShot.rsrProjectile = true
+			flakShot.rsrSoundTimer = P_RandomRange(1, 3) -- Randomize travelling sound timer so the sounds don't overlap each other and pierce the player's eardrums
 			-- Make it smaller
 			local flakRandomMod = P_RandomRange(4, 7) -- Randomise scale between each bomblet a bit
 			local flakVMod = P_RandomRange(2, 4) -- Randomise scale between each bomblet a bit
@@ -214,7 +210,7 @@ states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON] =	{SPR_RSBS,	FF_FULLBRIGHT,	0,	RSR.A
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON)
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
-	RSR.ProjectileGhostTimer(mo)
+	RSR.ProjectileGhostTimer(mo) -- Smoke particles
 	if not (mo.flags & MF_MISSILE) then return end
 	mo.rsrPrevMomX = mo.momx
 	mo.rsrPrevMomY = mo.momy

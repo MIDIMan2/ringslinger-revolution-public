@@ -81,9 +81,10 @@ COM_AddCommand("rsr_disintegrate", function(player, _)
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 
--- TODO: Remove or comment this out for public releases
+if not RSR.DEV_MODE then return end
+
 COM_AddCommand("rsr_getemeralds", function(player, arg)
-	if not Valid(player) then return end
+	if not (Valid(player) and player.rsrinfo) then return end
 
 	if (gametyperules & GTR_POWERSTONES) then
 		player.powers[pw_emeralds] = 127
@@ -93,7 +94,11 @@ COM_AddCommand("rsr_getemeralds", function(player, arg)
 	player.rsrinfo.hype = RSR.MAX_HYPE
 end)
 
--- TODO: Remove or comment this out for public releases
+COM_AddCommand("rsr_getweapons", function(player, arg)
+	if not (Valid(player) and player.rsrinfo) then return end
+	for i = 1, RSR.WEAPON_MAX - 1 do RSR.GiveWeapon(player, i, 999) end
+end)
+
 COM_AddCommand("rsr_killallenemies", function(player, arg)
 	for mo in mobjs.iterate() do
 		if not (Valid(mo) and (mo.flags & MF_ENEMY)) then continue end
