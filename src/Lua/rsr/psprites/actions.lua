@@ -199,6 +199,18 @@ pspractions.A_RSRWeaponReady = function(player, args)
 	end
 
 	local weaponInfo = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon]
+
+	local hookEvent, hookName = RSR.findEvent("WeaponReady")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player.rsrinfo.readyWeapon, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, player, weaponInfo, args)
+			if result then return end
+		end
+	end
+
 	if (player.cmd.buttons & BT_FIRENORMAL) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
 		if weaponInfo.altzoom and RSR.CheckAmmo(player) then
 			rsrinfo.useZoom = true

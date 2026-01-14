@@ -58,7 +58,18 @@ local typefor_skin = function(this_player, ...)
 	return skins[this_player.skin].name == type
 end
 
+local typefor_weapon = function(this_weapontype, ...)
+	local arg = {...}
+	local type = (#arg and arg[1] or nil)
+	if (type == nil) then
+		return true
+	end
+	return this_weapontype == type
+end
+
 local events = {}
+
+-- TouchSpecial hooks
 
 events["TouchWeapon"] = {
 	handler = handler_snapany;
@@ -80,10 +91,24 @@ events["TouchArmor"] = {
 	typefor = typefor_skin
 }
 
-events["KillfeedMsg"] = {
-	handler = handler_snapany;
-	typefor = typefor_mobj
+-- Getting Health
+
+events["GetHealth"] = {
+    handler = handler_snapany;
+    typefor = typefor_skin
 }
+
+events["GetArmor"] = {
+    handler = handler_snapany;
+    typefor = typefor_mobj
+}
+
+events["GetHype"] = {
+    handler = handler_snapany;
+    typefor = typefor_mobj
+}
+
+-- Player Behavior
 
 events["PlayerKnockback"] = {
     handler = handler_snapany;
@@ -115,19 +140,16 @@ events["DeathFling"] = {
     --typefor = typefor_mobj
 }
 
-events["GetHealth"] = {
-    handler = handler_snapany;
-    typefor = typefor_skin
+-- Other
+
+events["WeaponReady"] = {
+	handler = handler_snaptrue;
+	typefor = typefor_weapon
 }
 
-events["GetArmor"] = {
-    handler = handler_snapany;
-    typefor = typefor_mobj
-}
-
-events["GetHype"] = {
-    handler = handler_snapany;
-    typefor = typefor_mobj
+events["KillfeedMsg"] = {
+	handler = handler_snapany;
+	typefor = typefor_mobj
 }
 
 local deprecated = {

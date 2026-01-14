@@ -129,7 +129,7 @@
 ---@field noenemydamage boolean Disables RSR's enemy damage system for this character/skin.
 ---@field nohud boolean Disables RSR's HUD for this character/skin.
 ---@field meleeicon string Name of the graphic to use for the melee killfeed icon for this character/skin.
----@field meleeobituary string Melee killfeed text for this character/skin (%s must be used to define attacker and victim, in that order).
+---@field meleeobituary string Melee killfeed text for this character/skin ($a is their attacker, $v is the victim).
 
 ---@class rsrshieldinfo_t
 ---@field icon string Graphic to use for the shield's icon.

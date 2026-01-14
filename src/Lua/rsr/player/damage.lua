@@ -259,11 +259,13 @@ RSR.SetPlayerDeathFling = function(target, inflictor, source, damage, damagetype
 	if not (Valid(target) and Valid(target.player) and target.player.rsrinfo) then return end
 
 	-- No crazy shenanigans if the player drowned, fell down a pit, etc.
-	if (damagetype & DMG_DEATHMASK) and not (Valid(inflictor) or Valid(source))
-	and not (damagetype == DMG_INSTAKILL and (target.player.rsrinfo.deathFlags & RSR.DEATH_REMOVEDEATHMASK)) then
-		target.rsrPrevMomX = 0
-		target.rsrPrevMomY = 0
-		target.rsrPrevMomZ = 0
+	if (damagetype & DMG_DEATHMASK) then
+		if not (Valid(inflictor) or Valid(source))
+		and not (damagetype == DMG_INSTAKILL and (target.player.rsrinfo.deathFlags & RSR.DEATH_REMOVEDEATHMASK)) then
+			target.rsrPrevMomX = 0
+			target.rsrPrevMomY = 0
+			target.rsrPrevMomZ = 0
+		end
 		return
 	end
 
