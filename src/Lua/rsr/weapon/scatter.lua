@@ -56,7 +56,7 @@ addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER)
 
 --- Plays a randomized explosion sound.
 ---@param actor mobj_t
-RSR.A_ScatterFlakCannonXpldSound = function(actor, var1, var2)
+A_ScatterFlakCannonXpldSound = function(actor, var1, var2)
 	if not Valid(actor) then return end
 	if P_RandomRange(1,2) == 1 then
 		S_StartSound(actor, sfx_scatx1)
@@ -81,7 +81,7 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	flags = MF_NOBLOCKMAP|MF_MISSILE
 }
 
-states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION_XPLDSOUND] =	{SPR_NULL,	A,	0,	RSR.A_ScatterFlakCannonXpldSound,	0,	0,	S_RSR_RINGEXPLODEALT}
+states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION_XPLDSOUND] =	{SPR_NULL,	A,	0,	A_ScatterFlakCannonXpldSound,	0,	0,	S_RSR_RINGEXPLODEALT}
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 addHook("MobjThinker", function(mo)
@@ -112,7 +112,7 @@ end
 
 --- Shoots a wide spread of twelve explosive submunitions.
 ---@param actor mobj_t
-RSR.A_ScatterFlakCannon = function(actor, var1, var2)
+A_ScatterFlakCannon = function(actor, var1, var2)
 	if not Valid(actor) then return end
 
 	local hitFloor = actor.z <= actor.floorz
@@ -205,7 +205,7 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON] = {
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
-states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON] =	{SPR_RSBS,	FF_FULLBRIGHT,	0,	RSR.A_ScatterFlakCannon,	0,	0,	S_BOSSEXPLODE}
+states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON] =	{SPR_RSBS,	FF_FULLBRIGHT,	0,	A_ScatterFlakCannon,	0,	0,	S_BOSSEXPLODE}
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON)
 addHook("MobjThinker", function(mo)
