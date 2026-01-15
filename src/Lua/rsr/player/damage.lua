@@ -247,7 +247,68 @@ RSR.GetInflictorDamage = function(target, inflictor, source, damage, damagetype)
 	return damageInfo
 end
 
--- TODO: Figure out how to implement the DeathFling hook (or if it's even needed)
+RSR.PlayerDamageKnockback = function(target, inflictor, source, damage, damagetype, knockbackScale)
+	if not (Valid(target) and Valid(target.player) and target.player.rsrinfo) then return end
+
+	if knockbackScale == nil then knockbackScale = FRACUNIT end
+	local hookEvent, hookName = RSR.findEvent("PlayerKnockback")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(target.player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype, knockbackScale)
+			if result then return end
+		end
+	end
+
+	local player = target.player
+	local shield = (player.powers[pw_shield] & SH_NOSTACK)
+	if (shield & SH_FORCE) then shield = SH_FORCE end
+
+	-- Apply knockback to the target if the inflictor allows it
+	if Valid(inflictor) and not inflictor.rsrDontThrust
+	and (not player.rsrinfo.homing or (player.rsrinfo.homing and Valid(inflictor.player) and inflictor.player.rsrinfo and inflictor.player.rsrinfo.homing)) then
+		local ang = R_PointToAngle2(inflictor.x, inflictor.y, target.x, target.y)
+		if FixedHypot(FixedHypot(inflictor.x - target.x, inflictor.y - target.y), inflictor.z - target.z) < FRACUNIT then
+			ang = target.angle + ANGLE_180
+		end
+		local thrust = damage * (FRACUNIT / (2^3)) * 100 / 100 -- Originally divided by target.info.mass
+
+		P_Thrust(target, ang, FixedMul(knockbackScale, thrust))
+
+		-- Knock the player into the air if they were melee'd by another player
+		if Valid(inflictor.player) and damagetype ~= DMG_NUKE then
+			P_ResetPlayer(player)
+			target.z = $+P_MobjFlip(target)
+			target.state = S_PLAY_PAIN
+			if shield == SH_WHIRLWIND then -- Whirlwind melee knockback halving
+				P_SetObjectMomZ(target, 4*FRACUNIT)
+			else
+				P_SetObjectMomZ(target, 8*FRACUNIT)
+			end
+			if player.rsrinfo.attackKnockback then
+				if inflictor.player.rsrinfo and inflictor.player.rsrinfo.attackKnockback then
+					S_StartSound(target, sfx_s3k90)
+				end
+				target.momx = -$/2
+				target.momy = -$/2
+				player.rsrinfo.attackKnockback = false
+			else
+				local meleeMom = FixedHypot(inflictor.momx, inflictor.momy)
+				if shield == SH_WHIRLWIND then -- Whirlwind melee knockback halving
+					P_Thrust(target, ang, FixedMul(knockbackScale/2, meleeMom/4))
+				else
+					P_Thrust(target, ang, FixedMul(knockbackScale, meleeMom/2))
+				end
+			end
+		end
+
+		-- Do this to prevent the player from standing still when thrusted while not moving
+		player.rmomx = target.momx + player.cmomx
+		player.rmomy = target.momy + player.cmomy
+	end
+end
 
 --- Sets how far the player gets flung when dying.
 ---@param target mobj_t
@@ -257,6 +318,17 @@ end
 ---@param damagetype integer
 RSR.SetPlayerDeathFling = function(target, inflictor, source, damage, damagetype)
 	if not (Valid(target) and Valid(target.player) and target.player.rsrinfo) then return end
+
+	local hookEvent, hookName = RSR.findEvent("PlayerDeathFling")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(target.player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
+			if result then return end
+		end
+	end
 
 	-- No crazy shenanigans if the player drowned, fell down a pit, etc.
 	if (damagetype & DMG_DEATHMASK) then
@@ -487,49 +559,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 
 	-- TODO: Insert code for rumble support here when it gets exposed to Lua
 
-	-- Apply knockback to the target if the inflictor allows it
-	if Valid(inflictor) and not inflictor.rsrDontThrust
-	and (not player.rsrinfo.homing or (player.rsrinfo.homing and Valid(inflictor.player) and inflictor.player.rsrinfo and inflictor.player.rsrinfo.homing)) then
-		local ang = R_PointToAngle2(inflictor.x, inflictor.y, target.x, target.y)
-		if FixedHypot(FixedHypot(inflictor.x - target.x, inflictor.y - target.y), inflictor.z - target.z) < FRACUNIT then
-			ang = target.angle + ANGLE_180
-		end
-		local thrust = damage * (FRACUNIT / (2^3)) * 100 / 100 -- Originally divided by target.info.mass
-
-		P_Thrust(target, ang, FixedMul(knockbackScale, thrust))
-
-		-- Knock the player into the air if they were melee'd by another player
-		if Valid(inflictor.player) and damagetype ~= DMG_NUKE then
-			P_ResetPlayer(player)
-			target.z = $+P_MobjFlip(target)
-			target.state = S_PLAY_PAIN
-			if shield == SH_WHIRLWIND then -- Whirlwind melee knockback halving
-				P_SetObjectMomZ(target, 4*FRACUNIT)
-			else
-				P_SetObjectMomZ(target, 8*FRACUNIT)
-			end
-			if player.rsrinfo.attackKnockback then
-				if inflictor.player.rsrinfo and inflictor.player.rsrinfo.attackKnockback then
-					S_StartSound(target, sfx_s3k90)
-				end
-				target.momx = -$/2
-				target.momy = -$/2
-				player.rsrinfo.attackKnockback = false
-			else
-				local meleeMom = FixedHypot(inflictor.momx, inflictor.momy)
-				if shield == SH_WHIRLWIND then -- Whirlwind melee knockback halving
-					P_Thrust(target, ang, FixedMul(knockbackScale/2, meleeMom/4))
-				else
-					P_Thrust(target, ang, FixedMul(knockbackScale, meleeMom/2))
-				end
-			end
-		end
-
-		-- Do this to prevent the player from standing still when thrusted while not moving
-		player.rmomx = target.momx + player.cmomx
-		player.rmomy = target.momy + player.cmomy
-	end
-
+	RSR.PlayerDamageKnockback(target, inflictor, source, damage, damagetype, knockbackScale)
 	RSR.SetPlayerDeathFling(target, inflictor, source, damage, damagetype)
 
 	if rsrinfo.health <= 0 then

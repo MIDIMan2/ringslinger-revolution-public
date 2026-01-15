@@ -100,19 +100,19 @@ events["GetHealth"] = {
 
 events["GetArmor"] = {
     handler = handler_snapany;
-    typefor = typefor_mobj
+    typefor = typefor_skin
 }
 
 events["GetHype"] = {
     handler = handler_snapany;
-    typefor = typefor_mobj
+    typefor = typefor_skin
 }
 
 -- Player Behavior
 
 events["PlayerKnockback"] = {
-    handler = handler_snapany;
-    --typefor = typefor_mobj
+    handler = handler_snaptrue;
+    typefor = typefor_skin
 }
 
 events["PlayerShouldDamage"] = {
@@ -135,9 +135,9 @@ events["PlayerDeathThink"] = {
 	typefor = typefor_skin
 }
 
-events["DeathFling"] = {
+events["PlayerDeathFling"] = {
     handler = handler_snapany;
-    --typefor = typefor_mobj
+    typefor = typefor_skin
 }
 
 -- Other

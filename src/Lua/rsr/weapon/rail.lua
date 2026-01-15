@@ -326,7 +326,7 @@ psprstates["S_RAIL_DRAW"] =	{"RSRRAIL",	"A",	1,	"A_RSRWeaponDraw",		{},	"S_RAIL_
 -- Holster
 psprstates["S_RAIL_HOLSTER"] =	{"RSRRAIL",	"A",	1,	"A_RSRWeaponHolster",	{},	"S_RAIL_HOLSTER"}
 -- Ready
-psprstates["S_RAIL_READY"] =	{"RSRRAIL",	"A",	1,	"A_RSRWeaponReady",	{},	"S_RAIL_READY"} -- TODO: Check lastbuttons so the player doesn't accidently fire a rail ring when switching weapons
+psprstates["S_RAIL_READY"] =	{"RSRRAIL",	"A",	1,	"A_RSRWeaponReady",	{},	"S_RAIL_READY"}
 -- Attack
 psprstates["S_RAIL_ATTACK"] =	{"RSRRAIL",	"A",	0,	"A_RailAttack",		{},	"S_RAIL_RECOVER"}
 -- Recover
