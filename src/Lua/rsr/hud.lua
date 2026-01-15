@@ -143,7 +143,15 @@ end
 
 for _, hudItemInfo in ipairs(RSR.HUD_ITEMS) do
 	if not hudItemInfo then continue end
-	customhud.SetupItem(hudItemInfo[1], "rsr", hudItemInfo[2], "game", hudItemInfo[3])
+	-- Instead of putting the player skin check in the HUD functions themselves,
+	-- we make a new function to call them after the skin check instead.
+	-- This lets modders use the HUD drawing functions outside of customhud,
+	-- even if the player's skin has "nohud" enabled.
+	customhud.SetupItem(hudItemInfo[1], "rsr", function(v, player, thiscam)
+		-- Don't call the HUD function if the player's skin has "nohud" enabled
+		if (Valid(player) and RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].nohud) then return end
+		if hudItemInfo[2] then hudItemInfo[2](v, player, thiscam) end
+	end, "game", hudItemInfo[3])
 	RSR.LAST_HUDTYPE[hudItemInfo[1]] = customhud.CheckType(hudItemInfo[1])
 end
 
