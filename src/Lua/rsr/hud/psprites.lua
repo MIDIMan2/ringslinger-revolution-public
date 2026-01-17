@@ -10,6 +10,7 @@ RSR.BLENDMODE_TO_VFLAG = {
 ]]
 
 --- Draws the player's psprites to the HUD.
+---@param v videolib
 ---@param player player_t
 ---@param thiscam camera_t
 RSR.HUDPSprites = function(v, player, thiscam)

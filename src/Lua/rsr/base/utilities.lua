@@ -2,7 +2,7 @@
 
 if not Valid then
 	--- Returns true if the given userdata exists and is valid
-	---@param thing mobj_t|player_t|skin_t|mapthing_t|sector_t|subsector_t|line_t|side_t|vertex_t|ffloor_t|pslope_t|polyobj_t|taglist_t|nil
+	---@param thing mobj_t|player_t|skin_t|mapthing_t|sector_t|subsector_t|line_t|side_t|vertex_t|ffloor_t|pslope_t|polyobj_t|taglist_t|patch_t|nil
 	rawset(_G, "Valid", function(thing)
 		return (thing and thing.valid)
 	end)

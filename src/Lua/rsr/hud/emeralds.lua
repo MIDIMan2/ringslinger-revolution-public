@@ -1,11 +1,12 @@
 -- Ringslinger Revolutions - Emeralds HUD
 
 --- Draws the player's emeralds to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDEmeralds = function(v, player)
 	if not RSR.GamemodeActive() then return end
 	if not (v and Valid(player) and player.rsrinfo) then return end
-	
+
 	local workX = 96
 	local workY = 183
 	for i = 1, 7 do -- powerstones

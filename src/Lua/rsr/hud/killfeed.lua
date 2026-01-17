@@ -303,6 +303,7 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 end
 
 --- Draws the killfeed to the HUD.
+---@param v videolib
 RSR.HUDKillfeed = function(v)
 	if not v then return end
 	if not RSR.GamemodeActive() then return end

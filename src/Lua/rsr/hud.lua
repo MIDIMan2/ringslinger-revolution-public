@@ -20,6 +20,7 @@ dofolder("flagradar.lua")
 dofolder("killfeed.lua")
 
 --- Draws the player's health to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDHealth = function(v, player)
 	if not (v and Valid(player) and player.rsrinfo) then return end
@@ -29,6 +30,7 @@ RSR.HUDHealth = function(v, player)
 end
 
 --- Draws the player's armor to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDArmor = function(v, player)
 	if not (v and Valid(player) and player.rsrinfo) then return end
@@ -61,8 +63,9 @@ RSR.HUD_SCOPE_ARROWS = {
 }
 
 --- Draws the player's scope to the HUD.
+---@param v videolib
 ---@param player player_t
-RSR.HUDScope = function(v, player, cam)
+RSR.HUDScope = function(v, player, thiscam)
 	if not (v and Valid(player) and player.rsrinfo) then return end
 
 	if player.rsrinfo.fovZoom then
@@ -71,8 +74,8 @@ RSR.HUDScope = function(v, player, cam)
 		local arrowDown = RSR.HUD_SCOPE_ARROWS[arrowFrame + 5]
 		local arrowX, arrowY = 160, 100
 		-- TODO: Make the third-person scope more accurate
-		-- if cam and cam.chase then
-		-- 	local result = R_World2Screen3FPS(v, player, cam, {
+		-- if thiscam and thiscam.chase then
+		-- 	local result = R_World2Screen3FPS(v, player, thiscam, {
 		-- 		x = player.realmo.x + 1024*FixedMul(cos(player.realmo.angle), cos(player.cmd.aiming<<16)),
 		-- 		y = player.realmo.y + 1024*FixedMul(sin(player.realmo.angle), cos(player.cmd.aiming<<16)),
 		-- 		z = player.viewz + 1024*sin(player.cmd.aiming<<16)

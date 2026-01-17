@@ -7,6 +7,7 @@ RSR.DISPLAY_BOSS_TIMER_MAX = 2*TICRATE/3
 RSR.DISPLAY_BOSS_TIMER = 0
 
 --- Draws the boss's health bar to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDBossHealth = function(v, player)
 	if not RSR.GamemodeActive() then return end

@@ -1,5 +1,8 @@
 -- Ringslinger Revolution - Flag Radar HUD
 
+--- Draws a radar for flagrunners to the HUD.
+---@param v videolib
+---@param player player_t
 RSR.HUDCTFFlagRadar = function(v, player, thiscam)
 	if not v then return end
 	if not RSR.GamemodeActive() then return end -- Only run in RSR maps
