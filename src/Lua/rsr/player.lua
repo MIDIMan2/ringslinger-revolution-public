@@ -178,7 +178,11 @@ RSR.PlayerDeathTick = function(player)
 	-- TODO: Comment this out if it causes memory issues
 	local horiMom = FixedDiv(FixedHypot(player.mo.momx, player.mo.momy), player.mo.scale)
 	if horiMom > 8*FRACUNIT then
-		player.mo.spriteroll = $ - FixedAngle(min(45*FRACUNIT, horiMom/2))
+		if (player.rsrinfo.deathFlags & RSR.DEATH_FLIPSPRITEROLL) then
+			player.mo.spriteroll = $ + FixedAngle(min(45*FRACUNIT, horiMom/2))
+		else
+			player.mo.spriteroll = $ - FixedAngle(min(45*FRACUNIT, horiMom/2))
+		end
 	end
 	player.mo.flags = $|MF_NOCLIP|MF_NOCLIPHEIGHT
 	if player.mo.fuse < TICRATE then

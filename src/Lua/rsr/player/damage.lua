@@ -23,9 +23,10 @@ RSR.HITSOUND_TO_SFX = {
 RSR.DEATH_REMOVEDEATHMASK = 1
 RSR.DEATH_MAKESPECTATOR = 2
 RSR.DEATH_GOTBURNT = 4
-RSR.DEATH_USEDKILLCMD = 8
-RSR.DEATH_USEDEXPLODECMD = 16
-RSR.DEATH_USEDDISINTEGRATECMD = 32
+RSR.DEATH_FLIPSPRITEROLL = 8
+RSR.DEATH_USEDKILLCMD = 16
+RSR.DEATH_USEDEXPLODECMD = 32
+RSR.DEATH_USEDDISINTEGRATECMD = 64
 
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
@@ -752,6 +753,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	rsrinfo.useZoom = false
 	RSR.PlayerSetChasecam(player, true)
 	RSR.PlayerToastyDeath(player, inflictor, damagetype)
+	if P_RandomKey(2) then rsrinfo.deathFlags = $|RSR.DEATH_FLIPSPRITEROLL end
 
 	-- Only run this code in multiplayer gamemodes
 	if multiplayer or netgame then
