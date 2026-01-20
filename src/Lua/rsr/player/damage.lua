@@ -247,6 +247,13 @@ RSR.GetInflictorDamage = function(target, inflictor, source, damage, damagetype)
 	return damageInfo
 end
 
+--- Handles the player's knockback logic when damaged.
+---@param target mobj_t
+---@param inflictor mobj_t
+---@param source mobj_t
+---@param damage integer
+---@param damagetype integer
+---@param knockbackScale fixed_t
 RSR.PlayerDamageKnockback = function(target, inflictor, source, damage, damagetype, knockbackScale)
 	if not (Valid(target) and Valid(target.player) and target.player.rsrinfo) then return end
 
@@ -264,7 +271,6 @@ RSR.PlayerDamageKnockback = function(target, inflictor, source, damage, damagety
 
 	local player = target.player
 	local shield = (player.powers[pw_shield] & SH_NOSTACK)
-	if (shield & SH_FORCE) then shield = SH_FORCE end
 
 	-- Apply knockback to the target if the inflictor allows it
 	if Valid(inflictor) and not inflictor.rsrDontThrust
@@ -347,6 +353,153 @@ RSR.SetPlayerDeathFling = function(target, inflictor, source, damage, damagetype
 	target.rsrPrevMomZ = target.momz - P_MobjFlip(target)*FixedMul(7*FRACUNIT, target.scale) -- Negate SOME of the upward fling we get from dying normally
 end
 
+--- Handles player damage while performing a homing attack.
+---@param player player_t
+---@param damage integer
+RSR.PlayerHomingDamage = function(player, damage)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
+
+	-- Handles Attraction Shield homing break
+	if player.rsrinfo.homing then
+		-- Tracks how much damage you've accumulated through your lock-on
+		player.rsrinfo.homingThreshold = $ + damage
+
+		-- If you exceed the break threshold, revokes Maxwell's equations for electromagnetism, plays a sound to let everyone nearby know of that, and cancels your melee hurtbox 
+		if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT and (player.pflags & PF_SHIELDABILITY) then
+			if (player.rsrinfo.homingThreshold > RSR.HOMING_THRESHOLD_ATTRACT) or (player.rsrinfo.armor < 1) then
+				P_ResetPlayer(player)
+				player.rsrinfo.homing = 0
+				S_StartSound(player.mo, sfx_s3ka6)
+				player.mo.state = S_PLAY_PAIN
+				P_SetObjectMomZ(player.mo, 8*FRACUNIT)
+			end
+		elseif player.charability == CA_HOMINGTHOK then
+			if player.rsrinfo.homingThreshold > RSR.HOMING_THRESHOLD_THOK then
+				P_ResetPlayer(player)
+				player.rsrinfo.homing = 0
+				S_StartSound(player.mo, sfx_s3k90)
+				player.mo.state = S_PLAY_PAIN
+				P_SetObjectMomZ(player.mo, 4*FRACUNIT)
+			end
+		end
+	end
+end
+
+--- Handles player damage when the player has armor.
+---@param player player_t
+---@param inflictor mobj_t|nil
+---@param damage integer
+---@return integer damage Damage leftover after taking away armor.
+---@return boolean hadArmor If true, the player had armor before this function.
+---@return integer clientHurtSound Hurt sound to play for the local player.
+---@return integer serverHurtSound Hurt sound to play for the rest of the server.
+RSR.PlayerArmorDamage = function(player, inflictor, damage)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return 1, false, sfx_rsrhrt, sfx_rsrpmp end
+	local rsrinfo = player.rsrinfo
+	local hurtSound, serverHurtSound = sfx_rsrhrt, sfx_rsrpmp
+
+	-- Reroute all damage to hype while super
+	if player.powers[pw_super] then
+		rsrinfo.hype = max($ - (damage*2), 0)
+		damage = 0
+	-- Otherwise the player loses a bit of hype every time they take damage
+	else
+		rsrinfo.hype = max($ - damage/2, 0)
+	end
+	local hadArmor = false
+	-- Attraction Shield grants you damage resistance
+	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then
+		damage = $ * 3 / 4
+	end
+	-- Health saving while you have armor
+	if rsrinfo.armor and not player.powers[pw_super] then
+		local saved = damage/2
+
+		-- (DEPRECATED) Attraction Shield is less affected by armor loss than other shields (it still only saves the same amount of health though)
+		-- if (player.powers[pw_shield] & SH_ATTRACT) then
+		--	shieldSaved = saved * 3 / 4
+		-- else
+		--	shieldSaved = saved
+		-- end
+
+		saved = min($, rsrinfo.armor)
+
+		rsrinfo.armor = max($ - saved, 0) -- Make sure armor doesn't go below 0
+		if rsrinfo.armor < 1 then -- If the player runs out of armor, play the shieldbreak sound
+			hadArmor = true
+			S_StartSound(player.mo, sfx_rsrcrk)
+		else
+			hurtSound = sfx_rsraht
+			serverHurtSound = sfx_rsrsmp
+		end
+		damage = $ - saved
+
+		if Valid(inflictor) then
+			for i = 0, 3 do
+				local spark = P_SpawnMobjFromMobj(player.mo, 0, 0, FixedDiv(player.mo.height, player.mo.scale)/2, MT_SUPERSPARK)
+				if Valid(spark) then
+					spark.dontdrawforviewmobj = player.mo
+					spark.scale = FixedMul($, 2*FRACUNIT/3)
+					-- Randomize the spark's momentum
+					spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
+					spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
+					spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
+					if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
+					if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
+					if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+
+					-- Make the spark shrink to scale 0 in roughly 1/3rd of a second
+					spark.scalespeed = spark.scale/12
+					spark.destscale = 0
+					spark.tics = 12
+				end
+			end
+		end
+	end
+
+	return damage, hadArmor, hurtSound, serverHurtSound
+end
+
+---@param player player_t
+---@param inflictor mobj_t|nil
+---@param infInfo rsrmobjinfo_t|nil
+---@param knockbackScale fixed_t
+---@param hurtSound integer
+---@param serverHurtSound integer
+RSR.PlayerShieldDamage = function(player, inflictor, infInfo, knockbackScale, hurtSound, serverHurtSound)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo and (player.powers[pw_shield] & SH_NOSTACK)) then return knockbackScale, hurtSound, serverHurtSound end
+	local rsrinfo = player.rsrinfo
+	local shield = (player.powers[pw_shield] & SH_NOSTACK)
+
+	-- Reflect projectiles if the player has a Force Shield (also causes homing rings to rebel against their master)
+	if (player.powers[pw_shield] & SH_FORCE) and Valid(inflictor) and (inflictor.flags & MF_MISSILE)
+	and not ((infInfo and (infInfo.dontreflect or infInfo.explosive)) or (inflictor.flags & (MF_ENEMY|MF_GRENADEBOUNCE))) then
+		RSR.SpawnReflectedMissile(player.mo, inflictor)
+	end
+
+	-- Reduce knockback if the player has a Whirlwind Shield
+	if shield == SH_WHIRLWIND and Valid(inflictor) and (inflictor.flags & MF_MISSILE) and not (infInfo and infInfo.explosive) then
+		knockbackScale = $/2
+	end
+
+	-- Remove shields and auto-det Armageddon when shields or health fall below 1
+	if rsrinfo.armor < 1 or rsrinfo.health < 1 then
+		if shield then -- Only play the sound if the player had a shield
+			hurtSound = sfx_shldls
+			serverHurtSound = sfx_shldls
+		end
+		if (player.powers[pw_shield] & SH_FORCEHP) then
+			player.powers[pw_shield] = $ & ~SH_FORCEHP
+		end
+		if shield == SH_ARMAGEDDON then
+			P_BlackOw(player)
+		end
+		P_RemoveShield(player)
+	end
+
+	return knockbackScale, hurtSound, serverHurtSound
+end
+
 --- MobjDamage hook code for player Objects.
 ---@param target mobj_t
 ---@param inflictor mobj_t
@@ -395,9 +548,8 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	if hurtByEnemy then player.rsrinfo.hurtByEnemy = TICRATE end
 	if hurtByMelee then player.rsrinfo.hurtByMelee = TICRATE end
 
-	local saved = 0
-	-- local shieldSaved = 0
 	local rsrinfo = player.rsrinfo
+	local hadArmor = false
 	local hurtSound = sfx_rsrhrt
 	local serverHurtSound = sfx_rsrpmp
 
@@ -410,91 +562,9 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 
 	local shield = (player.powers[pw_shield] & SH_NOSTACK)
 
-	-- Handles Attraction Shield homing break
-	if player.rsrinfo.homing then
-		-- Tracks how much damage you've accumulated through your lock-on
-		player.rsrinfo.homingThreshold = $ + damage
-
-		-- If you exceed the break threshold, revokes Maxwell's equations for electromagnetism, plays a sound to let everyone nearby know of that, and cancels your melee hurtbox 
-		if shield == SH_ATTRACT and (player.pflags & PF_SHIELDABILITY) then
-			if (player.rsrinfo.homingThreshold > RSR.HOMING_THRESHOLD_ATTRACT) or (player.rsrinfo.armor < 1) then
-				P_ResetPlayer(player)
-				player.rsrinfo.homing = 0
-				S_StartSound(player.mo, sfx_s3ka6)
-				target.state = S_PLAY_PAIN
-				P_SetObjectMomZ(player.mo, 8*FRACUNIT)
-			end
-		elseif player.charability == CA_HOMINGTHOK then
-			if player.rsrinfo.homingThreshold > RSR.HOMING_THRESHOLD_THOK then
-				P_ResetPlayer(player)
-				player.rsrinfo.homing = 0
-				S_StartSound(player.mo, sfx_s3k90)
-				target.state = S_PLAY_PAIN
-				P_SetObjectMomZ(player.mo, 4*FRACUNIT)
-			end
-		end
-	end
-
+	RSR.PlayerHomingDamage(player, damage)
 	RSR.SpawnDamageSplatter(target, damage)
-
-	-- Reroute all damage to hype while super
-	if player.powers[pw_super] then
-		rsrinfo.hype = max($ - (damage*2), 0)
-		damage = 0
-	-- Otherwise the player loses a bit of hype every time they take damage
-	else
-		rsrinfo.hype = max($ - damage/2, 0)
-	end
-	local hadArmor = false
-	-- Attraction Shield grants you damage resistance
-	if shield == SH_ATTRACT then
-		damage = $ * 3 / 4
-	end
-	-- Health saving while you have armor
-	if rsrinfo.armor and not player.powers[pw_super] then
-		saved = damage/2
-
-		-- (DEPRECATED) Attraction Shield is less affected by armor loss than other shields (it still only saves the same amount of health though)
-		-- if (player.powers[pw_shield] & SH_ATTRACT) then
-		--	shieldSaved = saved * 3 / 4
-		-- else
-		--	shieldSaved = saved
-		-- end
-
-		saved = min($, rsrinfo.armor)
-
-		rsrinfo.armor = max($ - saved, 0) -- Make sure armor doesn't go below 0
-		if rsrinfo.armor < 1 then -- If the player runs out of armor, play the shieldbreak sound
-			hadArmor = true
-			S_StartSound(player.mo, sfx_rsrcrk)
-		else
-			hurtSound = sfx_rsraht
-			serverHurtSound = sfx_rsrsmp
-		end
-		damage = $ - saved
-
-		if Valid(inflictor) then
-			for i = 0, 3 do
-				local spark = P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(target.height, target.scale)/2, MT_SUPERSPARK)
-				if Valid(spark) then
-					spark.dontdrawforviewmobj = target
-					spark.scale = FixedMul($, 2*FRACUNIT/3)
-					-- Randomize the spark's momentum
-					spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
-					spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
-					spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
-					if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
-					if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
-					if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
-
-					-- Make the spark shrink to scale 0 in roughly 1/3rd of a second
-					spark.scalespeed = spark.scale/12
-					spark.destscale = 0
-					spark.tics = 12
-				end
-			end
-		end
-	end
+	damage, hadArmor, hurtSound, serverHurtSound = RSR.PlayerArmorDamage(player, inflictor, damage)
 
 	-- Use this for giving hype on hit and armor to players who manually detonated their Armageddon Shield
 	local damageReal = min(damage, rsrinfo.health)
@@ -529,33 +599,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		RSR.SetScreenFade(player, 35, FRACUNIT, TICRATE)
 	end
 
-	if shield then
-		-- Reflect projectiles if the player has a Force Shield (also causes homing rings to rebel against their master)
-		if (player.powers[pw_shield] & SH_FORCE) and Valid(inflictor) and (inflictor.flags & MF_MISSILE)
-		and not ((infInfo and (infInfo.dontreflect or infInfo.explosive)) or (inflictor.flags & (MF_ENEMY|MF_GRENADEBOUNCE))) then
-			RSR.SpawnReflectedMissile(target, inflictor)
-		end
-
-		-- Reduce knockback if the player has a Whirlwind Shield
-		if shield == SH_WHIRLWIND and Valid(inflictor) and (inflictor.flags & MF_MISSILE) and not (infInfo and infInfo.explosive) then
-			knockbackScale = $/2
-		end
-
-		-- Remove shields and auto-det Armageddon when shields or health fall below 1
-		if rsrinfo.armor < 1 or rsrinfo.health < 1 then
-			if shield then -- Only play the sound if the player had a shield
-				hurtSound = sfx_shldls
-				serverHurtSound = sfx_shldls
-			end
-			if (player.powers[pw_shield] & SH_FORCEHP) then
-				player.powers[pw_shield] = $ & ~SH_FORCEHP
-			end
-			if shield == SH_ARMAGEDDON then
-				P_BlackOw(player)
-			end
-			P_RemoveShield(player)
-		end
-	end
+	RSR.PlayerShieldDamage(player, inflictor, infInfo, knockbackScale, hurtSound, serverHurtSound)
 
 	-- TODO: Insert code for rumble support here when it gets exposed to Lua
 

@@ -204,6 +204,14 @@ pspractions.A_RSRWeaponReady = function(player, args)
 	if hookEvent then
 		for i, v in ipairs(hookEvent) do
 			if hookEvent.typefor ~= nil then
+				if not v.typedef then
+					if not v.errored then
+						print("\x85".."ERROR:\x80 \"WeaponReady\" hook requires a weapon type for its third parameter!")
+						S_StartSound(nil, sfx_lose)
+						v.errored = true
+					end
+					continue
+				end
 				if hookEvent.typefor(player.rsrinfo.readyWeapon, v.typedef) == false then continue end
 			end
 			local result = RSR.tryRunHook(hookName, v, player, weaponInfo, args)

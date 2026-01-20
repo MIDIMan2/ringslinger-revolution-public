@@ -146,6 +146,15 @@
 ---@field hurtself string Message to display when a player killed themself.
 ---@field solo string Message to display when a player was killed by a projectile without a source (or a dead source).
 
+---@class rsrkillfeedentry_t
+---@field victim string Name of the victim.
+---@field inflictor string Name of the graphic to use for the inflictor.
+---@field infReflected boolean If true, the killfeed will display a Force Shield icon to signify this inflictor was reflected.
+---@field attacker string Name of the attacker.
+---@field highlight boolean If true, this killfeed entry's background will be white instead of black.
+---@field skincolor skincolor_t Skin color of the attacker, if they exist.
+---@field tics tic_t Timer for the killfeed entry to stay on screen.
+
 -- --------------------------------
 -- CLASS ADDITIONS
 -- --------------------------------

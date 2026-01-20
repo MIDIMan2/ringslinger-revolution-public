@@ -121,7 +121,7 @@ events["PlayerShouldDamage"] = {
 }
 
 events["PlayerDamage"] = {
-    handler = handler_snapany;
+    handler = handler_snaptrue;
     typefor = typefor_skin
 }
 
@@ -136,7 +136,7 @@ events["PlayerDeathThink"] = {
 }
 
 events["PlayerDeathFling"] = {
-    handler = handler_snapany;
+    handler = handler_snaptrue;
     typefor = typefor_skin
 }
 
@@ -148,7 +148,7 @@ events["WeaponReady"] = {
 }
 
 events["KillfeedMsg"] = {
-	handler = handler_snapany;
+	handler = handler_snaptrue;
 	typefor = typefor_mobj
 }
 
@@ -231,7 +231,7 @@ RSR.findEvent = function(hooktype)
 	if events == nil
 	and deprecated[hooktype] ~= nil then
 		name = deprecated[hooktype].correct
-		events = BHook[name]
+		events = RSR.events[name]
 	end
 
 	if events == nil
