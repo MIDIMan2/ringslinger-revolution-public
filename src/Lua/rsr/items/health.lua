@@ -6,7 +6,8 @@
 ---@param player player_t
 ---@param health integer Amount of health to give the player (Default is 1).
 ---@param isBonus boolean|nil If true, the player's health will go past 100 and up to 200.
-RSR.GiveHealth = function(player, health, isBonus)
+---@param lowMod boolean|nil If true, recovers an additional flat 8 health if the player's health and armor combined are below 40.
+RSR.GiveHealth = function(player, health, isBonus, lowMod)
 	if not (Valid(player) and player.rsrinfo) then return false end
 
 	local hookEvent, hookName = RSR.findEvent("GetHealth")
@@ -27,6 +28,18 @@ RSR.GiveHealth = function(player, health, isBonus)
 	local maxHealth = RSR.MAX_HEALTH
 	if isBonus then maxHealth = RSR.MAX_HEALTH_BONUS end
 
+	-- Only do crit healing if we don't have the flag!
+	if lowMod and not player.gotflag then
+		-- If the player is critically low on health, add a flat increase to health yielded from pickups
+		if (player.rsrinfo.health + player.rsrinfo.armor < RSR.CRIT_EHP) and (player.rsrinfo.critCooldown < 1) then
+			health = $ + 8
+			-- If a critical heal brings the player above supercritical health, put this effect on cooldown
+			if ((player.rsrinfo.health + health) + player.rsrinfo.armor >= RSR.SUPERCRIT_EHP) then
+				player.rsrinfo.critCooldown = RSR.CRIT_COOLDOWN
+			end
+		end
+	end
+
 	player.rsrinfo.health = min($ + health, maxHealth)
 	return true
 end
@@ -35,7 +48,8 @@ end
 ---@param player player_t
 ---@param armor integer Amount of armor to give the player (Default is 1).
 ---@param isBonus boolean|nil If true, the player's armor will go past 100 and up to 200.
-RSR.GiveArmor = function(player, armor, isBonus)
+---@param lowMod boolean|nil If true, recovers an additional flat 8 armor if the player's health and armor combined are below 40.
+RSR.GiveArmor = function(player, armor, isBonus, lowMod)
 	if not (Valid(player) and player.rsrinfo) then return false end
 
 	local hookEvent, hookName = RSR.findEvent("GetArmor")
@@ -55,6 +69,18 @@ RSR.GiveArmor = function(player, armor, isBonus)
 
 	local maxArmor = RSR.MAX_HEALTH
 	if isBonus then maxArmor = RSR.MAX_ARMOR_BONUS end
+
+	-- Only do crit healing if we don't have the flag!
+	if lowMod and not player.gotflag then
+		-- If the player is critically low on health, add a flat increase to armor yielded from pickups
+		if (player.rsrinfo.health + player.rsrinfo.armor < RSR.CRIT_EHP) and (player.rsrinfo.critCooldown < 1) then
+			armor = $ + 8
+			-- If a critical heal brings the player above supercritical health, put this effect on cooldown
+			if (player.rsrinfo.health + (player.rsrinfo.armor + armor) >= RSR.SUPERCRIT_EHP) then
+				player.rsrinfo.critCooldown = RSR.CRIT_COOLDOWN
+			end
+		end
+	end
 
 	player.rsrinfo.armor = min($ + armor, maxArmor)
 	return true
@@ -106,7 +132,7 @@ end
 RSR.TouchHealthDefault = function(special, toucher, health)
 	local player = toucher.player
 
-	if not RSR.GiveHealth(player, health) then return true end
+	if not RSR.GiveHealth(player, health, false, true) then return true end
 	RSR.BonusFade(player)
 	RSR.SetItemFuse(special)
 end
@@ -141,7 +167,7 @@ end
 RSR.TouchArmorDefault = function(special, toucher, armor)
 	local player = toucher.player
 
-	if not RSR.GiveArmor(player, armor) then return true end
+	if not RSR.GiveArmor(player, armor, false, true) then return true end
 	RSR.BonusFade(player)
 	RSR.SetItemFuse(special)
 end

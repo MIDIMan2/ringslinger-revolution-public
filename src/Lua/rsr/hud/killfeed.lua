@@ -243,7 +243,7 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 
 	local victimName = string.format("%s%s%s", RSR_CHATCOLORCODE(victim), victim.name, RSR_CHATCOLORENDCODE(victim))
 	local inflictorPatch = nil
-	-- local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen (keeping this line as a comment, because it's funny -MIDIMan)
+	-- local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen. Indicates error if seen! (keeping this line as a comment, because it's funny -MIDIMan)
 	local obituary = nil
 	local meleeRandInt = 0
 	if P_RandomRange(1,100) == 42 then

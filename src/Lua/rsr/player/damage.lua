@@ -23,9 +23,12 @@ RSR.HITSOUND_TO_SFX = {
 RSR.DEATH_REMOVEDEATHMASK = 1
 RSR.DEATH_MAKESPECTATOR = 2
 RSR.DEATH_GOTBURNT = 4
-RSR.DEATH_USEDKILLCMD = 8
-RSR.DEATH_USEDEXPLODECMD = 16
-RSR.DEATH_USEDDISINTEGRATECMD = 32
+RSR.DEATH_FLIPSPRITEROLL = 8
+RSR.DEATH_USEDKILLCMD = 16
+RSR.DEATH_USEDEXPLODECMD = 32
+RSR.DEATH_USEDDISINTEGRATECMD = 64
+
+RSR.DEATHCAM_SPEED_MAX = 96*FRACUNIT
 
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
@@ -109,7 +112,7 @@ RSR.SpawnDamageSplatter = function(target, damage)
 	end
 end
 
---- Initializes the player's health system
+--- Initializes the player's health system.
 ---@param player player_t
 RSR.PlayerHealthInit = function(player)
 	if not (Valid(player) and player.rsrinfo) then return end
@@ -118,7 +121,6 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.health = RSR.MAX_HEALTH
 -- 	rsrinfo.health = 1 -- For testing purposes only
 	rsrinfo.armor = 0
-
 	rsrinfo.hype = 0
 
 	rsrinfo.hurtByEnemy = 0
@@ -129,6 +131,9 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.deathFlags = 0
 	rsrinfo.attackerInfo = {}
 	rsrinfo.knockedByAttacker = false -- TODO: Maybe remove this since it's not being used for assists anymore???
+
+	rsrinfo.critHealed = false
+	rsrinfo.critCooldown = 0
 
 	if G_RingSlingerGametype() then -- Replaces the Pity Shield with a "pity armor start" feature
 		if (player.powers[pw_shield] & SH_NOSTACK) then
@@ -945,6 +950,10 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	rsrinfo.useZoom = false
 	RSR.PlayerSetChasecam(player, true)
 	RSR.PlayerToastyDeath(player, inflictor, damagetype)
+	if FixedHypot(player.mo.momx, player.mo.momy) > FixedMul(RSR.DEATHCAM_SPEED_MAX, player.mo.scale) then
+		rsrinfo.deathCamPos = {x = target.x, y = target.y, z = target.z + target.height/2}
+	end
+	if P_RandomKey(2) then rsrinfo.deathFlags = $|RSR.DEATH_FLIPSPRITEROLL end
 
 	-- Only run this code in multiplayer gamemodes
 	if multiplayer or netgame then
