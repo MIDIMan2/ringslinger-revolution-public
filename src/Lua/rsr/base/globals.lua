@@ -2,6 +2,10 @@
 
 if not RSR then rawset(_G, "RSR", {}) end
 
+-- Makes certain CVARs active
+-- TODO: Set this to false for MB releases
+RSR.DEV_MODE = true
+
 RSR.MAX_HEALTH = 100
 RSR.MAX_ARMOR = 100
 RSR.TRIGGER_HYPE = 1750

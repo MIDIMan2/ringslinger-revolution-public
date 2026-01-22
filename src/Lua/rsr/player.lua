@@ -92,6 +92,7 @@ RSR.PlayerInit = function(player)
 	-- Reset normalspeed in case the attraction shield messed with it
 	player.normalspeed = skins[player.skin].normalspeed
 	-- rsrinfo.boostNormalspeed = false
+	rsrinfo.deathCamPos = nil
 
 	player.rsrPrevSkin = player.skin
 end
@@ -165,6 +166,15 @@ RSR.PlayerDeathTick = function(player)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.PlayerToastyTick(player)
+	-- Prevent the camera from moving so it doesn't clip through walls
+	if P_IsLocalPlayer(player) and player.rsrinfo.deathCamPos then
+		local thisCam = camera
+		if player == secondarydisplayplayer then thisCam = camera2 end
+		thisCam.momx = 0
+		thisCam.momy = 0
+		thisCam.momz = 0
+		P_TeleportCameraMove(thisCam, player.rsrinfo.deathCamPos.x, player.rsrinfo.deathCamPos.y, player.rsrinfo.deathCamPos.z)
+	end
 	if (player.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) and player.mo.fuse > 1 then player.mo.fuse = 1 end
 	-- Force momentum on the player if they have died
 	if player.mo.rsrPrevMomX or player.mo.rsrPrevMomY or player.mo.rsrPrevMomZ then
@@ -178,7 +188,11 @@ RSR.PlayerDeathTick = function(player)
 	-- TODO: Comment this out if it causes memory issues
 	local horiMom = FixedDiv(FixedHypot(player.mo.momx, player.mo.momy), player.mo.scale)
 	if horiMom > 8*FRACUNIT then
-		player.mo.spriteroll = $ - FixedAngle(min(45*FRACUNIT, horiMom/2))
+		if (player.rsrinfo.deathFlags & RSR.DEATH_FLIPSPRITEROLL) then
+			player.mo.spriteroll = $ + FixedAngle(min(45*FRACUNIT, horiMom/2))
+		else
+			player.mo.spriteroll = $ - FixedAngle(min(45*FRACUNIT, horiMom/2))
+		end
 	end
 	player.mo.flags = $|MF_NOCLIP|MF_NOCLIPHEIGHT
 	if player.mo.fuse < TICRATE then
@@ -233,9 +247,7 @@ RSR.PlayerThink = function(player)
 	if player.playerstate == PST_DEAD then RSR.PlayerDeathTick(player) end
 
 	-- Don't let the NiGHTS timer time out on the player in "Waves" maps
-	if G_IsSpecialStage(gamemap) and player.nightstime then
-		player.nightstime = -1
-	end
+	if RSR.WavesGamemodeActive() then player.nightstime = -1 end
 
 	local destBobY = 0
 	local bobAngle = FixedDiv((leveltime%45)*FRACUNIT, 45*FRACUNIT/2) * 360

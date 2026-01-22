@@ -91,16 +91,20 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER] = {
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON] = {
 	knockback = 3*FRACUNIT,
 	killfeedIcon = "RSRSCALI",
-	killfeedName = "Mass Slug",
+	killfeedName = "Mass Scrambler",
 	killfeedObituary = {
 		attacker = "$a's $rMass Scrambler blasted $v.",
 		solo = "$v was blasted by a $rMass Scrambler."
 	}
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
-	knockback = 6*FRACUNIT,
+	knockback = 9*FRACUNIT,
+	dontreflect = true,
+	explosive = true,
+	sparklestate = S_RSR_NIGHTSPARKLE_SCRAMBLER,
+	thrustdamage = 3, -- Roughly 1/6th of 20
 	killfeedIcon = "RSRSCALI",
-	killfeedName = "Mass Slug debris",
+	killfeedName = "Mass Scrambler bomblet",
 	killfeedObituary = {
 		attacker = "$a's $rMass Scrambler bomblets scrambled $v.",
 		solo = "$v was scrambled by $rMass Scrambler bomblets."

@@ -199,7 +199,7 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 
 	local victimName = string.format("%s%s%s", RSR_CHATCOLORCODE(victim), victim.name, RSR_CHATCOLORENDCODE(victim))
 	local inflictorPatch = "RSREGGM" -- Always show Eggman for unknown causes of death
-	-- local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen (keeping this line as a comment, because it's funny -MIDIMan)
+	-- local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen. Indicates error if seen! (keeping this line as a comment, because it's funny -MIDIMan)
 	local obituary = "$v died."
 	local meleeRandInt = 0
 	if P_RandomRange(1,100) == 42 then
@@ -284,7 +284,7 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 
 	-- Alternative killfeed so players can see what they did in the logs
 	local newString = string.gsub(obituary, "(%$%w?)", {
-		["$a"] = attackerName or "The Shredded Cheese Man",
+		["$a"] = attackerName or "The Shredded Cheese Man", -- Error handler message! This shouldn't be seen!
 		["$r"] = infReflected and "reflected " or "",
 		["$v"] = victimName,
 	})

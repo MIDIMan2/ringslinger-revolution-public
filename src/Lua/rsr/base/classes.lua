@@ -36,7 +36,7 @@
 ---@field basicCharge integer|nil Determines the current "charge" of the Red Ring's altfire.
 ---@field basicChargeSound integer|nil Counter for the Red Ring's altfire's "charge" sound.
 ---@field basicChargeDontTakeAmmo boolean|nil Determines if the Charge Shot shouldn't take ammo.
----@field scatterFlak mobj_t|nil A reference to the player's last Mass Slug ring fired.
+---@field scatterFlak mobj_t|nil A reference to the player's last Mass Scrambler ring fired.
 ---@field bounceMega mobj_t|nil A reference to the player's last Goldburster ring fired.
 ---@field waspTime integer|nil Timer for the Homing Ring's altfire.
 ---@field lastbuttons UINT16 Buttons (BT_ constants) held on the last game tic.
@@ -46,6 +46,7 @@
 ---@field useZoom boolean Determines if the weapon zoom should be active or not.
 ---@field fovZoom integer Timer for the weapon zoom (max is 14).
 ---@field critCooldown tic_t Cooldown timer for critical healing.
+---@field deathCamPos vector3_t|nil Position for the camera upon death (only applies if the player is moving fast enough).
 
 ---@class rsrmobjinfo_t
 ---@field health integer Health of the mobj.
@@ -58,7 +59,7 @@
 ---@field dontreflect boolean Makes the projectile non-reflectable by the Force shields.
 ---@field explosive boolean Projectile is explosive.
 ---@field railring boolean Projectile is a rail ring.
----@field sparklestate mobjtype_t State to use in place of the NiGHTS sparkle when exploding.
+---@field sparklestate statenum_t State to use in place of the NiGHTS sparkle when exploding.
 ---@field poweritem boolean Object is a power item (takes 1.5x the normal time to respawn).
 ---@field nopainstate boolean Prevents the enemy from using their painstate defined by mobjinfo.
 ---@field painchance integer|nil Makes the enemy use their painstate in a chance out of 255. Only use for Doom-style enemies. Default is nil.
@@ -182,7 +183,7 @@
 ---@field rsrDontDespawn boolean|nil Makes the item not disappear when collected in co-op.
 ---@field rsrFloatOffset angle_t|nil Angle offset for the item's "floating" animation.
 ---@field rsrSpawner mobj_t|nil Spawner of the item.
----@field rsrOrigScale fixed_t|nil Scale of the Object when it was spawned. Used by Goldburster and Mass Slug when spawning smaller projectiles.
+---@field rsrOrigScale fixed_t|nil Scale of the Object when it was spawned. Used by Goldburster and Mass Scrambler when spawning smaller projectiles.
 ---@field rsrBounced integer|nil Bounce counter for the Bounce ring.
 ---@field rsrPrevMomX fixed_t|nil Previous X momentum of the Object.
 ---@field rsrPrevMomY fixed_t|nil Previous Y momentum of the Object.
