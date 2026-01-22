@@ -17,9 +17,12 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 	if fullDist == nil then fullDist = 3*bombDist/8 end
 	if not thrustDamage then thrustDamage = 20 end
 
-	bombDist = FixedMul($, mo.scale)
-	thrustDist = FixedMul($, mo.scale)
-	fullDist = FixedMul($, mo.scale)
+	local moScale = mo.scale
+	if mo.rsrOrigScale then moScale = mo.rsrOrigScale end
+
+	bombDist = FixedMul($, moScale)
+	thrustDist = FixedMul($, moScale)
+	fullDist = FixedMul($, moScale)
 
 	mo.rsrProjectile = nil
 	mo.rsrRealDamage = true
@@ -50,9 +53,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 		if not (enemy.info.flags & MF_MONITOR) then
 			if dist <= bombDist then
 				local damage = bombDamage * min(FixedDiv(bombDist - dist, max(bombDist - fullDist, mo.scale)), FRACUNIT) / FRACUNIT
-				if damage > 0 then
-					P_DamageMobj(enemy, bomb, source, damage, damagetype)
-				end
+				if damage > 0 then P_DamageMobj(enemy, bomb, source, damage, damagetype) end
 			end
 		end
 
@@ -130,6 +131,7 @@ end
 
 --- Makes the actor explode like an Explosion Ring or Grenade Ring, but for RSR.
 ---@param mo mobj_t
+---@param var1 integer Determines the explosion FX type. 0 is for the normal paraloop-based explosion; 1 is for the Mass Scrambler's bomblets.
 A_RSRRingExplode = function(mo, var1, var2)
 	if not Valid(mo) then return end
 
@@ -142,18 +144,40 @@ A_RSRRingExplode = function(mo, var1, var2)
 		sparkleState = RSR.MOBJ_INFO[mo.type].sparklestate
 	end
 
-	for d = 0, 15 do
-		P_SpawnParaloop(
-			mo.x,
-			mo.y,
-			mo.z + mo.height/2,
-			FixedMul(mo.info.painchance, mo.scale),
-			16,
-			MT_NIGHTSPARKLE,
-			d * ANGLE_22h,
-			sparkleState,
-			true
-		)
+	if var1 == 1 then
+		for i = 0, 6 do
+			local spark = P_SpawnMobj(mo.x, mo.y, mo.z, MT_NIGHTSPARKLE)
+			if Valid(spark) then
+				spark.state = sparkleState
+				spark.scale = 11*FRACUNIT/5
+				-- Randomize the spark's momentum
+				spark.momx = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
+				spark.momy = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
+				spark.momz = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
+				if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
+				if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
+				if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+
+				-- Make the spark shrink to scale 0 in roughly 3 seconds
+				spark.scalespeed = FRACUNIT/18
+				spark.destscale = 0
+				spark.tics = 105
+			end
+		end
+	else
+		for d = 0, 15 do
+			P_SpawnParaloop(
+				mo.x,
+				mo.y,
+				mo.z + mo.height/2,
+				FixedMul(mo.info.painchance, mo.scale),
+				16,
+				MT_NIGHTSPARKLE,
+				d * ANGLE_22h,
+				sparkleState,
+				true
+			)
+		end
 	end
 	S_StartSound(mo, sfx_prloop)
 
@@ -165,7 +189,8 @@ A_RSRRingExplode = function(mo, var1, var2)
 	end
 end
 
-states[S_RSR_RINGEXPLODE] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODE] =		{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODEALT] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	1,	0,	S_RSR_XPLD1}
 
 states[S_RSR_XPLD1] =		{SPR_BOM1,	A,				2,	A_ShadowScream,	0,	0,	S_RSR_XPLD2}
 states[S_RSR_XPLD2] =		{SPR_BOM1,	B,				2,	nil,			0,	0,	S_RSR_XPLD3}
@@ -176,6 +201,7 @@ states[S_RSR_XPLDSOUND] =	{SPR_NULL,	A,				60,	nil,			0,	0,	S_NULL}
 states[S_RSR_NIGHTSPARKLE_GRENADE] =	{SPR_NULL,	0,	0,	A_Dye,	0,	SKINCOLOR_MOSS,	S_NIGHTSPARKLE1}
 states[S_RSR_NIGHTSPARKLE_BOMB] =		{SPR_NULL,	0,	0,	A_Dye,	0,	SKINCOLOR_JET,	S_NIGHTSPARKLE1}
 states[S_RSR_NIGHTSPARKLE_WASP] =		{SPR_NULL,	0,	0,	A_Dye,	0,	SKINCOLOR_TOPAZ,	S_NIGHTSPARKLE1}
+states[S_RSR_NIGHTSPARKLE_SCRAMBLER] =		{SPR_NULL,	0,	0,	A_Dye,	0,	SKINCOLOR_SIBERITE,	S_NIGHTSPARKLE1}
 
 states[S_RSR_INVINSPARKLE] =	{SPR_RSIV,	A|FF_FULLBRIGHT|FF_ANIMATE,	6,	nil,	5,	1,	S_RSR_INVINSPARKLE2}
 states[S_RSR_INVINSPARKLE2] =	{SPR_RSIV,	E|FF_FULLBRIGHT,			1,	nil,	0,	0,	S_RSR_INVINSPARKLE3}

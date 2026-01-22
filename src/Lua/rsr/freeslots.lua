@@ -17,7 +17,10 @@ freeslot(
 	"sfx_atatfr", -- Created by orbitalviolet
 	"sfx_sctrfr",
 	"sfx_scatfr", -- Created by orbitalviolet
+	"sfx_scatab", -- Created by orbitalviolet
 	"sfx_scatxp", -- Created by orbitalviolet
+	"sfx_scatx1", -- Created by orbitalviolet
+	"sfx_scatx2", -- Created by orbitalviolet
 	"sfx_bombfr",
 	"sfx_bombab", -- Created by orbitalviolet
 	"sfx_boatfr",
@@ -177,6 +180,8 @@ freeslot(
 	"MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION",
 	"S_RSR_PROJECTILE_SCATTER",
 	"S_RSR_PROJECTILE_SCATTER_FLAKCANNON",
+	"S_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION_XPLDSOUND",
+	"S_RSR_NIGHTSPARKLE_SCRAMBLER",
 	-- Automatic
 	"SPR_RSWA",
 	"SPR_RSBA",
@@ -276,6 +281,7 @@ freeslot(
 	"S_RSR_INVINSPARKLE6",
 	"S_RSR_ITEM_DEATH",
 	"S_RSR_RINGEXPLODE",
+	"S_RSR_RINGEXPLODEALT",
 	"S_RSR_XPLD1", -- Because the regular explode states don't let sounds play long enough
 	"S_RSR_XPLD2",
 	"S_RSR_XPLD3",
@@ -305,8 +311,11 @@ sfxinfo[sfx_chloop].caption = "Red Ring humming"
 sfxinfo[sfx_autofr].caption = "Automatic fired"
 sfxinfo[sfx_atatfr].caption = "Automatic: Spray&Pray"
 sfxinfo[sfx_sctrfr].caption = "Scatter fired"
-sfxinfo[sfx_scatfr].caption = "Scatter: Mass Slug"
-sfxinfo[sfx_scatxp].caption = "Mass Slug scattering"
+sfxinfo[sfx_scatfr].caption = "Scatter: Mass Scrambler"
+sfxinfo[sfx_scatxp].caption = "Mass Scrambler airbursting"
+sfxinfo[sfx_scatx1].caption = "Mass Scrambler bomblet explosion"
+sfxinfo[sfx_scatx2].caption = "Mass Scrambler bomblet explosion"
+sfxinfo[sfx_scatab].caption = "Mass Scrambler bomblets travelling"
 sfxinfo[sfx_bombfr].caption = "Explosion fired"
 sfxinfo[sfx_bombab].caption = "Explosion travelling"
 sfxinfo[sfx_boatfr].caption = "Explosion: Self-Propel"
@@ -343,10 +352,15 @@ sfxinfo[sfx_mchina].caption = "Rail polykill!"
 
 -- Damage
 sfxinfo[sfx_rsrhit].caption = "Scored full hit!"
+sfxinfo[sfx_rsrhit].singular = true
 sfxinfo[sfx_rsrarm].caption = "Scored hit to armor!"
+sfxinfo[sfx_rsrarm].singular = true
 sfxinfo[sfx_rsriht].caption = "Scored deflected hit..."
+sfxinfo[sfx_rsriht].singular = true
 sfxinfo[sfx_rsrhrt].caption = "Full damage taken..."
+sfxinfo[sfx_rsrhrt].singular = true
 sfxinfo[sfx_rsraht].caption = "Partial damage taken..."
+sfxinfo[sfx_rsraht].singular = true
 sfxinfo[sfx_rsrpmp].caption = "Player taking damage"
 sfxinfo[sfx_rsrsmp].caption = "Armor taking damage"
 sfxinfo[sfx_rsrpng].caption = "Attack deflected..."

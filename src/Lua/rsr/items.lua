@@ -19,7 +19,7 @@ end
 ---@param actor mobj_t
 ---@param var1 integer
 ---@param var2 integer
-RSR.A_SetItemDeathState = function(actor, var1, var2)
+A_SetItemDeathState = function(actor, var1, var2)
 	if not Valid(actor) then return end
 	if not ((actor.flags2 & MF2_DONTRESPAWN) or (actor.info.flags & MF_MISSILE)) then actor.state = S_INVISIBLE end
 end
@@ -32,7 +32,7 @@ states[S_RSR_SPARK5] =		{SPR_RSPK,	A|FF_TRANS70|FF_ANIMATE,	2,	nil,						1,	1,	S
 states[S_RSR_SPARK6] =		{SPR_RSPK,	C|FF_TRANS80|FF_ANIMATE,	2,	nil,						1,	1,	S_RSR_SPARK7}
 states[S_RSR_SPARK7] =		{SPR_RSPK,	A|FF_TRANS80,				1,	nil,						0,	0,	S_RSR_SPARK8}
 states[S_RSR_SPARK8] =		{SPR_RSPK,	B|FF_TRANS90|FF_ANIMATE,	3,	nil,						2,	1,	S_RSR_ITEM_DEATH}
-states[S_RSR_ITEM_DEATH] =	{SPR_NULL,	A,							0,	RSR.A_SetItemDeathState,	0,	0,	S_NULL}
+states[S_RSR_ITEM_DEATH] =	{SPR_NULL,	A,							0,	A_SetItemDeathState,	0,	0,	S_NULL}
 
 states[S_RSR_TELEFOG] =			{SPR_RSTF,	A|FF_FULLBRIGHT|FF_TRANS50|FF_ANIMATE,	28,	nil,	13,	2,	S_RSR_TELEFOG_SOUND}
 states[S_RSR_TELEFOG_SOUND] =	{SPR_NULL,	A,										70,	nil,	0,	0,	S_NULL}
