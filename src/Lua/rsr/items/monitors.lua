@@ -106,33 +106,31 @@ RSR.MonitorMobjRemoved = function(mo)
 	P_RemoveMobj(mo.rsrStrongBoxIcon)
 end
 
-if not RSR.CV_ShieldEffects.value then
-	RSR.MONITOR_RANDOMS = {
-		{MT_RING_BOX,		0,	18},
-		{MT_PITY_BOX,		0,	18},
-		{MT_RECYCLER_BOX,	0,	5},
-		{MT_MIXUP_BOX,		0,	9},
-		{MT_SNEAKERS_BOX,	0,	14},
-		{MT_1UP_BOX,		8,	0},
-		{MT_INVULN_BOX,		8,	0},
-	}
-else
-	RSR.MONITOR_RANDOMS = {
-		{MT_RING_BOX,		0,	8},
-		{MT_PITY_BOX,		0,	8},
-		{MT_FORCE_BOX,		0,	9},
-		{MT_WHIRLWIND_BOX,	0,	9},
-		{MT_BUBBLEWRAP_BOX,	0,	9},
-		{MT_FLAMEAURA_BOX,	0,	9},
-		{MT_RECYCLER_BOX,	0,	2},
-		{MT_MIXUP_BOX,		0,	4},
-		{MT_SNEAKERS_BOX,	0,	6},
-		{MT_1UP_BOX,		4,	0},
-		{MT_INVULN_BOX,		2,	0},
-		{MT_ARMAGEDDON_BOX,	5,	0},
-		{MT_ATTRACT_BOX,	5,	0},
-	}
-end
+RSR.MONITOR_RANDOMS = {
+	{MT_RING_BOX,		0,	8},
+	{MT_PITY_BOX,		0,	8},
+	{MT_FORCE_BOX,		0,	9},
+	{MT_WHIRLWIND_BOX,	0,	9},
+	{MT_BUBBLEWRAP_BOX,	0,	9},
+	{MT_FLAMEAURA_BOX,	0,	9},
+	{MT_RECYCLER_BOX,	0,	2},
+	{MT_MIXUP_BOX,		0,	4},
+	{MT_SNEAKERS_BOX,	0,	6},
+	{MT_1UP_BOX,		4,	0},
+	{MT_INVULN_BOX,		2,	0},
+	{MT_ARMAGEDDON_BOX,	5,	0},
+	{MT_ATTRACT_BOX,	5,	0},
+}
+
+RSR.MONITOR_RANDOMS_NOSHIELDS = {
+	{MT_RING_BOX,		0,	18},
+	{MT_PITY_BOX,		0,	18},
+	{MT_RECYCLER_BOX,	0,	5},
+	{MT_MIXUP_BOX,		0,	9},
+	{MT_SNEAKERS_BOX,	0,	14},
+	{MT_1UP_BOX,		8,	0},
+	{MT_INVULN_BOX,		8,	0},
+}
 
 --- Gets a random weak or strong monitor Object type based on the monitor Object given.
 ---@param mo mobj_t
@@ -141,8 +139,10 @@ RSR.GetWeakOrStrongMonitor = function(mo)
 
 	local spawnchance = {}
 	local numchoices = 0
+	local randomPool = RSR.MONITOR_RANDOMS
+	if RSR.CV_ShieldEffects.value == 0 then randomPool = RSR.MONITOR_RANDOMS_NOSHIELDS end
 
-	for _, monitorInfo in ipairs(RSR.MONITOR_RANDOMS) do
+	for _, monitorInfo in ipairs(randomPool) do
 		local boxamt = monitorInfo[3]
 		if (mo.flags2 & MF2_STRONGBOX) then boxamt = monitorInfo[2] end
 

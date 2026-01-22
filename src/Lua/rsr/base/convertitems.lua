@@ -97,7 +97,7 @@ RSR.REMOVE_SHIELDS = {
 	[MT_ELEMENTAL_BOX] = {
 		motype = MT_PITY_BOX
 	},
-	[MT_FORCEBOX] = {
+	[MT_FORCE_BOX] = {
 		motype = MT_PITY_BOX
 	},
 	[MT_WHIRLWIND_BOX] = {
@@ -120,6 +120,67 @@ RSR.REMOVE_SHIELDS = {
 	}
 }
 
+--- Converts an item's object type using the given convertTable.
+---@param mo mobj_t Object to convert.
+---@param convertTable table|nil Table to use for converting object types. Default is RSR.RSMOBJ_TO_RSRMOBJ.
+RSR.ConvertMapItem = function(mo, convertTable)
+	if not Valid(mo) then return end
+	if not convertTable then convertTable = RSR.RSMOBJ_TO_RSRMOBJ end
+	if not convertTable[mo.type] then return end
+	local moInfo = convertTable[mo.type]
+
+	-- TODO: Rewrite this to use a custom UDMF field for 2.2.16
+	if (mo.info.flags & MF_MONITOR) and (mo.flags2 & (MF2_STRONGBOX|MF2_AMBUSH)) and moInfo.ignorerandommonitor then
+		return
+	end
+
+	local origDamage = mo.info.damage
+	if type(moInfo.motype) == "table" and Valid(mo.spawnpoint) then
+		mo.type = moInfo.motype[(#mo.spawnpoint % #moInfo.motype) + 1]
+	else
+		mo.type = moInfo.motype
+	end
+	if Valid(mo.spawnpoint) then
+		mo.radius = FixedMul(mo.info.radius, mo.spawnpoint.scale)
+		mo.height = FixedMul(mo.info.height, mo.spawnpoint.scale)
+	else
+		mo.radius = mo.info.radius
+		mo.height = mo.info.height
+	end
+	mo.flags = mo.info.flags
+	if moInfo.ispanel and mo.info.seestate ~= S_NULL then
+		mo.rsrIsPanel = true
+		mo.state = mo.info.seestate
+	else
+		-- Don't set to spawnstate if the object is a strong random monitor
+		if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) and origDamage ~= mo.info.damage then
+			if Valid(mo.rsrStrongBoxIcon) then
+				local sprite, frame = SPR_TVMY, C
+				if mo.info.damage ~= MT_UNKNOWN and mo.info.damage ~= MT_1UP_ICON then
+					sprite = states[mobjinfo[mo.info.damage].spawnstate].sprite
+					frame = (states[mobjinfo[mo.info.damage].spawnstate].frame & FF_FRAMEMASK)
+				end
+				mo.rsrStrongBoxIcon.sprite = sprite
+				mo.rsrStrongBoxIcon.frame = frame
+			end
+		else
+			mo.state = mo.info.spawnstate
+		end
+	end
+	if moInfo.ammo ~= nil then mo.rsrAmmoAmount = moInfo.ammo end
+	if moInfo.zoffset then
+		local zScale = FRACUNIT
+		if Valid(mo.spawnpoint) then zScale = mo.spawnpoint.scale end
+		if Valid(mo.spawnpoint) and (mo.spawnpoint.options & MTF_OBJECTFLIP) then
+			mo.z = $ - FixedMul(moInfo.zoffset, zScale)
+		else
+			mo.z = $ + FixedMul(moInfo.zoffset, zScale)
+		end
+	end
+	if moInfo.floatoffset then mo.rsrFloatOffset = FixedAngle(P_RandomKey(360)*FRACUNIT) end
+	mo.shadowscale = 2*FRACUNIT/3
+end
+
 RSR.ConvertItemsMapLoad = function()
 	if not (RSR.GamemodeActive() and G_RingSlingerGametype()) then return end
 	if RSR.MAP_HAS_RSR_MOBJS then
@@ -137,64 +198,10 @@ RSR.ConvertItemsMapLoad = function()
 		return
 	end
 
-	for mo in mobjs.iterate() do
-		if not Valid(mo) then continue end
-		if not RSR.RSMOBJ_TO_RSRMOBJ[mo.type] then continue end
-		local moInfo = RSR.RSMOBJ_TO_RSRMOBJ[mo.type]
-
-		-- TODO: Rewrite this to use a custom UDMF field for 2.2.16
-		if (mo.info.flags & MF_MONITOR) and (mo.flags2 & (MF2_STRONGBOX|MF2_AMBUSH)) and moInfo.ignorerandommonitor then
-			continue
-		end
-
-		local origDamage = mo.info.damage
-		if type(moInfo.motype) == "table" and Valid(mo.spawnpoint) then
-			mo.type = moInfo.motype[(#mo.spawnpoint % #moInfo.motype) + 1]
-		else
-			mo.type = moInfo.motype
-		end
-		if Valid(mo.spawnpoint) then
-			mo.radius = FixedMul(mo.info.radius, mo.spawnpoint.scale)
-			mo.height = FixedMul(mo.info.height, mo.spawnpoint.scale)
-		else
-			mo.radius = mo.info.radius
-			mo.height = mo.info.height
-		end
-		mo.flags = mo.info.flags
-		if moInfo.ispanel and mo.info.seestate ~= S_NULL then
-			mo.rsrIsPanel = true
-			mo.state = mo.info.seestate
-		else
-			-- Don't set to spawnstate if the object is a strong random monitor
-			if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) and origDamage ~= mo.info.damage then
-				if Valid(mo.rsrStrongBoxIcon) then
-					local sprite, frame = SPR_TVMY, C
-					if mo.info.damage ~= MT_UNKNOWN and mo.info.damage ~= MT_1UP_ICON then
-						sprite = states[mobjinfo[mo.info.damage].spawnstate].sprite
-						frame = (states[mobjinfo[mo.info.damage].spawnstate].frame & FF_FRAMEMASK)
-					end
-					mo.rsrStrongBoxIcon.sprite = sprite
-					mo.rsrStrongBoxIcon.frame = frame
-				end
-			else
-				mo.state = mo.info.spawnstate
-			end
-		end
-		if moInfo.ammo ~= nil then mo.rsrAmmoAmount = moInfo.ammo end
-		if moInfo.zoffset then
-			local zScale = FRACUNIT
-			if Valid(mo.spawnpoint) then zScale = mo.spawnpoint.scale end
-			if Valid(mo.spawnpoint) and (mo.spawnpoint.options & MTF_OBJECTFLIP) then
-				mo.z = $ - FixedMul(moInfo.zoffset, zScale)
-			else
-				mo.z = $ + FixedMul(moInfo.zoffset, zScale)
-			end
-		end
-		if moInfo.floatoffset then mo.rsrFloatOffset = FixedAngle(P_RandomKey(360)*FRACUNIT) end
-		mo.shadowscale = 2*FRACUNIT/3
-	end
+	for mo in mobjs.iterate() do RSR.ConvertMapItem(mo) end
 end
 
+-- TODO: Merge this into RSR.ConvertItemsMapLoad, eventually.
 RSR.RemoveShieldsMapLoad = function()
 	if not (RSR.GamemodeActive() and G_RingSlingerGametype() and (not RSR.CV_ShieldEffects.value)) then return end
 
@@ -203,72 +210,13 @@ RSR.RemoveShieldsMapLoad = function()
 			if not Valid(mo) then continue end
 			if not RSR.REMOVE_SHIELDS[mo.type] then continue end
 			mo.flags2 = $|MF2_DONTRESPAWN
-			P_RemoveMobj(mo)
+			mo.fuse = 1 -- Using P_RemoveMobj causes a "next thinker invalidated during iteration" error, so do this instead
 		end
 		return
 	end
 
 	if not RSR.CV_ShieldEffects.value then -- Extra failsafe to make sure this only runs if ShieldEffects are off!
-		for mo in mobjs.iterate() do
-			if not Valid(mo) then continue end
-			if not RSR.REMOVE_SHIELDS[mo.type] then continue end
-			local moInfo = RSR.REMOVE_SHIELDS[mo.type]
-			local moRespawnType = 0
-
-			 if (mo.info.flags & MF_MONITOR) and (mo.flags2 & (MF2_AMBUSH)) then
-				if mo.flags2 & MF2_STRONGBOX then
-					respawnType = 2
-				else
-					respawnType = 1
-				end
-			end
-
-			local origDamage = mo.info.damage
-			if type(moInfo.motype) == "table" and Valid(mo.spawnpoint) then
-				mo.type = moInfo.motype[(#mo.spawnpoint % #moInfo.motype) + 1]
-			else
-				mo.type = moInfo.motype
-			end
-			if Valid(mo.spawnpoint) then
-				mo.radius = FixedMul(mo.info.radius, mo.spawnpoint.scale)
-				mo.height = FixedMul(mo.info.height, mo.spawnpoint.scale)
-			else
-				mo.radius = mo.info.radius
-				mo.height = mo.info.height
-			end
-			mo.flags = mo.info.flags
-			-- Don't set to spawnstate if the object is a strong random monitor
-			if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) and origDamage ~= mo.info.damage then
-				if Valid(mo.rsrStrongBoxIcon) then
-					local sprite, frame = SPR_TVMY, C
-					if mo.info.damage ~= MT_UNKNOWN and mo.info.damage ~= MT_1UP_ICON then
-						sprite = states[mobjinfo[mo.info.damage].spawnstate].sprite
-						frame = (states[mobjinfo[mo.info.damage].spawnstate].frame & FF_FRAMEMASK)
-					end
-					mo.rsrStrongBoxIcon.sprite = sprite
-					mo.rsrStrongBoxIcon.frame = frame
-				end
-			else
-				mo.state = mo.info.spawnstate
-			end
-			-- Attempt to keep WRMs and SRMs as WRMs and SRMs post-conversion...
-			if respawnType = 1 then
-				mo.flags2 = $|MF2_AMBUSH
-			end
-			if respawnType = 2 then
-				mo.flags2 = $|MF2_AMBUSH|MF2_STRONGBOX
-			end
-			if moInfo.zoffset then
-				local zScale = FRACUNIT
-				if Valid(mo.spawnpoint) then zScale = mo.spawnpoint.scale end
-				if Valid(mo.spawnpoint) and (mo.spawnpoint.options & MTF_OBJECTFLIP) then
-					mo.z = $ - FixedMul(moInfo.zoffset, zScale)
-				else
-					mo.z = $ + FixedMul(moInfo.zoffset, zScale)
-				end
-			end
-			mo.shadowscale = 2*FRACUNIT/3
-		end
+		for mo in mobjs.iterate() do RSR.ConvertMapItem(mo, RSR.REMOVE_SHIELDS) end
 	end
 end
 

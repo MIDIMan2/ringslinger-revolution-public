@@ -53,15 +53,16 @@ RSR.FireWeapon = function(player)
 	if not (RSR.IsPSpritesValid(player) and Valid(player.mo)) then return end
 
 	if not RSR.CheckAmmo(player) then return end
-	if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attack == nil then return end
+	local weaponInfo = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon]
+	if weaponInfo.states.attack == nil then return end
 
 	-- Don't fire if using the Attraction Shield or Homing Attack
 	if player.rsrinfo.homing and Valid(player.mo.tracer) then
-		if not (player.rsrinfo.lastbuttons & BT_ATTACK) then S_StartSound(nil, sfx_noammo, player) end -- TODO: Replace BT_ATTACK in mutators branch
+		if not (player.rsrinfo.lastbuttons & RSR.GetAttackButton()) then S_StartSound(nil, sfx_noammo, player) end
 		return
 	end
 
-	PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attack)
+	PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, weaponInfo.states.attack)
 	player.drawangle = player.mo.angle
 end
 
@@ -70,20 +71,20 @@ end
 RSR.FireWeaponAlt = function(player)
 	if not (RSR.IsPSpritesValid(player) and Valid(player.mo)) then return end
 
-	local ammoAlt = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt
-	if not RSR.CheckAmmo(player, nil, ammoAlt) then
+	local weaponInfo = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon]
+	if not RSR.CheckAmmo(player, nil, weaponInfo.ammoalt) then
 		-- Make sure the player doesn't have infinity and any ammo
 		if not (RSR.HasPowerup(player, RSR.POWERUP_INFINITY) and RSR.CheckAmmo(player)) then return end
 	end
-	if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attackalt == nil then return end
+	if weaponInfo.states.attackalt == nil then return end
 
 	-- Don't fire if using the Attraction Shield or Homing Attack
 	if player.rsrinfo.homing and Valid(player.mo.tracer) then
-		if not (player.rsrinfo.lastbuttons & BT_FIRENORMAL) then S_StartSound(nil, sfx_noammo, player) end -- TODO: Replace BT_FIRENORMAL in mutators branch
+		if not (player.rsrinfo.lastbuttons & RSR.GetAttackButton(true)) then S_StartSound(nil, sfx_noammo, player) end
 		return
 	end
 
-	PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.attackalt)
+	PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, weaponInfo.states.attackalt)
 	player.drawangle = player.mo.angle
 	return true
 end

@@ -357,16 +357,17 @@ sfxinfo[sfx_railec].caption = "Rail echoing..."
 sfxinfo[sfx_railms].caption = "Rail near-miss..."
 sfxinfo[sfx_mchina].caption = "Rail polykill!"
 -- BFR charging, firing, ambient, and exploding sounds heard from further away
-sfxinfo[sfx_bfrchg].caption = "BFR charging..."
-sfxinfo[sfx_bfrchg].flags = SF_X4AWAYSOUND
-sfxinfo[sfx_bfrsht].caption = "BFR fired!"
-sfxinfo[sfx_bfrsht].flags = SF_X4AWAYSOUND
-sfxinfo[sfx_bfrech].caption = "BFR echoing..."
-sfxinfo[sfx_bframb].caption = "BFR travelling..."
-sfxinfo[sfx_bframb].flags = SF_X4AWAYSOUND
-sfxinfo[sfx_bfrdot].caption = "BFR zapping targets"
-sfxinfo[sfx_bfrxpd].caption = "BFR detonation!"
-sfxinfo[sfx_bfrxpd].flags = SF_X4AWAYSOUND
+-- TODO: Uncomment these when they actually get added
+-- sfxinfo[sfx_bfrchg].caption = "BFR charging..."
+-- sfxinfo[sfx_bfrchg].flags = SF_X4AWAYSOUND
+-- sfxinfo[sfx_bfrsht].caption = "BFR fired!"
+-- sfxinfo[sfx_bfrsht].flags = SF_X4AWAYSOUND
+-- sfxinfo[sfx_bfrech].caption = "BFR echoing..."
+-- sfxinfo[sfx_bframb].caption = "BFR travelling..."
+-- sfxinfo[sfx_bframb].flags = SF_X4AWAYSOUND
+-- sfxinfo[sfx_bfrdot].caption = "BFR zapping targets"
+-- sfxinfo[sfx_bfrxpd].caption = "BFR detonation!"
+-- sfxinfo[sfx_bfrxpd].flags = SF_X4AWAYSOUND
 
 -- Damage
 sfxinfo[sfx_rsrhit].caption = "Scored full hit!"
