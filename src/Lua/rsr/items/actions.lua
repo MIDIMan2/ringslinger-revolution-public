@@ -101,7 +101,9 @@ A_GiveShield = function(actor, var1, var2)
 		return
 	end
 
-	RSR.GiveArmor(player, 10)
+	if player.rsrinfo.armor < 10 then
+		player.rsrinfo.armor = 10
+	end
 	RSR.BonusFade(player)
 	super(actor, var1, var2)
 end

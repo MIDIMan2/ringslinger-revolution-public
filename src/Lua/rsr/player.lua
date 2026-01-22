@@ -230,6 +230,9 @@ RSR.PlayerThink = function(player)
 		RSR.PlayerFlameShieldTick(player)
 		RSR.PlayerHomingThink(player)
 		RSR.PlayerWeaponChoiceTick(player)
+		if player.rsrinfo.critCooldown > 0 then
+			player.rsrinfo.critCooldown = $ - 1
+		end
 		-- Give the player a speed boost if they have the attraction shield (unless they have speed shoes or super)
 		-- TODO: This might break some momentum and/or character mods...
 		-- if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT and not (player.powers[pw_sneakers] or player.powers[pw_super]) then
