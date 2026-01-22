@@ -352,10 +352,15 @@ sfxinfo[sfx_mchina].caption = "Rail polykill!"
 
 -- Damage
 sfxinfo[sfx_rsrhit].caption = "Scored full hit!"
+sfxinfo[sfx_rsrhit].singular = true
 sfxinfo[sfx_rsrarm].caption = "Scored hit to armor!"
+sfxinfo[sfx_rsrarm].singular = true
 sfxinfo[sfx_rsriht].caption = "Scored deflected hit..."
+sfxinfo[sfx_rsriht].singular = true
 sfxinfo[sfx_rsrhrt].caption = "Full damage taken..."
+sfxinfo[sfx_rsrhrt].singular = true
 sfxinfo[sfx_rsraht].caption = "Partial damage taken..."
+sfxinfo[sfx_rsraht].singular = true
 sfxinfo[sfx_rsrpmp].caption = "Player taking damage"
 sfxinfo[sfx_rsrsmp].caption = "Armor taking damage"
 sfxinfo[sfx_rsrpng].caption = "Attack deflected..."

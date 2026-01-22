@@ -92,6 +92,7 @@ RSR.PlayerInit = function(player)
 	-- Reset normalspeed in case the attraction shield messed with it
 	player.normalspeed = skins[player.skin].normalspeed
 	-- rsrinfo.boostNormalspeed = false
+	rsrinfo.deathCamPos = nil
 
 	player.rsrPrevSkin = player.skin
 end
@@ -165,6 +166,15 @@ RSR.PlayerDeathTick = function(player)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.PlayerToastyTick(player)
+	-- Prevent the camera from moving so it doesn't clip through walls
+	if P_IsLocalPlayer(player) and player.rsrinfo.deathCamPos then
+		local thisCam = camera
+		if player == secondarydisplayplayer then thisCam = camera2 end
+		thisCam.momx = 0
+		thisCam.momy = 0
+		thisCam.momz = 0
+		P_TeleportCameraMove(thisCam, player.rsrinfo.deathCamPos.x, player.rsrinfo.deathCamPos.y, player.rsrinfo.deathCamPos.z)
+	end
 	if (player.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) and player.mo.fuse > 1 then player.mo.fuse = 1 end
 	-- Force momentum on the player if they have died
 	if player.mo.rsrPrevMomX or player.mo.rsrPrevMomY or player.mo.rsrPrevMomZ then
