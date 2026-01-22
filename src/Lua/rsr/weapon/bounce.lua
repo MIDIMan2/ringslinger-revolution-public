@@ -71,7 +71,7 @@ states[S_RSR_PROJECTILE_BOUNCE] =	{SPR_RSWB,	FF_ANIMATE|FF_FULLBRIGHT,	-1,	nil,	
 
 --- Shoots a bunch of Bounce rings in a rough sphere shape.
 ---@param actor mobj_t
-RSR.A_BounceMegaBomb = function(actor, var1, var2)
+A_BounceMegaBomb = function(actor, var1, var2)
 	if not Valid(actor) then return end
 
 	P_StartQuake(96*FRACUNIT, 12, {x = actor.x, y = actor.y, z = actor.z + actor.height/2}, 192*actor.scale)
@@ -275,7 +275,7 @@ mobjinfo[MT_RSR_PROJECTILE_BOUNCE_MEGABOMB] = {
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
-states[S_RSR_PROJECTILE_BOUNCE_MEGABOMB] =	{SPR_RSWB,	FF_FULLBRIGHT,	0,	RSR.A_BounceMegaBomb,	0,	0,	S_WPLD1}
+states[S_RSR_PROJECTILE_BOUNCE_MEGABOMB] =	{SPR_RSWB,	FF_FULLBRIGHT,	0,	A_BounceMegaBomb,	0,	0,	S_WPLD1}
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB)
 addHook("MobjThinker", RSR.ProjectileGhostTimer, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB)
