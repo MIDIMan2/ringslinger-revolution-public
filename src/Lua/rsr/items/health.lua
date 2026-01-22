@@ -16,7 +16,7 @@ RSR.GiveHealth = function(player, health, isBonus, lowMod)
 			if hookEvent.typefor ~= nil then
 				if hookEvent.typefor(player, v.typedef) == false then continue end
 			end
-			local result = RSR.tryRunHook(hookName, v, player, health, isBonus)
+			local result = RSR.tryRunHook(hookName, v, player, health, isBonus, lowMod)
 			if result ~= nil then return result end
 		end
 	end
@@ -58,7 +58,7 @@ RSR.GiveArmor = function(player, armor, isBonus, lowMod)
 			if hookEvent.typefor ~= nil then
 				if hookEvent.typefor(player, v.typedef) == false then continue end
 			end
-			local result = RSR.tryRunHook(hookName, v, player, armor, isBonus)
+			local result = RSR.tryRunHook(hookName, v, player, armor, isBonus, lowMod)
 			if result ~= nil then return result end
 		end
 	end
