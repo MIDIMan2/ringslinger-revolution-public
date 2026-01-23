@@ -506,6 +506,36 @@ RSR.PlayerShieldDamage = function(player, inflictor, infInfo, knockbackScale, hu
 	return knockbackScale, hurtSound, serverHurtSound
 end
 
+--- Handles rewards for player damage if the source is another player.
+---@param player player_t
+---@param source mobj_t
+---@param damage integer
+---@param damagetype integer
+RSR.PlayerDamageRewards = function(player, source, damage, damagetype)
+	if not (Valid(player) and player.rsrinfo and Valid(source) and Valid(source.player)) then return end
+	if player == source.player then return end -- Don't let the player give themselves rewards (just in case DMG_CANHURTSELF is used)
+
+	-- Use this for giving hype on hit and armor to players who manually detonated their Armageddon Shield
+	local damageReal = min(damage, player.rsrinfo.health)
+
+	if Valid(source) and Valid(source.player) and source.player.rsrinfo then
+		RSR.PlayerAddAttacker(player, source.player, damage)
+		-- Give the source player an armor boost if the damage was from a manually detonated Armageddon Blast
+		if damagetype == DMG_NUKE and (source.player.pflags & PF_SHIELDABILITY) and source.player.rsrinfo.armor > 0 then
+			-- Dampen this bonus if armor is below 1/4 to encourage earlier Armageddon detonations
+			if source.player.rsrinfo.armor < 26 then
+				RSR.GiveArmor(source.player, damageReal/2)
+			else
+				RSR.GiveArmor(source.player, damageReal)
+			end
+			RSR.BonusFade(source.player)
+			S_StartSound(nil, sfx_shield, source.player)
+		end
+		-- Give the source player hype if they have all the emeralds
+		RSR.GiveHype(source.player, damageReal) -- Emerald check is handled in the function itself
+	end
+end
+
 --- MobjDamage hook code for player Objects.
 ---@param target mobj_t
 ---@param inflictor mobj_t
@@ -566,33 +596,12 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		damage = FixedMul($, 3*FRACUNIT/2)
 	end
 
-	local shield = (player.powers[pw_shield] & SH_NOSTACK)
-
 	RSR.PlayerHomingDamage(player, damage)
 	RSR.SpawnDamageSplatter(target, damage)
 	damage, hadArmor, hurtSound, serverHurtSound = RSR.PlayerArmorDamage(player, inflictor, damage)
 
-	-- Use this for giving hype on hit and armor to players who manually detonated their Armageddon Shield
-	local damageReal = min(damage, rsrinfo.health)
-
+	RSR.PlayerDamageRewards(player, source, damage, damagetype)
 	rsrinfo.health = max($ - damage, 0) -- Make sure health doesn't go below 0
-
-	if Valid(source) and Valid(source.player) then
-		RSR.PlayerAddAttacker(player, source.player, damage)
-		-- Give the source player an armor boost if the damage was from a manually detonated Armageddon Blast
-		if damagetype == DMG_NUKE and (source.player.pflags & PF_SHIELDABILITY) and source.player.rsrinfo.armor > 0 then
-			-- Dampen this bonus if armor is below 1/4 to encourage earlier Armageddon detonations
-			if source.player.rsrinfo.armor < 26 then
-				RSR.GiveArmor(source.player, damageReal/2)
-			else
-				RSR.GiveArmor(source.player, damageReal)
-			end
-			RSR.BonusFade(source.player)
-			S_StartSound(nil, sfx_shield, source.player)
-		end
-		-- Give the source player hype if they have all the emeralds
-		RSR.GiveHype(source.player, damageReal) -- Emerald check is handled in the function itself
-	end
 
 	-- Tiered damage fades based on severity of damage taken
 	if damage < 16 then -- Hit by "standard" ring/melee attack
