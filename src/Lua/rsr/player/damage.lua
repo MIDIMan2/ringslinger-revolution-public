@@ -465,6 +465,7 @@ RSR.PlayerArmorDamage = function(player, inflictor, damage)
 	return damage, hadArmor, hurtSound, serverHurtSound
 end
 
+--- Handles player damage when the player has a shield.
 ---@param player player_t
 ---@param inflictor mobj_t|nil
 ---@param infInfo rsrmobjinfo_t|nil
