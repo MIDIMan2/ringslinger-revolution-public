@@ -1,6 +1,7 @@
 -- Ringslinger Revolution - Screen Fade HUD
 
 --- Draws the player's screen fade to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDScreenFade = function(v, player)
 	if not RSR.GamemodeActive() then return end

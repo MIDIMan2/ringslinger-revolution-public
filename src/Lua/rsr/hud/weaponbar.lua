@@ -1,6 +1,7 @@
 -- Ringslinger Revolution - HUD Weapon Bar
 
 --- Draws the player's weapon bar to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDWeaponBar = function(v, player)
 	if not RSR.GamemodeActive() then return end

@@ -307,243 +307,30 @@ RSR.GetInflictorDamage = function(target, inflictor, source, damage, damagetype)
 	return damageInfo
 end
 
---- MobjDamage hook code for player Objects.
+--- Handles the player's knockback logic when damaged.
 ---@param target mobj_t
 ---@param inflictor mobj_t
 ---@param source mobj_t
 ---@param damage integer
 ---@param damagetype integer
-RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
-	if not RSR.GamemodeActive() then return end
-	if not Valid(target) then return end
-	if target.health <= 0 then return end
+---@param knockbackScale fixed_t
+RSR.PlayerDamageKnockback = function(target, inflictor, source, damage, damagetype, knockbackScale)
+	if not (Valid(target) and Valid(target.player) and target.player.rsrinfo) then return end
+
+	if knockbackScale == nil then knockbackScale = FRACUNIT end
+	local hookEvent, hookName = RSR.findEvent("PlayerKnockback")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(target.player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype, knockbackScale)
+			if result then return end
+		end
+	end
+
 	local player = target.player
-
-	if RSR.SKIN_INFO[target.skin] and RSR.SKIN_INFO[target.skin].nodamage then return end
-
-	-- Don't run this code if the target is not a player in RSR
-	if not (Valid(player) and player.rsrinfo) then return end
-
-	-- Don't run this code if DMG_DEATHMASK is in effect
-	if ((damagetype or 0) & DMG_DEATHMASK) then return end
-
-	local knockbackScale = FRACUNIT
-
-	local hurtByEnemy = false
-	local hurtByMelee = false
-	local infInfo = nil
-
-	if Valid(inflictor) then
-		local damageInfo = RSR.GetInflictorDamage(target, inflictor, source, damage, damagetype)
-		if damageInfo then
-			damage = damageInfo.damage
-			infInfo = damageInfo.infInfo
-			hurtByEnemy = damageInfo.hurtByEnemy
-			hurtByMelee = damageInfo.hurtByMelee
-			knockbackScale = damageInfo.knockbackScale
-		end
-	end
-
-	-- Set hurt timers for certain conditions
-	if hurtByEnemy then player.rsrinfo.hurtByEnemy = TICRATE end
-	if hurtByMelee then player.rsrinfo.hurtByMelee = TICRATE end
-
-	local saved = 0
-	-- local shieldSaved = 0
-	local rsrinfo = player.rsrinfo
-	local hurtSound = sfx_rsrhrt
-	local serverHurtSound = sfx_rsrpmp
-
-	-- Multiply damage taken by 1.5x if the player has a flag or is a runner in Tag gametypes
-	-- TODO: Make a sound indicator for this??
-	if ((gametyperules & GTR_TEAMFLAGS) and player.gotflag)
-	or (G_TagGametype() and not (player.pflags & PF_TAGIT)) then
-		damage = FixedMul($, 3*FRACUNIT/2)
-	end
-
 	local shield = (player.powers[pw_shield] & SH_NOSTACK)
-
-	-- Handles Attraction Shield homing break
-	if player.rsrinfo.homing then
-		-- Tracks how much damage you've accumulated through your lock-on
-		player.rsrinfo.homingThreshold = $ + damage
-
-		-- If you exceed the break threshold, revokes Maxwell's equations for electromagnetism, plays a sound to let everyone nearby know of that, and cancels your melee hurtbox 
-		if shield == SH_ATTRACT and (player.pflags & PF_SHIELDABILITY) then
-			if (player.rsrinfo.homingThreshold > RSR.HOMING_THRESHOLD_ATTRACT) or (player.rsrinfo.armor < 1) then
-				P_ResetPlayer(player)
-				player.rsrinfo.homing = 0
-				S_StartSound(player.mo, sfx_s3ka6)
-				target.state = S_PLAY_PAIN
-				P_SetObjectMomZ(player.mo, 8*FRACUNIT)
-			end
-		elseif player.charability == CA_HOMINGTHOK then
-			if player.rsrinfo.homingThreshold > RSR.HOMING_THRESHOLD_THOK then
-				P_ResetPlayer(player)
-				player.rsrinfo.homing = 0
-				S_StartSound(player.mo, sfx_s3k90)
-				target.state = S_PLAY_PAIN
-				P_SetObjectMomZ(player.mo, 4*FRACUNIT)
-			end
-		end
-	end
-
-	RSR.SpawnDamageSplatter(target, damage)
-
-	-- Reroute all damage to hype while super
-	if player.powers[pw_super] then
-		rsrinfo.hype = max($ - (damage*2), 0)
-		damage = 0
-	-- Otherwise the player loses a bit of hype every time they take damage
-	else
-		rsrinfo.hype = max($ - damage/2, 0)
-	end
-	local hadArmor = false
-	-- Attraction Shield grants you damage resistance
-	if shield == SH_ATTRACT and (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_PASSIVE) then -- Disable this if ShieldEffects disables passives
-		damage = $ * 3 / 4
-	end
-	-- Health saving while you have armor
-	if rsrinfo.armor and not player.powers[pw_super] then
-		if RSR.CV_ArmorSwitch.value then -- Second healthbar logic for ArmorSwitch
-			if damage > rsrinfo.armor then
-				damage = $ - rsrinfo.armor
-				rsrinfo.armor = 0
-				S_StartSound(player.mo, sfx_rsrcrk)
-			else
-				rsrinfo.armor = $ - damage
-				damage = 0
-			end
-
-			if Valid(inflictor) then
-				for i = 0, 3 do
-					local spark = P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(target.height, target.scale)/2, MT_SUPERSPARK)
-					if Valid(spark) then
-						spark.dontdrawforviewmobj = target
-						spark.scale = FixedMul($, 2*FRACUNIT/3)
-						-- Randomize the spark's momentum
-						spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
-						spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
-						spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
-						if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
-						if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
-						if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
-
-						-- Make the spark shrink to scale 0 in roughly 1/3rd of a second
-						spark.scalespeed = spark.scale/12
-						spark.destscale = 0
-						spark.tics = 12
-					end
-				end
-			end
-		else
-			saved = damage/2
-
-			-- (DEPRECATED) Attraction Shield is less affected by armor loss than other shields (it still only saves the same amount of health though)
-			-- if (player.powers[pw_shield] & SH_ATTRACT) then
-			--	shieldSaved = saved * 3 / 4
-			-- else
-			--	shieldSaved = saved
-			-- end
-
-			saved = min($, rsrinfo.armor)
-
-			rsrinfo.armor = max($ - saved, 0) -- Make sure armor doesn't go below 0
-			if rsrinfo.armor < 1 then -- If the player runs out of armor, play the shieldbreak sound
-				hadArmor = true
-				S_StartSound(player.mo, sfx_rsrcrk)
-			else
-				hurtSound = sfx_rsraht
-				serverHurtSound = sfx_rsrsmp
-			end
-			damage = $ - saved
-
-			if Valid(inflictor) then
-				for i = 0, 3 do
-					local spark = P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(target.height, target.scale)/2, MT_SUPERSPARK)
-					if Valid(spark) then
-						spark.dontdrawforviewmobj = target
-						spark.scale = FixedMul($, 2*FRACUNIT/3)
-						-- Randomize the spark's momentum
-						spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
-						spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
-						spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
-						if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
-						if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
-						if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
-
-						-- Make the spark shrink to scale 0 in roughly 1/3rd of a second
-						spark.scalespeed = spark.scale/12
-						spark.destscale = 0
-						spark.tics = 12
-					end
-				end
-			end
-		end
-	end
-
-	-- Use this for giving hype on hit and armor to players who manually detonated their Armageddon Shield
-	local damageReal = min(damage, rsrinfo.health)
-
-	rsrinfo.health = max($ - damage, 0) -- Make sure health doesn't go below 0
-
-	if Valid(source) and Valid(source.player) then
-		RSR.PlayerAddAttacker(player, source.player, damage)
-		-- Give the source player an armor boost if the damage was from a manually detonated Armageddon Blast
-		if damagetype == DMG_NUKE and (source.player.pflags & PF_SHIELDABILITY) and source.player.rsrinfo.armor > 0 then
-			-- Dampen this bonus if armor is below 1/4 to encourage earlier Armageddon detonations
-			if source.player.rsrinfo.armor < 26 then
-				RSR.GiveArmor(source.player, damageReal/2)
-			else
-				RSR.GiveArmor(source.player, damageReal)
-			end
-			RSR.BonusFade(source.player)
-			S_StartSound(nil, sfx_shield, source.player)
-		end
-		-- Give the source player hype if they have all the emeralds
-		RSR.GiveHype(source.player, damageReal) -- Emerald check is handled in the function itself
-	end
-
-	-- Tiered damage fades based on severity of damage taken
-	if damage < 16 then -- Hit by "standard" ring/melee attack
-		RSR.SetScreenFade(player, 35, FRACUNIT/2, TICRATE/3)
-	elseif damage < 49 then -- Hit by "empowered" ring/melee attack
-		RSR.SetScreenFade(player, 35, FRACUNIT/2, TICRATE/2)
-	elseif damage < 100 then -- Exploded
-		RSR.SetScreenFade(player, 35, FRACUNIT, TICRATE/2)
-	else -- Something has gone terribly, terribly wrong
-		RSR.SetScreenFade(player, 35, FRACUNIT, TICRATE)
-	end
-
-	if shield and (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_PASSIVE) then -- Disable this if ShieldEffects disables passives
-		-- Reflect projectiles if the player has a Force Shield (also causes homing rings to rebel against their master)
-		if (player.powers[pw_shield] & SH_FORCE) and Valid(inflictor) and (inflictor.flags & MF_MISSILE)
-		and not ((infInfo and (infInfo.dontreflect or infInfo.explosive)) or (inflictor.flags & (MF_ENEMY|MF_GRENADEBOUNCE))) then
-			RSR.SpawnReflectedMissile(target, inflictor)
-		end
-
-		-- Reduce knockback if the player has a Whirlwind Shield
-		if shield == SH_WHIRLWIND and Valid(inflictor) and (inflictor.flags & MF_MISSILE) and not (infInfo and infInfo.explosive) then
-			knockbackScale = $/2
-		end
-
-		-- Remove shields and auto-det Armageddon when shields or health fall below 1
-		if rsrinfo.armor < 1 or rsrinfo.health < 1 then
-			if shield then -- Only play the sound if the player had a shield
-				hurtSound = sfx_shldls
-				serverHurtSound = sfx_shldls
-			end
-			if (player.powers[pw_shield] & SH_FORCEHP) then
-				player.powers[pw_shield] = $ & ~SH_FORCEHP
-			end
-			if shield == SH_ARMAGEDDON then
-				P_BlackOw(player)
-			end
-			P_RemoveShield(player)
-		end
-	end
-
-	-- TODO: Insert code for rumble support here when it gets exposed to Lua
 
 	-- Apply knockback to the target if the inflictor allows it
 	if Valid(inflictor) and not inflictor.rsrDontThrust
@@ -583,15 +370,324 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 			end
 		end
 
-		-- So the player can get flung during death
-		target.rsrPrevMomX = target.momx
-		target.rsrPrevMomY = target.momy
-		target.rsrPrevMomZ = target.momz - P_MobjFlip(target)*FixedMul(7*FRACUNIT, target.scale) -- Negate SOME of the upward fling we get from dying normally
-
 		-- Do this to prevent the player from standing still when thrusted while not moving
 		player.rmomx = target.momx + player.cmomx
 		player.rmomy = target.momy + player.cmomy
 	end
+end
+
+--- Sets how far the player gets flung when dying.
+---@param target mobj_t
+---@param inflictor mobj_t
+---@param source mobj_t
+---@param damage integer
+---@param damagetype integer
+RSR.SetPlayerDeathFling = function(target, inflictor, source, damage, damagetype)
+	if not (Valid(target) and Valid(target.player) and target.player.rsrinfo) then return end
+
+	local hookEvent, hookName = RSR.findEvent("PlayerDeathFling")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(target.player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
+			if result then return end
+		end
+	end
+
+	-- No crazy shenanigans if the player drowned, fell down a pit, etc.
+	if (damagetype & DMG_DEATHMASK) then
+		if not (Valid(inflictor) or Valid(source))
+		and not (damagetype == DMG_INSTAKILL and (target.player.rsrinfo.deathFlags & RSR.DEATH_REMOVEDEATHMASK)) then
+			target.rsrPrevMomX = 0
+			target.rsrPrevMomY = 0
+			target.rsrPrevMomZ = 0
+		end
+		return
+	end
+
+	-- So the player can get flung during death
+	target.rsrPrevMomX = target.momx
+	target.rsrPrevMomY = target.momy
+	target.rsrPrevMomZ = target.momz - P_MobjFlip(target)*FixedMul(7*FRACUNIT, target.scale) -- Negate SOME of the upward fling we get from dying normally
+end
+
+--- Handles player damage while performing a homing attack.
+---@param player player_t
+---@param damage integer
+RSR.PlayerHomingDamage = function(player, damage)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
+
+	-- Handles Attraction Shield homing break
+	if player.rsrinfo.homing then
+		-- Tracks how much damage you've accumulated through your lock-on
+		player.rsrinfo.homingThreshold = $ + damage
+
+		-- If you exceed the break threshold, revokes Maxwell's equations for electromagnetism, plays a sound to let everyone nearby know of that, and cancels your melee hurtbox 
+		if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT and (player.pflags & PF_SHIELDABILITY) then
+			if (player.rsrinfo.homingThreshold > RSR.HOMING_THRESHOLD_ATTRACT) or (player.rsrinfo.armor < 1) then
+				P_ResetPlayer(player)
+				player.rsrinfo.homing = 0
+				S_StartSound(player.mo, sfx_s3ka6)
+				player.mo.state = S_PLAY_PAIN
+				P_SetObjectMomZ(player.mo, 8*FRACUNIT)
+			end
+		elseif player.charability == CA_HOMINGTHOK then
+			if player.rsrinfo.homingThreshold > RSR.HOMING_THRESHOLD_THOK then
+				P_ResetPlayer(player)
+				player.rsrinfo.homing = 0
+				S_StartSound(player.mo, sfx_s3k90)
+				player.mo.state = S_PLAY_PAIN
+				P_SetObjectMomZ(player.mo, 4*FRACUNIT)
+			end
+		end
+	end
+end
+
+--- Handles player damage when the player has armor.
+---@param player player_t
+---@param inflictor mobj_t|nil
+---@param damage integer
+---@return integer damage Damage leftover after taking away armor.
+---@return boolean hadArmor If true, the player had armor before this function.
+---@return integer clientHurtSound Hurt sound to play for the local player.
+---@return integer serverHurtSound Hurt sound to play for the rest of the server.
+RSR.PlayerArmorDamage = function(player, inflictor, damage)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return 1, false, sfx_rsrhrt, sfx_rsrpmp end
+	local rsrinfo = player.rsrinfo
+	local hurtSound, serverHurtSound = sfx_rsrhrt, sfx_rsrpmp
+
+	-- Reroute all damage to hype while super
+	if player.powers[pw_super] then
+		rsrinfo.hype = max($ - (damage*2), 0)
+		damage = 0
+	-- Otherwise the player loses a bit of hype every time they take damage
+	else
+		rsrinfo.hype = max($ - damage/2, 0)
+	end
+	local hadArmor = false
+	-- Attraction Shield grants you damage resistance
+	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT and (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_PASSIVE) then -- Disable this if ShieldEffects disables passives
+		damage = $ * 3 / 4
+	end
+	-- Health saving while you have armor
+	if rsrinfo.armor and not player.powers[pw_super] then
+		if RSR.CV_ArmorSwitch.value then -- Second healthbar logic for ArmorSwitch
+			if damage > rsrinfo.armor then
+				damage = $ - rsrinfo.armor
+				rsrinfo.armor = 0
+				S_StartSound(player.mo, sfx_rsrcrk)
+			else
+				rsrinfo.armor = $ - damage
+				damage = 0
+			end
+		else
+			local saved = damage/2
+
+			-- (DEPRECATED) Attraction Shield is less affected by armor loss than other shields (it still only saves the same amount of health though)
+			-- if (player.powers[pw_shield] & SH_ATTRACT) then
+			--	shieldSaved = saved * 3 / 4
+			-- else
+			--	shieldSaved = saved
+			-- end
+
+			saved = min($, rsrinfo.armor)
+
+			rsrinfo.armor = max($ - saved, 0) -- Make sure armor doesn't go below 0
+			if rsrinfo.armor < 1 then -- If the player runs out of armor, play the shieldbreak sound
+				hadArmor = true
+				S_StartSound(player.mo, sfx_rsrcrk)
+			else
+				hurtSound = sfx_rsraht
+				serverHurtSound = sfx_rsrsmp
+			end
+			damage = $ - saved
+		end
+
+		if Valid(inflictor) then
+			for i = 0, 3 do
+				local spark = P_SpawnMobjFromMobj(player.mo, 0, 0, FixedDiv(player.mo.height, player.mo.scale)/2, MT_SUPERSPARK)
+				if Valid(spark) then
+					spark.dontdrawforviewmobj = player.mo
+					spark.scale = FixedMul($, 2*FRACUNIT/3)
+					-- Randomize the spark's momentum
+					spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
+					spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
+					spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
+					if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
+					if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
+					if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+
+					-- Make the spark shrink to scale 0 in roughly 1/3rd of a second
+					spark.scalespeed = spark.scale/12
+					spark.destscale = 0
+					spark.tics = 12
+				end
+			end
+		end
+	end
+
+	return damage, hadArmor, hurtSound, serverHurtSound
+end
+
+--- Handles player damage when the player has a shield.
+---@param player player_t
+---@param inflictor mobj_t|nil
+---@param infInfo rsrmobjinfo_t|nil
+---@param knockbackScale fixed_t
+---@param hurtSound integer
+---@param serverHurtSound integer
+RSR.PlayerShieldDamage = function(player, inflictor, infInfo, knockbackScale, hurtSound, serverHurtSound)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo and (player.powers[pw_shield] & SH_NOSTACK)) then return knockbackScale, hurtSound, serverHurtSound end
+	local rsrinfo = player.rsrinfo
+	local shield = (player.powers[pw_shield] & SH_NOSTACK)
+
+	-- Reflect projectiles if the player has a Force Shield (also causes homing rings to rebel against their master)
+	if (player.powers[pw_shield] & SH_FORCE) and Valid(inflictor) and (inflictor.flags & MF_MISSILE)
+	and not ((infInfo and (infInfo.dontreflect or infInfo.explosive)) or (inflictor.flags & (MF_ENEMY|MF_GRENADEBOUNCE))) then
+		RSR.SpawnReflectedMissile(player.mo, inflictor)
+	end
+
+	-- Reduce knockback if the player has a Whirlwind Shield
+	if shield == SH_WHIRLWIND and Valid(inflictor) and (inflictor.flags & MF_MISSILE) and not (infInfo and infInfo.explosive) then
+		knockbackScale = $/2
+	end
+
+	if (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_PASSIVE) then -- Disable this if ShieldEffects disables passives
+		-- Remove shields and auto-det Armageddon when shields or health fall below 1
+		if rsrinfo.armor < 1 or rsrinfo.health < 1 then
+			if shield then -- Only play the sound if the player had a shield
+				hurtSound = sfx_shldls
+				serverHurtSound = sfx_shldls
+			end
+			if (player.powers[pw_shield] & SH_FORCEHP) then
+				player.powers[pw_shield] = $ & ~SH_FORCEHP
+			end
+			if shield == SH_ARMAGEDDON then
+				P_BlackOw(player)
+			end
+			P_RemoveShield(player)
+		end
+	end
+
+	return knockbackScale, hurtSound, serverHurtSound
+end
+
+--- Handles rewards for player damage if the source is another player.
+---@param player player_t
+---@param source mobj_t
+---@param damage integer
+---@param damagetype integer
+RSR.PlayerDamageRewards = function(player, source, damage, damagetype)
+	if not (Valid(player) and player.rsrinfo and Valid(source) and Valid(source.player)) then return end
+	if player == source.player then return end -- Don't let the player give themselves rewards (just in case DMG_CANHURTSELF is used)
+
+	-- Use this for giving hype on hit and armor to players who manually detonated their Armageddon Shield
+	local damageReal = min(damage, player.rsrinfo.health)
+
+	if Valid(source) and Valid(source.player) and source.player.rsrinfo then
+		RSR.PlayerAddAttacker(player, source.player, damage)
+		-- Give the source player an armor boost if the damage was from a manually detonated Armageddon Blast
+		if damagetype == DMG_NUKE and (source.player.pflags & PF_SHIELDABILITY) and source.player.rsrinfo.armor > 0 then
+			-- Dampen this bonus if armor is below 1/4 to encourage earlier Armageddon detonations
+			if source.player.rsrinfo.armor < 26 then
+				RSR.GiveArmor(source.player, damageReal/2)
+			else
+				RSR.GiveArmor(source.player, damageReal)
+			end
+			RSR.BonusFade(source.player)
+			S_StartSound(nil, sfx_shield, source.player)
+		end
+		-- Give the source player hype if they have all the emeralds
+		RSR.GiveHype(source.player, damageReal) -- Emerald check is handled in the function itself
+	end
+end
+
+--- MobjDamage hook code for player Objects.
+---@param target mobj_t
+---@param inflictor mobj_t
+---@param source mobj_t
+---@param damage integer
+---@param damagetype integer
+RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
+	if not RSR.GamemodeActive() then return end
+	if not Valid(target) then return end
+	if target.health <= 0 then return end
+	local player = target.player
+	if not (Valid(player) and player.rsrinfo) then return end -- Don't run this code if the target is not a player in RSR
+
+	local hookEvent, hookName = RSR.findEvent("PlayerDamage")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
+			if result then return end
+		end
+	end
+
+	-- Don't run this code if DMG_DEATHMASK is in effect
+	if ((damagetype or 0) & DMG_DEATHMASK) then return end
+
+	local knockbackScale = FRACUNIT
+
+	local hurtByEnemy = false
+	local hurtByMelee = false
+	local infInfo = nil
+
+	if Valid(inflictor) then
+		local damageInfo = RSR.GetInflictorDamage(target, inflictor, source, damage, damagetype)
+		if damageInfo then
+			damage = damageInfo.damage
+			infInfo = damageInfo.infInfo
+			hurtByEnemy = damageInfo.hurtByEnemy
+			hurtByMelee = damageInfo.hurtByMelee
+			knockbackScale = damageInfo.knockbackScale
+		end
+	end
+
+	-- Set hurt timers for certain conditions
+	if hurtByEnemy then player.rsrinfo.hurtByEnemy = TICRATE end
+	if hurtByMelee then player.rsrinfo.hurtByMelee = TICRATE end
+
+	local rsrinfo = player.rsrinfo
+	local hadArmor = false
+	local hurtSound = sfx_rsrhrt
+	local serverHurtSound = sfx_rsrpmp
+
+	-- Multiply damage taken by 1.5x if the player has a flag or is a runner in Tag gametypes
+	-- TODO: Make a sound indicator for this??
+	if ((gametyperules & GTR_TEAMFLAGS) and player.gotflag)
+	or (G_TagGametype() and not (player.pflags & PF_TAGIT)) then
+		damage = FixedMul($, 3*FRACUNIT/2)
+	end
+
+	RSR.PlayerHomingDamage(player, damage)
+	RSR.SpawnDamageSplatter(target, damage)
+	damage, hadArmor, hurtSound, serverHurtSound = RSR.PlayerArmorDamage(player, inflictor, damage)
+
+	RSR.PlayerDamageRewards(player, source, damage, damagetype)
+	rsrinfo.health = max($ - damage, 0) -- Make sure health doesn't go below 0
+
+	-- Tiered damage fades based on severity of damage taken
+	if damage < 16 then -- Hit by "standard" ring/melee attack
+		RSR.SetScreenFade(player, 35, FRACUNIT/2, TICRATE/3)
+	elseif damage < 49 then -- Hit by "empowered" ring/melee attack
+		RSR.SetScreenFade(player, 35, FRACUNIT/2, TICRATE/2)
+	elseif damage < 100 then -- Exploded
+		RSR.SetScreenFade(player, 35, FRACUNIT, TICRATE/2)
+	else -- Something has gone terribly, terribly wrong
+		RSR.SetScreenFade(player, 35, FRACUNIT, TICRATE)
+	end
+
+	RSR.PlayerShieldDamage(player, inflictor, infInfo, knockbackScale, hurtSound, serverHurtSound)
+
+	-- TODO: Insert code for rumble support here when it gets exposed to Lua
+
+	RSR.PlayerDamageKnockback(target, inflictor, source, damage, damagetype, knockbackScale)
+	RSR.SetPlayerDeathFling(target, inflictor, source, damage, damagetype)
 
 	if rsrinfo.health <= 0 or RSR.CV_InstaGib.value then
 		player.powers[pw_shield] = SH_NONE
@@ -699,23 +795,26 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
 	damagetype = $ or 0 -- TODO: See if this is even necessary
-
-	if RSR.SKIN_INFO[target.skin] and RSR.SKIN_INFO[target.skin].nodamage then return end
-
 	local player = target.player
 	if not (Valid(player) and player.rsrinfo) then return end
+
+	local hookEvent, hookName = RSR.findEvent("PlayerShouldDamage")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
+			if result ~= nil then return end
+		end
+	end
+
 	local rsrinfo = player.rsrinfo
 
 	if (player.pflags & PF_GODMODE) or player.exiting then return end
 
 	if (damagetype & DMG_DEATHMASK) then
-		-- No crazy shenanigans if the player drowned, fell down a pit, etc.
-		if not (Valid(inflictor) or Valid(source))
-		and not (damagetype == DMG_INSTAKILL and (rsrinfo.deathFlags & RSR.DEATH_REMOVEDEATHMASK)) then
-			target.rsrPrevMomX = 0
-			target.rsrPrevMomY = 0
-			target.rsrPrevMomZ = 0
-		end
+		RSR.SetPlayerDeathFling(target, inflictor, source, damage, damagetype)
 		return
 	end
 
@@ -817,8 +916,81 @@ end
 ---@param team integer
 RSR.TeamSwitch = function(player, team)
 	if not (Valid(player) and player.rsrinfo) then return end
-
 	if team == 0 then player.rsrinfo.deathFlags = $|RSR.DEATH_MAKESPECTATOR end
+end
+
+--- Drop the player's items when they die.
+---@param player player_t
+RSR.PlayerDropItems = function(player)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
+	local rsrinfo = player.rsrinfo
+
+	-- Let players keep their weapons and some of their ammo when dying in co-op
+	if G_CoopGametype() and rsrinfo.starpostData then
+		local starpostData = rsrinfo.starpostData
+		starpostData.weapons = RSR.DeepCopy(rsrinfo.weapons)
+		starpostData.ammo = RSR.DeepCopy(rsrinfo.ammo)
+		starpostData.readyWeapon = rsrinfo.readyWeapon
+
+		for ammoType, ammoAmount in ipairs(rsrinfo.ammo) do
+			local newAmount = RSR.AMMO_INFO[ammoType].amount
+			if starpostData.ammo[ammoType] <= newAmount then continue end
+			starpostData.ammo[ammoType] = newAmount
+		end
+	end
+
+	-- Do this here so players blowing themselves up can still spill emeralds
+	if (gametyperules & GTR_POWERSTONES) then
+		-- lastemeralds is a hack that gets around P_KillPlayer resetting pw_emeralds to 0
+		player.powers[pw_emeralds] = rsrinfo.lastemeralds or 0
+		P_PlayerEmeraldBurst(player, false)
+		player.powers[pw_emeralds] = 0
+	end
+
+	-- Go through each weapon in the player's inventory and drop them
+	for weapon, inInventory in ipairs(rsrinfo.weapons) do
+		if not inInventory then continue end
+		---@type rsrweaponinfo_t
+		local weaponInfo = RSR.WEAPON_INFO[weapon]
+		if not (weaponInfo and weaponInfo.pickup) then continue end
+		local ammoAmount = rsrinfo.ammo[weaponInfo.ammotype]
+		if ammoAmount < 1 then continue end -- If the player has no ammo for this weapon, move on to the next weapon
+
+		local angle = FixedAngle(weapon * (360*FRACUNIT / #rsrinfo.weapons))
+
+		local pickup = P_SpawnMobjFromMobj(player.mo, 0, 0, FRACUNIT, weaponInfo.pickup)
+		if Valid(pickup) then
+			pickup.rsrAmmoAmount = ammoAmount
+			if pickup.info.seestate then pickup.state = pickup.info.seestate end
+			pickup.flags = $ & ~(MF_NOGRAVITY|MF_NOCLIPHEIGHT) -- Make the dropped weapon affected by gravity
+			pickup.flags2 = $|MF2_DONTRESPAWN -- Don't respawn
+			pickup.fuse = 12*TICRATE -- Don't linger forever
+			P_SetObjectMomZ(pickup, 3*FRACUNIT)
+			P_InstaThrust(pickup, angle, 3*pickup.scale)
+		end
+	end
+end
+
+RSR.PlayerReplenishPowerups = function(player)
+	if not Valid(player) then return end
+
+	if player.powers[pw_super] then -- Player is super
+		RSR.GiveHype(player, 400) -- Give bonus hype for killing an enemy player
+		RSR.BonusFade(player) -- Give the player an indicator that they just got hype
+	end
+
+	-- TODO: Give the time boost for only one of these powerups???
+	-- Give the player a time boost if they have invincibility
+	if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) then
+		RSR.GivePowerup(player, RSR.POWERUP_INVINCIBILITY, 10*TICRATE)
+		RSR.BonusFade(player) -- Give the player an indicator that they got more invincibility time
+	end
+
+	-- Give the player a time boost if they have infinity
+	if RSR.HasPowerup(player, RSR.POWERUP_INFINITY) then
+		RSR.GivePowerup(player, RSR.POWERUP_INFINITY, 10*TICRATE)
+		RSR.BonusFade(player) -- Give the player an indicator that they just got more infinity time
+	end
 end
 
 --- MobjDeath hook code for players.
@@ -829,6 +1001,17 @@ end
 RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
+
+	local hookEvent, hookName = RSR.findEvent("PlayerDeath")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damagetype)
+			if result then return end
+		end
+	end
 
 	local player = target.player
 	if not (Valid(player) and player.rsrinfo) then return end
@@ -866,24 +1049,8 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			rsrinfo.forceInflictorType = nil
 			rsrinfo.forceInflictorReflected = nil
 
-			if Valid(sourcePlayer) then -- Only run this if a player is the source of this kill
-				if sourcePlayer.powers[pw_super] then -- Player is super
-					RSR.GiveHype(sourcePlayer, 400) -- Give bonus hype for killing an enemy player
-					-- Give the player an indicator that they just got hype
-					RSR.BonusFade(sourcePlayer)
-				end
-
-				-- TODO: Give the time boost for only one of these powerups???
-				-- Give the source player a time boost if they have invincibility
-				if RSR.HasPowerup(sourcePlayer, RSR.POWERUP_INVINCIBILITY) then
-					RSR.GivePowerup(sourcePlayer, RSR.POWERUP_INVINCIBILITY, 10*TICRATE)
-				end
-
-				-- Give the source player a time boost if they have infinity
-				if RSR.HasPowerup(sourcePlayer, RSR.POWERUP_INFINITY) then
-					RSR.GivePowerup(sourcePlayer, RSR.POWERUP_INFINITY, 10*TICRATE)
-				end
-			end
+			-- Only run this if a player is the source of this kill
+			RSR.PlayerReplenishPowerups(sourcePlayer)
 
 			-- Melee attacks always have the player object be the inflictor
 			if Valid(inflictor) and Valid(inflictor.player) and inflictor.player.rsrinfo then
@@ -949,55 +1116,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			rsrinfo.attackerInfo = {} -- Clear attackerInfo since we've already died
 		end
 
-		-- Let players keep their weapons and some of their ammo when dying in co-op
-		if G_CoopGametype() and rsrinfo.starpostData then
-			local starpostData = rsrinfo.starpostData
-			starpostData.weapons = RSR.DeepCopy(rsrinfo.weapons)
-			starpostData.ammo = RSR.DeepCopy(rsrinfo.ammo)
-			starpostData.readyWeapon = rsrinfo.readyWeapon
-
-			for ammoType, ammoAmount in ipairs(rsrinfo.ammo) do
-				local newAmount = RSR.AMMO_INFO[ammoType].amount
-				if starpostData.ammo[ammoType] <= newAmount then continue end
-				starpostData.ammo[ammoType] = newAmount
-			end
-		end
-
-		-- Do this here so players blowing themselves up can still spill emeralds
-		if (gametyperules & GTR_POWERSTONES) then
-			-- lastemeralds is a hack that gets around P_KillPlayer resetting pw_emeralds to 0
-			player.powers[pw_emeralds] = rsrinfo.lastemeralds or 0
-			P_PlayerEmeraldBurst(player, false)
-			player.powers[pw_emeralds] = 0
-		end
-
-		for weapon, inInventory in ipairs(rsrinfo.weapons) do
-			if not inInventory then continue end
-			---@type rsrweaponinfo_t
-			local weaponInfo = RSR.WEAPON_INFO[weapon]
-			if not (weaponInfo and weaponInfo.pickup) then continue end
-			-- local ammoInfo = RSR.AMMO_INFO[weaponInfo.ammotype]
-			local ammoAmount = rsrinfo.ammo[weaponInfo.ammotype]
-			if ammoAmount < 1 then continue end
-			-- if (G_CoopGametype() or G_RingSlingerGametype()) and ammoAmount <= ammoInfo.amount then continue end
-
-			local angle = FixedAngle(weapon * (360*FRACUNIT / #rsrinfo.weapons))
-
-			local pickup = P_SpawnMobjFromMobj(target, 0, 0, FRACUNIT, weaponInfo.pickup)
-			if Valid(pickup) then
-				-- if G_CoopGametype() or G_RingSlingerGametype() and ammoAmount >= ammoInfo.amount then
-				-- 	pickup.rsrAmmoAmount = ammoAmount - ammoInfo.amount
-				-- else
-					pickup.rsrAmmoAmount = ammoAmount
-				-- end
-				if pickup.info.seestate then pickup.state = pickup.info.seestate end
-				pickup.flags = $ & ~(MF_NOGRAVITY|MF_NOCLIPHEIGHT)
-				pickup.flags2 = $|MF2_DONTRESPAWN
-				pickup.fuse = 12*TICRATE -- Don't linger forever
-				P_SetObjectMomZ(pickup, 3*FRACUNIT)
-				P_InstaThrust(pickup, angle, 3*pickup.scale)
-			end
-		end
+		RSR.PlayerDropItems(player)
 	end
 
 	-- Make the player explode if rsr_lastlaugh is active
@@ -1005,6 +1124,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 		P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(P_GetPlayerHeight(player), target.scale)/2, MT_RSR_PROJECTILE_SUPERBOMB_MISSILEFORM)
 	end
 
+	-- Clear the player's "starpost data" if the map's level header forces players to lose their inventory on death
 	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrloseinvondeath then rsrinfo.starpostData = {} end
 end
 

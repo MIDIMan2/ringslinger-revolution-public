@@ -327,36 +327,19 @@ addHook("MobjThinker", RSR.WeaponPickupThinker, MT_RSR_PICKUP_BOUNCE)
 
 local pspractions = PSprites.ACTIONS
 
---- Constantly checks if the player is holding the fire or altfire button, then fires the Bounce ring.
 ---@param player player_t
-pspractions.A_BounceReady = function(player, args)
-	if not RSR.IsPSpritesValid(player) then return end
-
+---@param weaponInfo rsrweaponinfo_t
+---@param args table
+RSR.addHook("WeaponReady", function(player, weaponInfo, args)
+	if not (Valid(player) and player.rsrinfo and weaponInfo) then return end
 	local rsrinfo = player.rsrinfo
 
-	if not RSR.CanUseWeapons(player) then
-		if rsrinfo.weaponDelayOrig then rsrinfo.weaponDelayOrig = 0 end
-		if rsrinfo.weaponDelay then rsrinfo.weaponDelay = 0 end
-
-		if rsrinfo.readyWeapon ~= RSR.WEAPON_NONE then
-			local origWeapon = rsrinfo.readyWeapon
-			rsrinfo.readyWeapon = RSR.WEAPON_NONE
-			RSR.DrawWeapon(player, RSR.WEAPON_NONE, true)
-			if origWeapon > RSR.WEAPON_NONE then
-				rsrinfo.pendingWeapon = origWeapon
-			end
-		end
-		return
-	end
-	if RSR.CheckPendingWeapon(player) then return end
-
-	local weaponInfo = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon]
 	if (player.cmd.buttons & RSR.GetAttackButton(true)) and not (rsrinfo.lastbuttons & RSR.GetAttackButton(true)) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
 		if Valid(rsrinfo.bounceMega) and (rsrinfo.bounceMega.flags & MF_MISSILE) then
 			P_ExplodeMissile(rsrinfo.bounceMega)
-			return
+			return true
 		end
-		if RSR.FireWeaponAlt(player) then return end
+		if RSR.FireWeaponAlt(player) then return true end
 		-- Make sure the player has an a altfire attack state and ammo at all before making the sound
 		if not (rsrinfo.lastbuttons & RSR.GetAttackButton(true)) and RSR.CheckAmmo(player) and weaponInfo.states.attackalt then
 			S_StartSound(nil, sfx_noammo, player)
@@ -365,9 +348,11 @@ pspractions.A_BounceReady = function(player, args)
 
 	if (player.cmd.buttons & RSR.GetAttackButton()) and RSR.CanUseAttack(player, weaponInfo.emerald) then
 		RSR.FireWeapon(player)
-		return
+		return true
 	end
-end
+
+	return true
+end, RSR.WEAPON_BOUNCE)
 
 --- Fires a Bounce ring from the player.
 ---@param player player_t
@@ -440,7 +425,7 @@ psprstates["S_BOUNCE_DRAW"] =	{"RSRBNCE",	"A",	1,	"A_RSRWeaponDraw",		{},	"S_BOU
 -- Holster
 psprstates["S_BOUNCE_HOLSTER"] =	{"RSRBNCE",	"A",	1,	"A_RSRWeaponHolster",	{},	"S_BOUNCE_HOLSTER"}
 -- Ready
-psprstates["S_BOUNCE_READY"] =	{"RSRBNCE",	"A",	1,	"A_BounceReady",	{},	"S_BOUNCE_READY"}
+psprstates["S_BOUNCE_READY"] =	{"RSRBNCE",	"A",	1,	"A_RSRWeaponReady",	{},	"S_BOUNCE_READY"}
 -- Attack
 psprstates["S_BOUNCE_ATTACK"] =	{"RSRBNCE",	"A",	0,	"A_BounceAttack",	{},	"S_BOUNCE_RECOVER"}
 -- Attack Alt

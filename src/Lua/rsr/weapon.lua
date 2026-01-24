@@ -363,7 +363,7 @@ RSR.ProjectileTravelSound = function(mo, repeatTime, sound)
 	end
 end
 
---- Default function for SKIN_INFO's touchWeapon hook.
+--- Default function for the "TouchWeapon" hook.
 ---@param special mobj_t The weapon pickup being touched.
 ---@param toucher mobj_t The player object touching the weapon.
 ---@param weaponType integer The weapon to give the player (RSR.WEAPON_* constants).
@@ -418,15 +418,18 @@ RSR.WeaponTouchSpecial = function(special, toucher, weaponType)
 	local player = toucher.player
 	if not (Valid(player) and player.rsrinfo) then return end
 
-	local skinInfo = RSR.SKIN_INFO[skins[player.skin].name]
-	if skinInfo and skinInfo.hooks and skinInfo.hooks.touchWeapon then
-		local returnValue = skinInfo.hooks.touchWeapon(special, toucher, weaponType)
-		if returnValue ~= nil then
-			return returnValue
+	local hookEvent, hookName = RSR.findEvent("TouchWeapon")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, special, toucher, weaponType)
+			if result ~= nil then return result end
 		end
 	end
 
-	return RSR.SKIN_INFO["DEFAULT"].hooks.touchWeapon(special, toucher, weaponType)
+	return RSR.TouchWeaponDefault(special, toucher, weaponType)
 end
 
 --- MapThingSpawn hook code for weapon pickups

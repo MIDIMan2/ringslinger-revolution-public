@@ -18,6 +18,7 @@ RSR.AutoPause = function()
 end
 
 --- Draws the Race countdown to the HUD.
+---@param v videolib
 ---@param time tic_t
 RSR.HUDRaceNum = function(v, time)
 	if not v then return end
@@ -47,7 +48,9 @@ RSR.HUDRaceNum = function(v, time)
 end
 
 -- This function borrows a LOT from ST_drawTime in st_stuff.c in SRB2's source code
+
 --- Draws the player's current time to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDTime = function(v, player)
 	if not RSR.GamemodeActive() then return end

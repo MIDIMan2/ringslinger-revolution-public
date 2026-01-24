@@ -200,6 +200,26 @@ pspractions.A_RSRWeaponReady = function(player, args)
 	end
 
 	local weaponInfo = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon]
+
+	local hookEvent, hookName = RSR.findEvent("WeaponReady")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if not v.typedef then
+					if not v.errored then
+						print("\x85".."ERROR:\x80 \"WeaponReady\" hook requires a weapon type for its third parameter!")
+						S_StartSound(nil, sfx_lose)
+						v.errored = true
+					end
+					continue
+				end
+				if hookEvent.typefor(player.rsrinfo.readyWeapon, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, player, weaponInfo, args)
+			if result then return end
+		end
+	end
+
 	if (player.cmd.buttons & RSR.GetAttackButton(true)) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
 		if weaponInfo.altzoom and RSR.CheckAmmo(player) then
 			rsrinfo.useZoom = true

@@ -20,6 +20,7 @@ dofolder("flagradar.lua")
 dofolder("killfeed.lua")
 
 --- Draws the player's health to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDHealth = function(v, player)
 	if not (v and Valid(player) and player.rsrinfo) then return end
@@ -29,6 +30,7 @@ RSR.HUDHealth = function(v, player)
 end
 
 --- Draws the player's armor to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDArmor = function(v, player)
 	if not (v and Valid(player) and player.rsrinfo) then return end
@@ -61,8 +63,9 @@ RSR.HUD_SCOPE_ARROWS = {
 }
 
 --- Draws the player's scope to the HUD.
+---@param v videolib
 ---@param player player_t
-RSR.HUDScope = function(v, player, cam)
+RSR.HUDScope = function(v, player, thiscam)
 	if not (v and Valid(player) and player.rsrinfo) then return end
 
 	if player.rsrinfo.fovZoom then
@@ -71,8 +74,8 @@ RSR.HUDScope = function(v, player, cam)
 		local arrowDown = RSR.HUD_SCOPE_ARROWS[arrowFrame + 5]
 		local arrowX, arrowY = 160, 100
 		-- TODO: Make the third-person scope more accurate
-		-- if cam and cam.chase then
-		-- 	local result = R_World2Screen3FPS(v, player, cam, {
+		-- if thiscam and thiscam.chase then
+		-- 	local result = R_World2Screen3FPS(v, player, thiscam, {
 		-- 		x = player.realmo.x + 1024*FixedMul(cos(player.realmo.angle), cos(player.cmd.aiming<<16)),
 		-- 		y = player.realmo.y + 1024*FixedMul(sin(player.realmo.angle), cos(player.cmd.aiming<<16)),
 		-- 		z = player.viewz + 1024*sin(player.cmd.aiming<<16)
@@ -143,7 +146,15 @@ end
 
 for _, hudItemInfo in ipairs(RSR.HUD_ITEMS) do
 	if not hudItemInfo then continue end
-	customhud.SetupItem(hudItemInfo[1], "rsr", hudItemInfo[2], "game", hudItemInfo[3])
+	-- Instead of putting the player skin check in the HUD functions themselves,
+	-- we make a new function to call them after the skin check instead.
+	-- This lets modders use the HUD drawing functions outside of customhud,
+	-- even if the player's skin has "nohud" enabled.
+	customhud.SetupItem(hudItemInfo[1], "rsr", function(v, player, thiscam)
+		-- Don't call the HUD function if the player's skin has "nohud" enabled
+		if (Valid(player) and RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].nohud) then return end
+		if hudItemInfo[2] then hudItemInfo[2](v, player, thiscam) end
+	end, "game", hudItemInfo[3])
 	RSR.LAST_HUDTYPE[hudItemInfo[1]] = customhud.CheckType(hudItemInfo[1])
 end
 

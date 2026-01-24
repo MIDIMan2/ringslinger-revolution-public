@@ -122,10 +122,8 @@ end
 ---@param damagetype integer
 RSR.EnemyShouldDamage = function(target, inflictor, source, damage, damagetype)
 	if not RSR.GamemodeActive() then return end -- Only run this code in Ringslinger Revolution maps
-	if not (Valid(target) and (target.flags & (MF_ENEMY|MF_BOSS))) then return end
-
-	-- Don't override the player's ShouldDamage hook
-	if Valid(target.player) then return end
+	if not (Valid(target) and (target.flags & (MF_ENEMY|MF_BOSS))) then return end -- Only run this hook for enemies and bosses
+	if Valid(target.player) then return end -- Don't override the player's ShouldDamage hook
 
 	local rsrDamage = false
 	local inflictorIsPlayer = false

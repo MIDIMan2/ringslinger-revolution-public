@@ -7,6 +7,7 @@ RSR.DISPLAY_HYPE_TIMER = 0
 RSR.DISPLAY_HYPE_TIMER2 = 0
 
 --- Draws the player's emeralds to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDHypeMeter = function(v, player)
 	if not RSR.GamemodeActive() then return end

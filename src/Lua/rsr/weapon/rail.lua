@@ -166,6 +166,33 @@ end, MT_RSR_PICKUP_RAIL)
 -- ACTIONS & STATES
 -- --------------------------------
 
+RSR.addHook("WeaponReady", function(player, weaponInfo, args)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
+
+	local rsrinfo = player.rsrinfo
+
+	if (player.cmd.buttons & BT_FIRENORMAL) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
+		if weaponInfo.altzoom and RSR.CheckAmmo(player) then
+			rsrinfo.useZoom = true
+		else
+			if RSR.FireWeaponAlt(player) then return true end
+			-- Make sure the player has an a altfire attack state and ammo at all before making the sound
+			if not (rsrinfo.lastbuttons & BT_FIRENORMAL) and RSR.CheckAmmo(player) and weaponInfo.states.attackalt then
+				S_StartSound(nil, sfx_noammo, player)
+			end
+		end
+	elseif weaponInfo.altzoom and rsrinfo.useZoom then
+		rsrinfo.useZoom = false
+	end
+
+	if (player.cmd.buttons & BT_ATTACK) and not (rsrinfo.lastbuttons & BT_ATTACK) then
+		RSR.FireWeapon(player)
+		return true
+	end
+
+	return true
+end, RSR.WEAPON_RAIL)
+
 --- Version of RSR.SpawnPlayerMissile that spawns a rail ring from the Object.
 ---@param mo mobj_t
 ---@param angle angle_t|nil
@@ -299,7 +326,7 @@ psprstates["S_RAIL_DRAW"] =	{"RSRRAIL",	"A",	1,	"A_RSRWeaponDraw",		{},	"S_RAIL_
 -- Holster
 psprstates["S_RAIL_HOLSTER"] =	{"RSRRAIL",	"A",	1,	"A_RSRWeaponHolster",	{},	"S_RAIL_HOLSTER"}
 -- Ready
-psprstates["S_RAIL_READY"] =	{"RSRRAIL",	"A",	1,	"A_RSRWeaponReady",	{},	"S_RAIL_READY"} -- TODO: Check lastbuttons so the player doesn't accidently fire a rail ring when switching weapons
+psprstates["S_RAIL_READY"] =	{"RSRRAIL",	"A",	1,	"A_RSRWeaponReady",	{},	"S_RAIL_READY"}
 -- Attack
 psprstates["S_RAIL_ATTACK"] =	{"RSRRAIL",	"A",	0,	"A_RailAttack",		{},	"S_RAIL_RECOVER"}
 -- Recover
