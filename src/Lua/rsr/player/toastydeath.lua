@@ -19,8 +19,9 @@ end
 RSR.PlayerToastyTick = function(player)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo and (player.rsrinfo.deathFlags & RSR.DEATH_GOTBURNT)) then return end
 
-	player.mo.colorized = true
-	player.mo.color = SKINCOLOR_CARBON
+	-- player.mo.colorized = true
+	-- player.mo.color = SKINCOLOR_CARBON
+	player.mo.translation = "RSRBurnt"
 	if (player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) and player.mo.fuse > 3*TICRATE/4 then player.mo.fuse = 3*TICRATE/4 end
 	-- Only run this if we haven't exploded from rsr_explode yet.
 	if not (leveltime % 2) and player.mo.fuse and (player.mo.z > player.mo.floorz and player.mo.z + player.mo.height < player.mo.ceilingz) and not (player.mo.eflags & MFE_UNDERWATER) then

@@ -249,6 +249,8 @@ PSprites.PlayerPSpritesReset = function(player)
 end
 
 --- Runs thinker code for the player's psprite with the given ID.
+---@param player player_t
+---@param id integer
 PSprites.PSpriteTick = function(player, id)
 	if not (Valid(player) and player.psprites) then return end
 
@@ -293,6 +295,7 @@ PSprites.TickPSpritesBegin = function(player)
 end
 
 --- Runs thinker code for all the player's psprites.
+---@param player player_t
 PSprites.TickPSprites = function(player)
 	if not (Valid(player) and player.psprites) then return end
 

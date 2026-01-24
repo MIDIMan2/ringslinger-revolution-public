@@ -13,7 +13,7 @@
 
 --]]
 
-local VERSIONNUM = {4, 5};
+local VERSIONNUM = {4, 6};
 local updating = nil;
 
 --#region library
@@ -28,43 +28,43 @@ end
 
 -- Should match hud_disable_options in lua_hudlib.c
 local defaultitems = {
-	{"stagetitle", "titlecard"},
-	{"textspectator", "game"},
-	{"crosshair", "game"},
-	{"powerups", "game"},
+	{"stagetitle", "titlecard", 1},
+	{"textspectator", "game", 1},
+	{"crosshair", "game", 1},
+	{"powerups", "game", 1},
 
-	{"score", "game"},
-	{"time", "game"},
-	{"rings", "game"},
-	{"lives", "game"},
-	{"input", "game"},
+	{"score", "game", 1},
+	{"time", "game", 1},
+	{"rings", "game", 1},
+	{"lives", "game", 1},
+	{"input", "game", 1},
 
-	-- {"gameover", "game"}, -- TODO: Uncomment these when 2.2.16 comes out
-	-- {"pause", "game"},
-	-- {"cecho", "game"},
-	-- {"chat", "game"},
-	-- {"itemhunt", "game"},
+	{"gameover", "game", 16},
+	{"pause", "game", 16},
+	{"cecho", "game", 16},
+	{"chat", "game", 16},
+	{"itemhunt", "game", 16},
 
-	{"weaponrings", "game"},
-	{"powerstones", "game"},
-	{"teamscores", "gameandscores"},
+	{"weaponrings", "game", 1},
+	{"powerstones", "game", 1},
+	{"teamscores", "gameandscores", 1},
 
-	{"nightslink", "game"},
-	{"nightsdrill", "game"},
-	{"nightsrings", "game"},
-	{"nightsscore", "game"},
-	{"nightstime", "game"},
-	{"nightsrecords", "game"},
+	{"nightslink", "game", 1},
+	{"nightsdrill", "game", 1},
+	{"nightsrings", "game", 1},
+	{"nightsscore", "game", 1},
+	{"nightstime", "game", 1},
+	{"nightsrecords", "game", 1},
 
-	{"rankings", "scores"},
-	{"coopemeralds", "scores"},
-	{"tokens", "scores"},
-	{"tabemblems", "scores"},
+	{"rankings", "scores", 1},
+	{"coopemeralds", "scores", 1},
+	{"tokens", "scores", 1},
+	{"tabemblems", "scores", 1},
 
-	{"intermissiontally", "intermission"},
-	{"intermissiontitletext", "intermission"},
-	{"intermissionmessages", "intermission"},
-	{"intermissionemeralds", "intermission"},
+	{"intermissiontally", "intermission", 1},
+	{"intermissiontitletext", "intermission", 1},
+	{"intermissionmessages", "intermission", 1},
+	{"intermissionemeralds", "intermission", 1},
 };
 
 --#region Version Detection
@@ -186,10 +186,13 @@ customhud.vanillaHooks = {
 	"title",
 	"titlecard",
 	"intermission",
-	-- "escpanel", -- TODO: Uncomment this when 2.2.16 comes out
 	"continue",
 	"playersetup"
 };
+
+if SUBVERSION > 15 then
+	table.insert(customhud.vanillaHooks, "escpanel")
+end
 
 for _, v in ipairs(customhud.vanillaHooks) do
 	table.insert(customhud.hookTypes, v)
@@ -303,6 +306,8 @@ function customhud.UpdateHudItemStatus(item)
 end
 
 for _,v in pairs(defaultitems) do
+	if v[3] > SUBVERSION then continue end
+
 	local itemName = v[1];
 	local hookType = v[2];
 
@@ -1057,7 +1062,7 @@ hudadd(function(v, player, camera)
 	RunCustomHooks("gamemenu", v, player);
 	RunCustomHooks("menu", v, player);
 
-	RunCustomHooks("system", v, player);
+	RunCustomHooks("system", v);
 end, "game");
 
 hudadd(function(v)
@@ -1113,15 +1118,16 @@ hudadd(function(v, player, x, y, scale, skin, sprite2, frame, rotation, color, t
 	RunCustomHooks("system", v);
 end, "playersetup");
 
--- TODO: Uncomment this when 2.2.16 comes out
--- hudadd(function(v, x, y, width, height)
--- 	customhud.CacheQueue(v)
+if SUBVERSION > 15 then
+	hudadd(function(v, x, y, width, height)
+		customhud.CacheQueue(v)
 
--- 	RunRawHooks("escpanel", v, x, y, width, height);
--- 	RunCustomHooks("escpanel", v, x, y, width, height);
+		RunRawHooks("escpanel", v, x, y, width, height);
+		RunCustomHooks("escpanel", v, x, y, width, height);
 
--- 	RunCustomHooks("system", v);
--- end, "escpanel");
+		RunCustomHooks("system", v);
+	end, "escpanel");
+end
 
 rawset(hud, "enable",  customhud.enable)
 rawset(hud, "enabled", customhud.enabled)

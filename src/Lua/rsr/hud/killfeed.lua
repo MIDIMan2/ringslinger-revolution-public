@@ -1,5 +1,6 @@
 -- Ringslinger Revolution - Killfeed HUD
 
+---@type rsrkillfeedentry_t[]
 RSR.KILLFEED_MESSAGES = {}
 RSR.KILLFEED_OFFSET = 0
 RSR.KILLFEED_HEIGHT = 18
@@ -139,10 +140,10 @@ end
 ---@param hasAttacker boolean|nil
 ---@param hurtSelf boolean|nil
 RSR.KillfeedGetMobjInfo = function(moType, hasAttacker, hurtSelf)
-	if not (moType and RSR.MOBJ_INFO[moType] and RSR.MOBJ_INFO[moType].killfeedObituary) then return "RSREGGM", "$v was killed." end
+	if not (moType and RSR.MOBJ_INFO[moType] and RSR.MOBJ_INFO[moType].killfeedObituary) then return end
 	if type(RSR.MOBJ_INFO[moType].killfeedObituary) ~= "table" then
 		print("\x82WARNING:\x80 killfeedObituary for Object type"..moType.." has not been converted to the new format!")
-		return RSR.MOBJ_INFO[moType].killfeedIcon or "RSREGGM", "$v was killed."
+		return RSR.MOBJ_INFO[moType].killfeedIcon, nil
 	end
 
 	local obituary = nil
@@ -154,7 +155,39 @@ RSR.KillfeedGetMobjInfo = function(moType, hasAttacker, hurtSelf)
 		obituary = RSR.MOBJ_INFO[moType].killfeedObituary.solo
 	end
 
-	return RSR.MOBJ_INFO[moType].killfeedIcon or "RSREGGM", obituary or "$v was killed."
+	return RSR.MOBJ_INFO[moType].killfeedIcon, obituary
+end
+
+--- Adds an entry to the killfeed and prints a death message to the console.
+---@param victimName string
+---@param attackerName string|nil
+---@param inflictorPatch string|nil Default is "RSREGGM".
+---@param infReflected boolean|nil
+---@param highlight boolean|nil
+---@param skincolor skincolor_t|nil
+---@param obituary string|nil Default is "$v died.".
+RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary)
+	if not victimName then return end -- We can't display a message if there is no victim!
+	inflictorPatch = $ or "RSREGGM" -- Always show Eggman for unknown causes of death
+	obituary = $ or "$v died." -- Default message
+
+	-- Alternative killfeed so players can see what they did in the logs
+	local newString = string.gsub(obituary, "(%$%w?)", {
+		["$a"] = attackerName or "The Shredded Cheese Man",
+		["$r"] = infReflected and "reflected " or "",
+		["$v"] = victimName,
+	})
+	print(newString)
+
+	table.insert(RSR.KILLFEED_MESSAGES, {
+		victim = victimName,
+		inflictor = inflictorPatch,
+		infReflected = infReflected,
+		attacker = attackerName,
+		highlight = highlight,
+		skincolor = skincolor,
+		tics = RSR.KILLFEED_TICS
+	})
 end
 
 --- Gets the necessary damagetype-related info for killfeed varaibles.
@@ -162,10 +195,10 @@ end
 ---@param hasInflictor boolean|nil
 ---@param hasAttacker boolean|nil
 RSR.KillfeedGetDmgInfo = function(damageType, hasInflictor, hasAttacker)
-	if not (damageType and RSR.KILLFEED_DMG_INFO[damageType & ~DMG_CANHURTSELF]) then return "RSREGGM", "$v died." end
+	if not (damageType and RSR.KILLFEED_DMG_INFO[damageType & ~DMG_CANHURTSELF]) then return end
 	local hurtSelf = (damageType & DMG_CANHURTSELF) and true or false
 	damageType = $ & ~DMG_CANHURTSELF
-	local obituary = "$v died."
+	local obituary = nil
 	local obituaryInfo = nil
 	if hasInflictor and RSR.KILLFEED_DMG_INFO[damageType].obituaryMobj then
 		obituaryInfo = RSR.KILLFEED_DMG_INFO[damageType].obituaryMobj
@@ -185,7 +218,7 @@ RSR.KillfeedGetDmgInfo = function(damageType, hasInflictor, hasAttacker)
 		end
 	end
 
-	return RSR.KILLFEED_DMG_INFO[damageType].icon or "RSREGGM", obituary or "$v died."
+	return RSR.KILLFEED_DMG_INFO[damageType].icon, obituary
 end
 
 --- Adds a message to the killfeed.
@@ -197,10 +230,21 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	if not Valid(victim) then return end
 	if #RSR.KILLFEED_MESSAGES >= 4 then table.remove(RSR.KILLFEED_MESSAGES, 1) end -- Remove the first message in the queue to make room for the new one
 
+	local hookEvent, hookName = RSR.findEvent("KillfeedMsg")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if v.typedef and hookEvent.typefor ~= nil then
+				if not Valid(inflictor) or hookEvent.typefor(inflictor, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, victim, inflictor, attacker, damagetype)
+			if result then return end
+		end
+	end
+
 	local victimName = string.format("%s%s%s", RSR_CHATCOLORCODE(victim), victim.name, RSR_CHATCOLORENDCODE(victim))
-	local inflictorPatch = "RSREGGM" -- Always show Eggman for unknown causes of death
+	local inflictorPatch = nil
 	-- local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen. Indicates error if seen! (keeping this line as a comment, because it's funny -MIDIMan)
-	local obituary = "$v died."
+	local obituary = nil
 	local meleeRandInt = 0
 	if P_RandomRange(1,100) == 42 then
 		meleeRandInt = 5
@@ -238,11 +282,12 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 			inflictorPatch = "RSRINVNI"
 			obituary = "$a's invincibility bested $v."
 		elseif inflictor.player.charability2 == CA2_MELEE then
-			inflictorPatch = "RSRHAMMR"
-			obituary = "$a's Piko Piko Hammer whacked $v."
 			if RSR.SKIN_INFO[skins[inflictor.player.skin].name] then
 				inflictorPatch = RSR.SKIN_INFO[skins[inflictor.player.skin].name].meleeicon
 				obituary = RSR.SKIN_INFO[skins[inflictor.player.skin].name].meleeobituary
+			else
+				inflictorPatch = RSR.SKIN_INFO["DEFAULT"].meleeicon
+				obituary = RSR.SKIN_INFO["DEFAULT"].meleeobituary
 			end
 		else
 			inflictorPatch = "RSRMELEE"
@@ -282,26 +327,11 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		end
 	end
 
-	-- Alternative killfeed so players can see what they did in the logs
-	local newString = string.gsub(obituary, "(%$%w?)", {
-		["$a"] = attackerName or "The Shredded Cheese Man", -- Error handler message! This shouldn't be seen!
-		["$r"] = infReflected and "reflected " or "",
-		["$v"] = victimName,
-	})
-	print(newString)
-
-	table.insert(RSR.KILLFEED_MESSAGES, {
-		victim = victimName,
-		inflictor = inflictorPatch,
-		infReflected = infReflected,
-		attacker = attackerName,
-		highlight = highlight,
-		skincolor = skincolor,
-		tics = RSR.KILLFEED_TICS
-	})
+	RSR.KillfeedPrint(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary)
 end
 
 --- Draws the killfeed to the HUD.
+---@param v videolib
 RSR.HUDKillfeed = function(v)
 	if not v then return end
 	if not RSR.GamemodeActive() then return end

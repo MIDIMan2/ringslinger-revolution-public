@@ -10,13 +10,14 @@ RSR.BLENDMODE_TO_VFLAG = {
 ]]
 
 --- Draws the player's psprites to the HUD.
+---@param v videolib
 ---@param player player_t
----@param camera camera_t
-RSR.HUDPSprites = function(v, player, camera)
+---@param thiscam camera_t
+RSR.HUDPSprites = function(v, player, thiscam)
 	if not RSR.GamemodeActive() then return end
 	if RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_NONE then return end
-	if not (v and Valid(player) and Valid(player.mo) and player.rsrinfo and camera) then return end
-	if not (not camera.chase and player.psprites) then return end
+	if not (v and Valid(player) and Valid(player.mo) and player.rsrinfo and thiscam) then return end
+	if not (not thiscam.chase and player.psprites) then return end
 
 	local scale = FixedDiv(v.height(), 200)
 	local xOffset = (v.width()*FRACUNIT - 320*scale)/2

@@ -1,6 +1,7 @@
 -- Ringslinger Revolution - Powerups HUD
 
 --- Draws the player's active powerups to the HUD.
+---@param v videolib
 ---@param player player_t
 RSR.HUDPowerups = function(v, player)
 	if not RSR.GamemodeActive() then return end

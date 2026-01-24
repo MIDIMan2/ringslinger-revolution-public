@@ -1,5 +1,7 @@
 -- Ringslinger Revolution - Waves HUD
 
+--- Draws an enemy counter in "Waves" stages to the HUD.
+---@param v videolib
 RSR.HUDWavesEnemyCount = function(v)
 	if not v then return end
 	if not RSR.WavesGamemodeActive() then return end
@@ -8,6 +10,10 @@ RSR.HUDWavesEnemyCount = function(v)
 	v.drawNum(64, 19, #RSR.WAVE_ENEMIES, V_SNAPTOLEFT|V_SNAPTOTOP|V_HUDTRANS|V_PERPLAYER)
 end
 
+--- Draws an enemy radar to the HUD.
+---@param v videolib
+---@param player player_t
+---@param thiscam camera_t
 RSR.HUDWavesEnemyRadar = function(v, player, thiscam)
 	if not v then return end
 	if not RSR.WavesGamemodeActive() then return end
@@ -51,6 +57,8 @@ RSR.HUDWavesEnemyRadar = function(v, player, thiscam)
 	end
 end
 
+--- Draws the wave text for "Waves" stages to the HUD.
+---@param v videolib
 RSR.HUDWaves = function(v)
 	if not v then return end
 	if not RSR.WavesGamemodeActive() then return end

@@ -4,6 +4,7 @@ RSR.TITLE_INFO = {
 	tics = 16
 }
 
+---@param v videolib
 addHook("HUD", function(v)
 	if not v then return end
 

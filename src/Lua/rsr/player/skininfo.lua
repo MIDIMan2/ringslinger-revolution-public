@@ -6,12 +6,8 @@ if not RSR.SKIN_INFO then
 end
 
 RSR.SKIN_INFO["DEFAULT"] = {
-	hooks = {
-		touchWeapon = RSR.TouchWeaponDefault,
-		touchPowerup = RSR.TouchPowerupDefault,
-		touchHealth = RSR.TouchHealthDefault,
-		touchArmor = RSR.TouchArmorDefault
-	}
+	meleeicon = "RSRMELEE",
+	meleeobituary = "$a got into a scuffle with $v."
 }
 
 RSR.SKIN_INFO["amy"] = {
