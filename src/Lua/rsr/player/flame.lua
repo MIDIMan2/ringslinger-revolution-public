@@ -29,6 +29,7 @@ end, MT_SPINDUST)
 --- Spawns a flame trail behind the player if they have a Flame Shield and are spinning on the ground.
 ---@param player player_t
 RSR.PlayerFlameShieldTick = function(player)
+	if not (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_PASSIVE) then return end -- Don't run this code if passive shield effects are off
 	if not (player and player.valid and player.mo and player.mo.valid) then return end
 	if (player.powers[pw_shield] & SH_NOSTACK) ~= SH_FLAMEAURA then return end
 
