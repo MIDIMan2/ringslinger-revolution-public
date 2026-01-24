@@ -37,7 +37,7 @@ RSR.CV_LaserTag = CV_RegisterVar({
 --- Checks if the player can use any of the kill commands.
 ---@param player player_t
 ---@return boolean
-RSR.CanUserKillCMD = function(player)
+RSR.CanUseKillCMD = function(player)
 	if not RSR.GamemodeActive() then
 		print("You must be in a Ringslinger Revolution level or gametype to use this.")
 		return false
@@ -64,19 +64,19 @@ RSR.CanUserKillCMD = function(player)
 end
 
 COM_AddCommand("rsr_kill", function(player, _)
-	if not RSR.CanUserKillCMD(player) then return end
+	if not RSR.CanUseKillCMD(player) then return end
 	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_USEDKILLCMD end
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 
 COM_AddCommand("rsr_explode", function(player, _)
-	if not RSR.CanUserKillCMD(player) then return end
+	if not RSR.CanUseKillCMD(player) then return end
 	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_GOTBURNT|RSR.DEATH_USEDEXPLODECMD end
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
 
 COM_AddCommand("rsr_disintegrate", function(player, _)
-	if not RSR.CanUserKillCMD(player) then return end
+	if not RSR.CanUseKillCMD(player) then return end
 	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_USEDDISINTEGRATECMD end
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
