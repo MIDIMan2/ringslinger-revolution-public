@@ -87,7 +87,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		RSR.ProjectileGhostTimer(mo)
 		if mo.rsrLockOnSound then mo.rsrLockOnSound = nil end
 	else
-		if not noPlayerSpeed then RSR.ProjectileTravelSound(mo, 3) end -- Regular travelling sound
+		if not noPlayerSpeed then RSR.ProjectileTravelSound(mo, 6) end -- Regular travelling sound
 		RSR.ProjectileGhostTimer(mo, true)
 	end
 
@@ -171,7 +171,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		if player.speed > player.normalspeed then curSpeed = FixedDiv(player.speed, tracer.scale) end -- Go faster if the player is going faster than their normalspeed
 		curSpeed = FixedMul(3*$/4, tracer.scale)
 	end
-	if noPlayerSpeed then RSR.ProjectileTravelSound(mo, 3) end -- Router RPB travelling sound
+	if noPlayerSpeed then RSR.ProjectileTravelSound(mo, 6) end -- Router RPB travelling sound
 
 	P_InstaThrust(mo, mo.angle, FixedMul(cos(mo.pitch), curSpeed))
 	mo.momz = FixedMul(sin(mo.pitch), curSpeed)
