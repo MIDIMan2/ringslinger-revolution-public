@@ -10,6 +10,7 @@ freeslot(
 	"sfx_redal3", -- Created by orbitalviolet
 	"sfx_redal4", -- Created by orbitalviolet
 	"sfx_rrchrg",
+	"sfx_rrchab", -- Created by orbitalviolet
 	"sfx_rsrcmp", -- Created by orbitalviolet
 	"sfx_csftcp", -- Created by orbitalviolet
 	"sfx_chloop", -- Created by orbitalviolet
@@ -53,7 +54,7 @@ freeslot(
 	"sfx_railms",
 	"sfx_mchina", -- From Team Fortress 2
 	"sfx_rsrhit",
-	"sfx_rsrarm",
+	"sfx_rsrarm", -- Created by orbitalviolet
 	"sfx_rsrhrt",
 	"sfx_rsraht", -- Created by orbitalviolet
 	"sfx_rsriht", -- Created by orbitalviolet
@@ -69,6 +70,9 @@ freeslot(
 	"sfx_rsrsp3",
 	"sfx_rsrhlk", -- Created by orbitalviolet
 	"sfx_rsralk", -- Created by orbitalviolet
+	"sfx_rsrcth", -- Created by orbitalviolet
+	"sfx_rsrlhp", -- Created by orbitalviolet
+	"sfx_rsrgfd", -- Created by orbitalviolet
 	"sfx_wvstrt",
 	"sfx_wvdone",
 	"sfx_wvpass"
@@ -307,6 +311,8 @@ sfxinfo[sfx_redal4].caption = "Charged Ring max"
 sfxinfo[sfx_redal4].flags = SF_X2AWAYSOUND -- Make a max-charged shot heard from further away
 sfxinfo[sfx_rrchrg].caption = "Charging Red Ring..."
 sfxinfo[sfx_rsrcmp].caption = "Charged Ring impacting"
+sfxinfo[sfx_rrchab].caption = "Charged Ring travelling"
+sfxinfo[sfx_rrchab].flags = SF_X2AWAYSOUND -- Make a max-charged shot heard from further away
 sfxinfo[sfx_csftcp].caption = "Red Ring charged!"
 sfxinfo[sfx_chloop].caption = "Red Ring humming"
 sfxinfo[sfx_autofr].caption = "Automatic fired"
@@ -371,6 +377,10 @@ sfxinfo[sfx_rsrinv].caption = "Broke their armor!"
 sfxinfo[sfx_rsrcrk].caption = "Armor breaking"
 sfxinfo[sfx_rsrast].caption = "Assisted kill!"
 sfxinfo[sfx_rsrkil].caption = "Scored kill!"
+sfxinfo[sfx_rsrcht].caption = "Critical heal!"
+sfxinfo[sfx_rsrlhp].caption = "You're low on HP..!"
+sfxinfo[sfx_rsrgfd].caption = "Flag damage amplifier..."
+sfxinfo[sfx_rsrgfd].singular = true
 
 -- Spawners
 sfxinfo[sfx_rsrsp1].caption = "Player spawned"

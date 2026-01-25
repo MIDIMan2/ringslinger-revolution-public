@@ -134,6 +134,7 @@ RSR.PlayerHealthInit = function(player)
 
 	rsrinfo.critHealed = false
 	rsrinfo.critCooldown = 0
+	rsrinfo.warnCooldown = 0
 
 	if G_RingSlingerGametype() then -- Replaces the Pity Shield with a "pity armor start" feature
 		if (player.powers[pw_shield] & SH_NOSTACK) then
@@ -174,6 +175,9 @@ RSR.PlayerDamageTick = function(player)
 		if Valid(player.mo) and P_IsObjectOnGround(player.mo) and FixedHypot(player.rmomx, player.rmomy) < 20*player.mo.scale then
 			rsrinfo.knockedByAttacker = false
 		end
+	end
+	if rsrinfo.warnCooldown > 0 then
+		rsrinfo.warnCooldown = $ - 1
 	end
 end
 
@@ -587,13 +591,15 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	local rsrinfo = player.rsrinfo
 	local hadArmor = false
 	local hurtSound = sfx_rsrhrt
+	local criticalSound = sfx_rsrlhp
+	local ampSound = sfx_rsrgfd
 	local serverHurtSound = sfx_rsrpmp
 
 	-- Multiply damage taken by 1.5x if the player has a flag or is a runner in Tag gametypes
-	-- TODO: Make a sound indicator for this??
 	if ((gametyperules & GTR_TEAMFLAGS) and player.gotflag)
 	or (G_TagGametype() and not (player.pflags & PF_TAGIT)) then
 		damage = FixedMul($, 3*FRACUNIT/2)
+		S_StartSound(nil, ampSound, player)
 	end
 
 	RSR.PlayerHomingDamage(player, damage)
@@ -626,6 +632,11 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		player.rings = 0
 		if G_IsSpecialStage(gamemap) then return RSR.PlayerForceDeath(player, inflictor, source, damage, damagetype) end
 		return
+	elseif (rsrinfo.health + rsrinfo.armor) <= 40 and (rsrinfo.health + rsrinfo.armor) > 0 and ((rsrinfo.health + damage) + (rsrinfo.armor + saved)) > 40 then -- Play low health sound when the player falls to low health the first time
+		if rsrinfo.warnCooldown < 1 then 
+			S_StartSound(nil, criticalSound, player)
+			rsrinfo.warnCooldown = 5 * TICRATE
+		end
 	end
 
 	if P_IsLocalPlayer(player) then

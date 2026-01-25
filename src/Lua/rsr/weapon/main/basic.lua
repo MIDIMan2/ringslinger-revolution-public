@@ -231,7 +231,7 @@ pspractions.A_BasicAttackAltChoose = function(player, args)
 	-- Reset these variables just in case...
 	player.rsrinfo.basicCharge = 0
 	player.rsrinfo.basicChargeSound = 0
-	player.rsrinfo.basicChareeDontTakeAmmo = false
+	player.rsrinfo.basicChargeDontTakeAmmo = false
 
 	-- Use the "ATTACKALTSPEED" state if the player has speed shoes or is super.
 	if player.powers[pw_sneakers] or player.powers[pw_super] then
