@@ -126,6 +126,8 @@ RSR.ConvertItemsMapLoad = function()
 		else
 			mo.type = moInfo.motype
 		end
+		-- TODO: Apparently, there's a bug where the blockmap isn't refreshed when mo.radius is set, but only when mo.scale is set
+		-- Set mo.scale here, or wait until 2.2.16 comes out (if it fixes this...)
 		if Valid(mo.spawnpoint) then
 			mo.radius = FixedMul(mo.info.radius, mo.spawnpoint.scale)
 			mo.height = FixedMul(mo.info.height, mo.spawnpoint.scale)

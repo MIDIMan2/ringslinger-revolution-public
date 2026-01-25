@@ -191,7 +191,7 @@ RSR.PlayerDeathTick = function(player)
 	if player.mo.rsrPrevMomX or player.mo.rsrPrevMomY or player.mo.rsrPrevMomZ then
 		player.mo.momx = $ + (player.mo.rsrPrevMomX or 0)
 		player.mo.momy = $ + (player.mo.rsrPrevMomY or 0)
-		player.mo.momz = $ + (player.mo.rsrPrevMomZ or 0) -- TODO: This is supposed to make the player go up...
+		player.mo.momz = $ + (player.mo.rsrPrevMomZ or 0)
 		player.mo.rsrPrevMomX = 0
 		player.mo.rsrPrevMomY = 0
 		player.mo.rsrPrevMomZ = 0

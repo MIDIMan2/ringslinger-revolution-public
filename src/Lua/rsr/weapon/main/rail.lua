@@ -100,12 +100,9 @@ addHook("MobjMoveCollide", function(tmthing, thing)
 		P_DamageMobj(thing, tmthing, tmthing.target, tmthing.info.damage)
 		if not (Valid(tmthing) and Valid(thing)) then return false end
 		tmthing.rsrRailHitList[thing] = true
-		if tmthing.rsrRailHitCount > 0 and Valid(thing.player) then -- If the rail hits multiple enemies, play the TF2 Machina sound effect each time (yes, this is how it works in TF2)
-			if not(Valid(tmthing.target) and Valid(tmthing.target.player) and RSR.PlayersAreTeammates(tmthing.target.player, thing.player) -- Only add Machina sound effects if the target is an enemy player!
-			and not RSR.CheckFriendlyFire()) then
-				S_StartSound(nil, sfx_mchina)
-				tmthing.rsrRailHitCount = $ + 1
-			end
+		if Valid(tmthing.target) and Valid(tmthing.target.player) and Valid(thing.player)
+		and not RSR.PlayersAreTeammates(tmthing.target.player, thing.player) then -- Only add Machina sound effects if the target is an enemy player!
+			tmthing.rsrRailHitCount = $ + 1
 		end
 	end
 	return false
@@ -123,6 +120,14 @@ addHook("MobjThinker", function(mo)
 
 	-- Reset the hit list every frame
 	mo.rsrRailHitList = {}
+	if mo.rsrRailHitCount then
+		-- If the rail hits multiple enemy players, play the TF2 Machina sound effect each time (yes, this is how it works in TF2)
+		if mo.rsrRailHitCount > 1 then
+			S_StartSound(nil, sfx_mchina)
+			-- S_StartSoundAtVolume(nil, sfx_mchina, min(85 * mo.rsrRailHitCount, 255)) -- TODO: Adjust this code and use it to alter the sound's volume
+		end
+		mo.rsrRailHitCount = 0
+	end
 end, MT_RSR_PROJECTILE_RAIL)
 
 -- --------------------------------

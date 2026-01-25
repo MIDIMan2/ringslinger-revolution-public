@@ -46,6 +46,8 @@
 ---@field useZoom boolean Determines if the weapon zoom should be active or not.
 ---@field fovZoom integer Timer for the weapon zoom (max is 14).
 ---@field critCooldown tic_t Cooldown timer for critical healing.
+---@field warnCooldown tic_t Cooldown timer for playing the critical health sound.
+---@field healCooldown tic_t Cooldown timer for playing the critical healing sound.
 ---@field deathCamPos vector3_t|nil Position for the camera upon death (only applies if the player is moving fast enough).
 
 ---@class rsrmobjinfo_t

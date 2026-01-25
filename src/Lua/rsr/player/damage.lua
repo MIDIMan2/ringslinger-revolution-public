@@ -30,6 +30,8 @@ RSR.DEATH_USEDDISINTEGRATECMD = 64
 
 RSR.DEATHCAM_SPEED_MAX = 96*FRACUNIT
 
+RSR.WARN_COOLDOWN = TICRATE
+
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 
@@ -132,9 +134,9 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.attackerInfo = {}
 	rsrinfo.knockedByAttacker = false -- TODO: Maybe remove this since it's not being used for assists anymore???
 
-	rsrinfo.critHealed = false
 	rsrinfo.critCooldown = 0
 	rsrinfo.warnCooldown = 0
+	rsrinfo.healCooldown = 0
 
 	if G_RingSlingerGametype() then -- Replaces the Pity Shield with a "pity armor start" feature
 		if (player.powers[pw_shield] & SH_NOSTACK) then
@@ -176,9 +178,8 @@ RSR.PlayerDamageTick = function(player)
 			rsrinfo.knockedByAttacker = false
 		end
 	end
-	if rsrinfo.warnCooldown > 0 then
-		rsrinfo.warnCooldown = $ - 1
-	end
+	if rsrinfo.warnCooldown > 0 then rsrinfo.warnCooldown = $ - 1 end
+	if rsrinfo.healCooldown > 0 then rsrinfo.healCooldown = $ - 1 end
 end
 
 --- Adds an attacker to the player's table of attackers
@@ -584,16 +585,19 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		end
 	end
 
-	-- Set hurt timers for certain conditions
-	if hurtByEnemy then player.rsrinfo.hurtByEnemy = TICRATE end
-	if hurtByMelee then player.rsrinfo.hurtByMelee = TICRATE end
-
 	local rsrinfo = player.rsrinfo
+
+	-- Set hurt timers for certain conditions
+	if hurtByEnemy then rsrinfo.hurtByEnemy = TICRATE end
+	if hurtByMelee then rsrinfo.hurtByMelee = TICRATE end
+
 	local hadArmor = false
 	local hurtSound = sfx_rsrhrt
 	local criticalSound = sfx_rsrlhp
 	local ampSound = sfx_rsrgfd
 	local serverHurtSound = sfx_rsrpmp
+
+	local origEHP = rsrinfo.health + rsrinfo.armor
 
 	-- Multiply damage taken by 1.5x if the player has a flag or is a runner in Tag gametypes
 	if ((gametyperules & GTR_TEAMFLAGS) and player.gotflag)
@@ -632,10 +636,10 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		player.rings = 0
 		if G_IsSpecialStage(gamemap) then return RSR.PlayerForceDeath(player, inflictor, source, damage, damagetype) end
 		return
-	elseif (rsrinfo.health + rsrinfo.armor) <= 40 and (rsrinfo.health + rsrinfo.armor) > 0 and ((rsrinfo.health + damage) + (rsrinfo.armor + saved)) > 40 then -- Play low health sound when the player falls to low health the first time
+	elseif (rsrinfo.health + rsrinfo.armor) <= RSR.CRIT_EHP and (rsrinfo.health + rsrinfo.armor) > 0 and origEHP > RSR.CRIT_EHP then -- Play low health sound when the player falls to low health the first time
 		if rsrinfo.warnCooldown < 1 then 
 			S_StartSound(nil, criticalSound, player)
-			rsrinfo.warnCooldown = 5 * TICRATE
+			rsrinfo.warnCooldown = RSR.WARN_COOLDOWN
 		end
 	end
 
@@ -975,6 +979,9 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 		rsrinfo.deathCamPos = {x = target.x, y = target.y, z = target.z + target.height/2}
 	end
 	if P_RandomKey(2) then rsrinfo.deathFlags = $|RSR.DEATH_FLIPSPRITEROLL end
+	rsrinfo.critCooldown = 0
+	rsrinfo.warnCooldown = 0
+	rsrinfo.healCooldown = 0
 
 	-- Only run this code in multiplayer gamemodes
 	if multiplayer or netgame then
