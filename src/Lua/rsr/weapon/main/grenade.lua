@@ -205,7 +205,7 @@ addHook("MobjThinker", function(mo)
 			return true -- Stop the blockmap search
 		end, mo, mo.x - proxDist, mo.x + proxDist, mo.y - proxDist, mo.y + proxDist)
 	else
-		RSR.ProjectileTravelSound(mo, 23, sfx_gratab) -- Travelling sound
+		RSR.ProjectileTravelSound(mo, 67, sfx_gratab) -- Travelling sound
 		RSR.ProjectileGhostTimer(mo) -- Ghost trail
 	end
 
