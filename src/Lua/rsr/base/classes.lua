@@ -182,6 +182,7 @@
 ---@field rsrKilled boolean|nil Automatically set to true when the enemy is killed in RSR gamemodes.
 ---@field rsrGhostTimer integer|nil Timer for spawning a ghost from a projectile.
 ---@field rsrSoundTimer integer|nil Timer for playing a projectile's travelling sound.
+---@field rsrChargeTravelSound boolean|nil Determines if the Charge Shot should play its travel sound.
 ---@field rsrIsPanel boolean|nil Determines if the weapon pickup is a panel.
 ---@field rsrAmmoAmount integer|nil Custom amount for the ammo pickup.
 ---@field rsrDontDespawn boolean|nil Makes the item not disappear when collected in co-op.
