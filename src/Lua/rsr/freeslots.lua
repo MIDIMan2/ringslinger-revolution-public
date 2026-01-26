@@ -73,6 +73,7 @@ freeslot(
 	"sfx_rsrcth", -- Created by orbitalviolet
 	"sfx_rsrlhp", -- Created by orbitalviolet
 	"sfx_rsrgfd", -- Created by orbitalviolet
+	"sfx_rsrquk", -- Created by orbitalviolet
 	"sfx_wvstrt",
 	"sfx_wvdone",
 	"sfx_wvpass"
@@ -381,6 +382,8 @@ sfxinfo[sfx_rsrcth].caption = "Critical heal!"
 sfxinfo[sfx_rsrlhp].caption = "You're low on HP..!"
 sfxinfo[sfx_rsrgfd].caption = "Flag damage amplifier..."
 sfxinfo[sfx_rsrgfd].singular = true
+sfxinfo[sfx_rsrquk].caption = "Scored hit"
+sfxinfo[sfx_rsrquk].singular = true
 
 -- Spawners
 sfxinfo[sfx_rsrsp1].caption = "Player spawned"

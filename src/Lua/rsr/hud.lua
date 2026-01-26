@@ -94,6 +94,12 @@ RSR.HUDArmor = function(v, player)
 		vFlags = $|V_YELLOWMAP
 	elseif player.rsrinfo.warnCooldown > 0 and ((player.rsrinfo.warnCooldown/2) & 1) then
 		vFlags = $|V_REDMAP
+	elseif player.rsrinfo.vulnCooldown > 0 and ((player.rsrinfo.vulnCooldown/2) & 1) then
+		vFlags = $|V_PURPLEMAP
+	elseif player.rsrinfo.resCooldown > 0 and ((player.rsrinfo.resCooldown/2) & 1) then
+		vFlags = $|V_AZUREMAP
+	elseif player.rsrinfo.dangerZone == 1 and player.rsrinfo.dangerCount > 35 then
+		vFlags = $|V_GRAYMAP
 	end
 
 	if Valid(armorPatch) then

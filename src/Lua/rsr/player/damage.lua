@@ -31,6 +31,7 @@ RSR.DEATH_USEDDISINTEGRATECMD = 64
 RSR.DEATHCAM_SPEED_MAX = 96*FRACUNIT
 
 RSR.WARN_COOLDOWN = TICRATE
+RSR.MINOR_COOLDOWN = TICRATE/4
 
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
@@ -137,6 +138,10 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.critCooldown = 0
 	rsrinfo.warnCooldown = 0
 	rsrinfo.healCooldown = 0
+	rsrinfo.vulnCooldown = 0
+	rsrinfo.resCooldown = 0
+	rsrinfo.dangerZone = 0
+	rsrinfo.dangerCount = 0
 
 	if G_RingSlingerGametype() then -- Replaces the Pity Shield with a "pity armor start" feature
 		if (player.powers[pw_shield] & SH_NOSTACK) then
@@ -159,6 +164,7 @@ RSR.PlayerDamageTick = function(player)
 	if rsrinfo.hitSound then
 		if RSR.HITSOUND_TO_SFX[rsrinfo.hitSound] then
 			S_StartSound(nil, RSR.HITSOUND_TO_SFX[rsrinfo.hitSound], player)
+			S_StartSound(nil, sfx_rsrquk, player)
 		end
 		rsrinfo.hitSound = 0
 	end
@@ -180,6 +186,19 @@ RSR.PlayerDamageTick = function(player)
 	end
 	if rsrinfo.warnCooldown > 0 then rsrinfo.warnCooldown = $ - 1 end
 	if rsrinfo.healCooldown > 0 then rsrinfo.healCooldown = $ - 1 end
+	if rsrinfo.vulnCooldown > 0 then rsrinfo.vulnCooldown = $ - 1 end
+	if rsrinfo.resCooldown > 0 then rsrinfo.resCooldown = $ - 1 end
+	if rsrinfo.dangerCount > 0 then 
+		rsrinfo.dangerCount = $ - 1
+	elseif rsrinfo.dangerZone == 1 then
+		rsrinfo.dangerCount = 70
+	end
+	if (player.rsrinfo.health + player.rsrinfo.armor <= RSR.CRIT_EHP) then
+		player.rsrinfo.dangerZone = 1
+	else
+		player.rsrinfo.dangerZone = 0
+		player.rsrinfo.dangerCount = 0
+	end
 end
 
 --- Adds an attacker to the player's table of attackers
@@ -640,7 +659,12 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		if rsrinfo.warnCooldown < 1 then 
 			S_StartSound(nil, criticalSound, player)
 			rsrinfo.warnCooldown = RSR.WARN_COOLDOWN
+			rsrinfo.dangerCount = 70
 		end
+	elseif ((gametyperules & GTR_TEAMFLAGS) and player.gotflag) then
+		rsrinfo.vulnCooldown = RSR.MINOR_COOLDOWN
+	elseif player.powers[pw_shield] == SH_ATTRACT then
+		rsrinfo.resCooldown = RSR.MINOR_COOLDOWN
 	end
 
 	if P_IsLocalPlayer(player) then

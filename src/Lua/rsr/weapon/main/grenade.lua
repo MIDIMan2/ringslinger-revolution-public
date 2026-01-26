@@ -4,7 +4,7 @@
 
 RSR.AddAmmo("GRENADE", {
 	amount = 10,
-	maxamount = 100,
+	maxamount = 50,
 	motype = MT_RSR_PICKUP_GRENADE
 })
 
