@@ -10,6 +10,7 @@ freeslot(
 	"sfx_redal3", -- Created by orbitalviolet
 	"sfx_redal4", -- Created by orbitalviolet
 	"sfx_rrchrg",
+	"sfx_rrchab", -- Created by orbitalviolet
 	"sfx_rsrcmp", -- Created by orbitalviolet
 	"sfx_csftcp", -- Created by orbitalviolet
 	"sfx_chloop", -- Created by orbitalviolet
@@ -53,7 +54,7 @@ freeslot(
 	"sfx_railms",
 	"sfx_mchina", -- From Team Fortress 2
 	"sfx_rsrhit",
-	"sfx_rsrarm",
+	"sfx_rsrarm", -- Created by orbitalviolet
 	"sfx_rsrhrt",
 	"sfx_rsraht", -- Created by orbitalviolet
 	"sfx_rsriht", -- Created by orbitalviolet
@@ -69,6 +70,9 @@ freeslot(
 	"sfx_rsrsp3",
 	"sfx_rsrhlk", -- Created by orbitalviolet
 	"sfx_rsralk", -- Created by orbitalviolet
+	"sfx_rsrcth", -- Created by orbitalviolet
+	"sfx_rsrlhp", -- Created by orbitalviolet
+	"sfx_rsrgfd", -- Created by orbitalviolet
 	"sfx_wvstrt",
 	"sfx_wvdone",
 	"sfx_wvpass"
@@ -304,8 +308,11 @@ sfxinfo[sfx_redal1].caption = "Charged Ring 1"
 sfxinfo[sfx_redal2].caption = "Charged Ring 2"
 sfxinfo[sfx_redal3].caption = "Charged Ring 3"
 sfxinfo[sfx_redal4].caption = "Charged Ring max"
+sfxinfo[sfx_redal4].flags = SF_X2AWAYSOUND -- Make a max-charged shot heard from further away
 sfxinfo[sfx_rrchrg].caption = "Charging Red Ring..."
 sfxinfo[sfx_rsrcmp].caption = "Charged Ring impacting"
+sfxinfo[sfx_rrchab].caption = "Charged Ring travelling"
+sfxinfo[sfx_rrchab].flags = SF_X2AWAYSOUND -- Make a max-charged shot heard from further away
 sfxinfo[sfx_csftcp].caption = "Red Ring charged!"
 sfxinfo[sfx_chloop].caption = "Red Ring humming"
 sfxinfo[sfx_autofr].caption = "Automatic fired"
@@ -325,9 +332,10 @@ sfxinfo[sfx_gratfr].caption = "Grenade: Stickybomb"
 sfxinfo[sfx_gratab].caption = "Stickybomb travelling"
 sfxinfo[sfx_gratrm].caption = "Stickybomb attach"
 sfxinfo[sfx_stikbp].caption = "Stickybomb nearby"
-sfxinfo[sfx_stikbp].flags = SF_X4AWAYSOUND -- Easier to detect nearby Stickybombs
+sfxinfo[sfx_stikbp].flags = SF_X2AWAYSOUND -- Easier to detect nearby Stickybombs
 sfxinfo[sfx_gratrd].caption = "Stickybomb activated"
 sfxinfo[sfx_stikbm].caption = "Stickybomb explosion"
+sfxinfo[sfx_stikbm].flags = SF_X2AWAYSOUND -- Make the Stickybomb's explosion heard from further away
 sfxinfo[sfx_boncfr].caption = "Bounce fired"
 sfxinfo[sfx_bcatfr].caption = "Bounce: Goldburster"
 sfxinfo[sfx_bcmega].caption = "Goldburster explosion"
@@ -346,6 +354,7 @@ sfxinfo[sfx_epocs].caption = "Unscoping"
 sfxinfo[sfx_railgn].caption = "Rail fired!"
 sfxinfo[sfx_railgn].flags = SF_X4AWAYSOUND -- Make the Rail Ring shot heard from further away
 sfxinfo[sfx_railht].caption = "Rail impact..."
+sfxinfo[sfx_railht].flags = SF_X2AWAYSOUND -- Make the Rail Ring terrain impact heard from slightly further away
 sfxinfo[sfx_railec].caption = "Rail echoing..."
 sfxinfo[sfx_railms].caption = "Rail near-miss..."
 sfxinfo[sfx_mchina].caption = "Rail polykill!"
@@ -368,6 +377,10 @@ sfxinfo[sfx_rsrinv].caption = "Broke their armor!"
 sfxinfo[sfx_rsrcrk].caption = "Armor breaking"
 sfxinfo[sfx_rsrast].caption = "Assisted kill!"
 sfxinfo[sfx_rsrkil].caption = "Scored kill!"
+sfxinfo[sfx_rsrcth].caption = "Critical heal!"
+sfxinfo[sfx_rsrlhp].caption = "You're low on HP..!"
+sfxinfo[sfx_rsrgfd].caption = "Flag damage amplifier..."
+sfxinfo[sfx_rsrgfd].singular = true
 
 -- Spawners
 sfxinfo[sfx_rsrsp1].caption = "Player spawned"

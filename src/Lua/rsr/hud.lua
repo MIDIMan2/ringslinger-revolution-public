@@ -6,6 +6,43 @@ local dofolder = function(file)
 	dofile(folder.."/"..file)
 end
 
+--- Lua reimplementation of V_DrawTallNum, with string colormap support.
+---@param v videolib
+---@param x integer
+---@param y integer
+---@param flags integer
+---@param num integer
+RSR.HUDDrawTallNum = function(v, x, y, num, flags)
+	local tallnum = {}
+	tallnum[0] = v.cachePatch("STTNUM0")
+	local w = tallnum[0].width
+	local neg
+	local colormap = v.getStringColormap(flags & V_CHARCOLORMASK)
+	flags = $ & ~V_CHARCOLORMASK
+
+	if (flags & (V_NOSCALESTART|V_NOSCALEPATCH)) then
+		w = $ * v.dupx()
+	end
+
+	neg = num < 0
+	if neg then num = -num end
+
+	-- draw the number
+	repeat
+		x = $ - w
+		if not tallnum[num % 10] then
+			tallnum[num % 10] = v.cachePatch("STTNUM"..tostring(num % 10))
+		end
+		v.draw(x, y, tallnum[num % 10], flags, colormap)
+		num = $ / 10
+	until not num
+
+	-- draw a minus sign if necessary
+	if neg then
+		v.draw(x - w, y, v.cachePatch("STTMINUS"), flags, colormap)
+	end
+end
+
 -- dofolder("title.lua") -- TODO: Uncomment this when the title screen is finished...
 dofolder("time.lua")
 dofolder("emeralds.lua")
@@ -25,8 +62,19 @@ dofolder("killfeed.lua")
 RSR.HUDHealth = function(v, player)
 	if not (v and Valid(player) and player.rsrinfo) then return end
 
-	v.draw(6, 186, v.cachePatch("RSRHLTH"), V_SNAPTOLEFT|V_SNAPTOBOTTOM|V_HUDTRANS|V_PERPLAYER)
-	v.drawNum(48, 186, player.rsrinfo.health, V_SNAPTOLEFT|V_SNAPTOBOTTOM|V_HUDTRANS|V_PERPLAYER)
+	local vFlags = V_SNAPTOLEFT|V_SNAPTOBOTTOM|V_HUDTRANS|V_PERPLAYER
+	if player.rsrinfo.healCooldown > 0 and ((player.rsrinfo.healCooldown/2) & 1) then
+		vFlags = $|V_YELLOWMAP
+	elseif player.rsrinfo.warnCooldown > 0 and ((player.rsrinfo.warnCooldown/2) & 1) then
+		vFlags = $|V_REDMAP
+	end
+
+	v.draw(6, 186, v.cachePatch("RSRHLTH"), vFlags & ~V_CHARCOLORMASK)
+	if (vFlags & V_CHARCOLORMASK) then
+		RSR.HUDDrawTallNum(v, 48, 186, player.rsrinfo.health, vFlags)
+	else
+		v.drawNum(48, 186, player.rsrinfo.health, vFlags)
+	end
 end
 
 --- Draws the player's armor to the HUD.
@@ -41,12 +89,23 @@ RSR.HUDArmor = function(v, player)
 	if shield and RSR.SHIELD_INFO[shield] and RSR.SHIELD_INFO[shield].icon then armorIcon = RSR.SHIELD_INFO[shield].icon end
 	local armorPatch = v.cachePatch(armorIcon)
 
+	local vFlags = V_SNAPTOLEFT|V_SNAPTOBOTTOM|V_HUDTRANS|V_PERPLAYER
+	if player.rsrinfo.healCooldown > 0 and ((player.rsrinfo.healCooldown/2) & 1) then
+		vFlags = $|V_YELLOWMAP
+	elseif player.rsrinfo.warnCooldown > 0 and ((player.rsrinfo.warnCooldown/2) & 1) then
+		vFlags = $|V_REDMAP
+	end
+
 	if Valid(armorPatch) then
 		local armorXOffset = -((armorPatch.width - 11)/2)
 		local armorYOffset = -((armorPatch.height - 11)/2)
-		v.draw(6 + armorXOffset, 170 + armorYOffset, armorPatch, V_SNAPTOLEFT|V_SNAPTOBOTTOM|V_HUDTRANS|V_PERPLAYER)
+		v.draw(6 + armorXOffset, 170 + armorYOffset, armorPatch, vFlags & ~V_CHARCOLORMASK)
 	end
-	v.drawNum(48, 170, player.rsrinfo.armor, V_SNAPTOLEFT|V_SNAPTOBOTTOM|V_HUDTRANS|V_PERPLAYER)
+	if (vFlags & V_CHARCOLORMASK) then
+		RSR.HUDDrawTallNum(v, 48, 170, player.rsrinfo.armor, vFlags)
+	else
+		v.drawNum(48, 170, player.rsrinfo.armor, vFlags)
+	end
 end
 
 RSR.HUD_SCOPE_ARROWS = {

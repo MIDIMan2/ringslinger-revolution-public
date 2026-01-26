@@ -475,6 +475,8 @@ RSR.WeaponMobjFuse = function(mo)
 	P_RemoveMobj(mo)
 end
 
+folder = "rsr/weapon/main"
+
 dofolder("basic.lua")
 dofolder("scatter.lua")
 dofolder("auto.lua")

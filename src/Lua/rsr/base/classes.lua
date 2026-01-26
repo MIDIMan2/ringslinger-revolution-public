@@ -46,6 +46,8 @@
 ---@field useZoom boolean Determines if the weapon zoom should be active or not.
 ---@field fovZoom integer Timer for the weapon zoom (max is 14).
 ---@field critCooldown tic_t Cooldown timer for critical healing.
+---@field warnCooldown tic_t Cooldown timer for playing the critical health sound.
+---@field healCooldown tic_t Cooldown timer for playing the critical healing sound.
 ---@field deathCamPos vector3_t|nil Position for the camera upon death (only applies if the player is moving fast enough).
 
 ---@class rsrmobjinfo_t
@@ -180,6 +182,7 @@
 ---@field rsrKilled boolean|nil Automatically set to true when the enemy is killed in RSR gamemodes.
 ---@field rsrGhostTimer integer|nil Timer for spawning a ghost from a projectile.
 ---@field rsrSoundTimer integer|nil Timer for playing a projectile's travelling sound.
+---@field rsrChargeTravelSound boolean|nil Determines if the Charge Shot should play its travel sound.
 ---@field rsrIsPanel boolean|nil Determines if the weapon pickup is a panel.
 ---@field rsrAmmoAmount integer|nil Custom amount for the ammo pickup.
 ---@field rsrDontDespawn boolean|nil Makes the item not disappear when collected in co-op.
