@@ -46,8 +46,7 @@
 ---@field useZoom boolean Determines if the weapon zoom should be active or not.
 ---@field fovZoom integer Timer for the weapon zoom (max is 14).
 ---@field critCooldown tic_t Cooldown timer for critical healing.
----@field warnCooldown tic_t Cooldown timer for playing the critical health sound.
----@field healCooldown tic_t Cooldown timer for playing the critical healing sound.
+---@field ehpFlash rsrehpflash_t Determines the current properties of the player's EHP (effective hit points) flash.
 ---@field deathCamPos vector3_t|nil Position for the camera upon death (only applies if the player is moving fast enough).
 
 ---@class rsrmobjinfo_t
@@ -126,6 +125,11 @@
 ---@field origTics tic_t Initial number of tics to countdown from.
 ---@field color integer Color of the screen fade (palette index).
 ---@field strength integer Strength of the screen fade (0 to FRCAUNIT).
+
+---@class rsrehpflash_t
+---@field tics tic_t Timer for the current flash in tics.
+---@field frequency tic_t Determines how frequent the flash is. Larger values mean slower flashes.
+---@field color integer Color of the flash (V_* constants (chat colors only)).
 
 ---@class rsrskininfo_t
 ---@field noweapons boolean Disables RSR's weapon system for this character/skin.

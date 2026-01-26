@@ -134,6 +134,7 @@ end
 ---@param var1 integer Determines the explosion FX type. 0 is for the normal paraloop-based explosion; 1 is for the Mass Scrambler's bomblets.
 A_RSRRingExplode = function(mo, var1, var2)
 	if not Valid(mo) then return end
+	S_StopSound(mo) -- Attempt to stop all sounds (travel sounds included)
 
 	local sparkleState = S_NULL
 	if G_GametypeHasTeams() and Valid(mo.target) and Valid(mo.target.player) then
@@ -148,7 +149,7 @@ A_RSRRingExplode = function(mo, var1, var2)
 		for i = 0, 6 do
 			local spark = P_SpawnMobj(mo.x, mo.y, mo.z, MT_NIGHTSPARKLE)
 			if Valid(spark) then
-				spark.state = sparkleState
+				if sparkleState then spark.state = sparkleState end -- Don't set the state to S_NULL!
 				spark.scale = 11*FRACUNIT/5
 				-- Randomize the spark's momentum
 				spark.momx = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)

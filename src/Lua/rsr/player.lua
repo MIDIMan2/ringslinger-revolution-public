@@ -20,6 +20,7 @@ dofolder("ghostbusters.lua")
 dofolder("skininfo.lua")
 
 dofolder("screenfade.lua")
+dofolder("healthflash.lua")
 
 --- Initializes the player's weapon variables.
 ---@param player player_t
@@ -68,6 +69,7 @@ RSR.PlayerInit = function(player)
 	rsrinfo.bob = {x = 0, y = 0}
 
 	RSR.PlayerScreenFadeInit(player)
+	RSR.PlayerEHPFlashInit(player)
 
 	PSprites.PlayerPSpritesInit(player)
 	PSprites.PlayerPSpritesReset(player)
@@ -294,7 +296,8 @@ RSR.PlayerThink = function(player)
 	RSR.PlayerSuperTick(player)
 
 	PSprites.TickPSprites(player)
-	RSR.ScreenFadeTick(player)
+	RSR.PlayerScreenFadeTick(player)
+	RSR.PlayerEHPFlashTick(player)
 
 	RSR.PlayerStarpostDataTick(player)
 

@@ -31,7 +31,7 @@ end
 
 --- Runs the thinker for the player's screen fade.
 ---@param player player_t
-RSR.ScreenFadeTick = function(player)
+RSR.PlayerScreenFadeTick = function(player)
 	if not (Valid(player) and player.rsrinfo and player.rsrinfo.screenFade) then return end
 
 	if player.rsrinfo.screenFade.tics > 0 then

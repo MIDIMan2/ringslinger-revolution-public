@@ -136,12 +136,6 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.knockedByAttacker = false -- TODO: Maybe remove this since it's not being used for assists anymore???
 
 	rsrinfo.critCooldown = 0
-	rsrinfo.warnCooldown = 0
-	rsrinfo.healCooldown = 0
-	rsrinfo.vulnCooldown = 0
-	rsrinfo.resCooldown = 0
-	rsrinfo.dangerZone = 0
-	rsrinfo.dangerCount = 0
 
 	if G_RingSlingerGametype() then -- Replaces the Pity Shield with a "pity armor start" feature
 		if (player.powers[pw_shield] & SH_NOSTACK) then
@@ -183,21 +177,6 @@ RSR.PlayerDamageTick = function(player)
 		if Valid(player.mo) and P_IsObjectOnGround(player.mo) and FixedHypot(player.rmomx, player.rmomy) < 20*player.mo.scale then
 			rsrinfo.knockedByAttacker = false
 		end
-	end
-	if rsrinfo.warnCooldown > 0 then rsrinfo.warnCooldown = $ - 1 end
-	if rsrinfo.healCooldown > 0 then rsrinfo.healCooldown = $ - 1 end
-	if rsrinfo.vulnCooldown > 0 then rsrinfo.vulnCooldown = $ - 1 end
-	if rsrinfo.resCooldown > 0 then rsrinfo.resCooldown = $ - 1 end
-	if rsrinfo.dangerCount > 0 then 
-		rsrinfo.dangerCount = $ - 1
-	elseif rsrinfo.dangerZone == 1 then
-		rsrinfo.dangerCount = 70
-	end
-	if (player.rsrinfo.health + player.rsrinfo.armor <= RSR.CRIT_EHP) then
-		player.rsrinfo.dangerZone = 1
-	else
-		player.rsrinfo.dangerZone = 0
-		player.rsrinfo.dangerCount = 0
 	end
 end
 
@@ -656,15 +635,12 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		if G_IsSpecialStage(gamemap) then return RSR.PlayerForceDeath(player, inflictor, source, damage, damagetype) end
 		return
 	elseif (rsrinfo.health + rsrinfo.armor) <= RSR.CRIT_EHP and (rsrinfo.health + rsrinfo.armor) > 0 and origEHP > RSR.CRIT_EHP then -- Play low health sound when the player falls to low health the first time
-		if rsrinfo.warnCooldown < 1 then 
-			S_StartSound(nil, criticalSound, player)
-			rsrinfo.warnCooldown = RSR.WARN_COOLDOWN
-			rsrinfo.dangerCount = 70
-		end
+		S_StartSound(nil, criticalSound, player)
+		RSR.SetEHPFlash(player, V_REDMAP, RSR.WARN_COOLDOWN, 2)
 	elseif ((gametyperules & GTR_TEAMFLAGS) and player.gotflag) then
-		rsrinfo.vulnCooldown = RSR.MINOR_COOLDOWN
-	elseif player.powers[pw_shield] == SH_ATTRACT then
-		rsrinfo.resCooldown = RSR.MINOR_COOLDOWN
+		RSR.SetEHPFlash(player, V_PURPLEMAP, RSR.MINOR_COOLDOWN, 2)
+	elseif (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then
+		RSR.SetEHPFlash(player, V_AZUREMAP, RSR.MINOR_COOLDOWN, 2)
 	end
 
 	if P_IsLocalPlayer(player) then
@@ -1004,8 +980,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	end
 	if P_RandomKey(2) then rsrinfo.deathFlags = $|RSR.DEATH_FLIPSPRITEROLL end
 	rsrinfo.critCooldown = 0
-	rsrinfo.warnCooldown = 0
-	rsrinfo.healCooldown = 0
+	RSR.PlayerEHPFlashInit(player)
 
 	-- Only run this code in multiplayer gamemodes
 	if multiplayer or netgame then
