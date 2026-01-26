@@ -140,6 +140,23 @@ events["PlayerDeathFling"] = {
     typefor = typefor_skin
 }
 
+-- Enemies
+
+events["EnemyTouchSpecial"] = {
+	handler = handler_snapany;
+	typefor = typefor_mobj
+}
+
+events["EnemyShouldDamage"] = {
+	handler = handler_snapany;
+	typefor = typefor_mobj
+}
+
+events["EnemySetHealth"] = {
+	handler = handler_snaptrue;
+	typefor = typefor_mobj
+}
+
 -- Other
 
 events["WeaponReady"] = {
