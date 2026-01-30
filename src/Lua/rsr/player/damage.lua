@@ -1080,6 +1080,8 @@ RSR.PlayerMelee = function(pmo, pmo2)
 	local meleeBaseDamage2 = 15
 	local meleeMult = 1
 	local meleeMult2 = 1
+	local meleeSpdDmg = 0
+	local meleeSpdDmg2 = 0
 
 	local shield = (player.powers[pw_shield] & SH_NOSTACK)
 	local shield2 = (player2.powers[pw_shield] & SH_NOSTACK)
@@ -1116,8 +1118,22 @@ RSR.PlayerMelee = function(pmo, pmo2)
 		meleeMult2 = 1
 	end
 
-	local playerDamage = meleeBaseDamage * meleeMult
-	local playerDamage2 = meleeBaseDamage2 * meleeMult2
+	-- Do more damage if you exceed the normal speed cap
+	if player.normalspeed > 64*FRACUNIT then
+		meleeSpdDmg = 10
+	elseif player.normalspeed > 40*FRACUNIT then
+		meleeSpdDmg = 5
+	end
+
+	if player2.normalspeed > 64*FRACUNIT then
+		meleeSpdDmg2 = 10
+	elseif player2.normalspeed > 40*FRACUNIT then
+		meleeSpdDmg2 = 5
+	end
+
+	-- Sum all that up
+	local playerDamage = (meleeBaseDamage + meleeSpdDmg) * meleeMult
+	local playerDamage2 = (meleeBaseDamage2 + meleeSpdDmg2) * meleeMult2
 
 	local touchTag = (G_TagGametype() and CV_FindVar("touchtag").value)
 
