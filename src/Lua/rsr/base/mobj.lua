@@ -137,6 +137,8 @@ A_RSRRingExplode = function(mo, var1, var2)
 	S_StopSound(mo) -- Attempt to stop all sounds (travel sounds included)
 
 	local sparkleState = S_NULL
+	local iterCount = 0
+	local iterAngle = ANGLE_45
 	if G_GametypeHasTeams() and Valid(mo.target) and Valid(mo.target.player) then
 		if mo.target.player.ctfteam == 1 then
 			sparkleState = S_NIGHTSPARKLESUPER1 -- Red
@@ -145,6 +147,13 @@ A_RSRRingExplode = function(mo, var1, var2)
 		sparkleState = RSR.MOBJ_INFO[mo.type].sparklestate
 	end
 
+	if var1 == 1 then
+		iterCount = 7
+		iterAngle = ANGLE_45
+	else
+		iterCount = 15
+		iterAngle = ANGLE_22h
+	end
 	if var1 == 2 then
 		for i = 0, 6 do
 			local spark = P_SpawnMobj(mo.x, mo.y, mo.z, MT_NIGHTSPARKLE)
@@ -165,22 +174,8 @@ A_RSRRingExplode = function(mo, var1, var2)
 				spark.tics = 105
 			end
 		end
-	elseif var1 == 1 then
-		for d = 0, 7 do
-			P_SpawnParaloop(
-				mo.x,
-				mo.y,
-				mo.z + mo.height/2,
-				FixedMul(mo.info.painchance, mo.scale),
-				16,
-				MT_NIGHTSPARKLE,
-				d * ANGLE_45,
-				sparkleState,
-				true
-			)
-		end
 	else
-		for d = 0, 15 do
+		for d = 0, iterCount do
 			P_SpawnParaloop(
 				mo.x,
 				mo.y,
@@ -188,7 +183,7 @@ A_RSRRingExplode = function(mo, var1, var2)
 				FixedMul(mo.info.painchance, mo.scale),
 				16,
 				MT_NIGHTSPARKLE,
-				d * ANGLE_22h,
+				d * iterAngle,
 				sparkleState,
 				true
 			)
