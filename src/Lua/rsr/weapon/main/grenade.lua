@@ -239,8 +239,8 @@ addHook("MobjThinker", function(mo)
 	if (mo.flags & MF_STICKY) and (hitFloor or hitCeiling) then
 		if Valid(mo.subsector) and Valid(mo.subsector.sector) then
 			local curSector = mo.subsector.sector
-			if (hitFloor and curSector.floorpic == "F_SKY1" and curSector.floorheight == mo.floorz)
-			or (hitCeiling and curSector.ceilingpic == "F_SKY1" and curSector.ceilingheight == mo.ceilingz) then
+			if (hitFloor and (curSector.floorpic == "F_SKY1" or curSector.damagetype == SD_DEATHPITNOTILT or curSector.damagetype == SD_DEATHPITTILT) and curSector.floorheight == mo.floorz)
+			or (hitCeiling and (curSector.ceilingpic == "F_SKY1" or curSector.damagetype == SD_DEATHPITNOTILT or curSector.damagetype == SD_DEATHPITTILT) and curSector.ceilingheight == mo.ceilingz) then
 				P_RemoveMobj(mo)
 				return
 			end
