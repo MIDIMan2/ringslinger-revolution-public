@@ -286,7 +286,8 @@ freeslot(
 	"S_RSR_INVINSPARKLE6",
 	"S_RSR_ITEM_DEATH",
 	"S_RSR_RINGEXPLODE",
-	"S_RSR_RINGEXPLODEALT",
+	"S_RSR_RINGEXPLODELOW",
+	"S_RSR_RINGEXPLODEULTRALOW",
 	"S_RSR_XPLD1", -- Because the regular explode states don't let sounds play long enough
 	"S_RSR_XPLD2",
 	"S_RSR_XPLD3",

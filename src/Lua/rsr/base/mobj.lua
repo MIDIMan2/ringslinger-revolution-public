@@ -131,7 +131,7 @@ end
 
 --- Makes the actor explode like an Explosion Ring or Grenade Ring, but for RSR.
 ---@param mo mobj_t
----@param var1 integer Determines the explosion FX type. 0 is for the normal paraloop-based explosion; 1 is for the Mass Scrambler's bomblets.
+---@param var1 integer Determines the explosion FX type. 0 is for the normal paraloop-based explosion; 1 is for the low-CPU paraloop-based explosion; 2 is for the Mass Scrambler's bomblets.
 A_RSRRingExplode = function(mo, var1, var2)
 	if not Valid(mo) then return end
 	S_StopSound(mo) -- Attempt to stop all sounds (travel sounds included)
@@ -145,7 +145,7 @@ A_RSRRingExplode = function(mo, var1, var2)
 		sparkleState = RSR.MOBJ_INFO[mo.type].sparklestate
 	end
 
-	if var1 == 1 then
+	if var1 == 2 then
 		for i = 0, 6 do
 			local spark = P_SpawnMobj(mo.x, mo.y, mo.z, MT_NIGHTSPARKLE)
 			if Valid(spark) then
@@ -164,6 +164,20 @@ A_RSRRingExplode = function(mo, var1, var2)
 				spark.destscale = 0
 				spark.tics = 105
 			end
+		end
+	elseif var1 == 1 then
+		for d = 0, 7 do
+			P_SpawnParaloop(
+				mo.x,
+				mo.y,
+				mo.z + mo.height/2,
+				FixedMul(mo.info.painchance, mo.scale),
+				16,
+				MT_NIGHTSPARKLE,
+				d * ANGLE_45,
+				sparkleState,
+				true
+			)
 		end
 	else
 		for d = 0, 15 do
@@ -191,7 +205,8 @@ A_RSRRingExplode = function(mo, var1, var2)
 end
 
 states[S_RSR_RINGEXPLODE] =		{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
-states[S_RSR_RINGEXPLODEALT] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	1,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODELOW] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	1,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODEULTRALOW] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	2,	0,	S_RSR_XPLD1}
 
 states[S_RSR_XPLD1] =		{SPR_BOM1,	A,				2,	A_ShadowScream,	0,	0,	S_RSR_XPLD2}
 states[S_RSR_XPLD2] =		{SPR_BOM1,	B,				2,	nil,			0,	0,	S_RSR_XPLD3}
