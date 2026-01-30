@@ -9,7 +9,7 @@ set "mainName=ZRSR_RingslingerRevolution"
 set "mainVersion=2.1-RC1"
 
 set "tmzName=RSR_SL_TechnoMadness"
-set "tmzVersion=2.0.1-RC1"
+set "tmzVersion=2.1-RC1"
 
 set "mpName=RSR_MF_DeathmatchPack"
 set "mpVersion=2.1-RC1"
