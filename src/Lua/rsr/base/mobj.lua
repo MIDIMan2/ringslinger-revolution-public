@@ -181,7 +181,7 @@ A_RSRRingExplode = function(mo, var1, var2)
 				mo.y,
 				mo.z + mo.height/2,
 				FixedMul(mo.info.painchance, mo.scale),
-				16,
+				iterCount + 1,
 				MT_NIGHTSPARKLE,
 				d * iterAngle,
 				sparkleState,
@@ -199,8 +199,8 @@ A_RSRRingExplode = function(mo, var1, var2)
 	end
 end
 
-states[S_RSR_RINGEXPLODE] =		{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
-states[S_RSR_RINGEXPLODELOW] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	1,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODE] =			{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODELOW] =		{SPR_NULL,	0,	0,	A_RSRRingExplode,	1,	0,	S_RSR_XPLD1}
 states[S_RSR_RINGEXPLODEULTRALOW] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	2,	0,	S_RSR_XPLD1}
 
 states[S_RSR_XPLD1] =		{SPR_BOM1,	A,				2,	A_ShadowScream,	0,	0,	S_RSR_XPLD2}
