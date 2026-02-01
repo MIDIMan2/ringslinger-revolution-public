@@ -1072,7 +1072,7 @@ end
 RSR.GetPlayerMeleeDamage = function(player)
 	if not (Valid(player) and player.rsrinfo) then return 0 end
 
-	local meleeBaseDamage = 15
+	local meleeBaseDamage = 10
 	local meleeMult = 1
 	local meleeSpdDmg = 0
 	local shield = (player.powers[pw_shield] & SH_NOSTACK)
@@ -1098,11 +1098,8 @@ RSR.GetPlayerMeleeDamage = function(player)
 		meleeMult = 1
 	end
 
-	-- Do more damage if you exceed the normalspeed cap
-	if player.normalspeed > skins[player.skin].normalspeed then
-		-- Increase damage by 5 in 18*FRACUNIT increments of speed
-		meleeSpdDmg = 5 * ((player.normalspeed - skins[player.skin].normalspeed) / (18*FRACUNIT))
-	end
+	-- Do 5 more damage per 18*FRACUNIT of extra speed
+	meleeSpdDmg = (5 * (player.normalspeed / (18*FRACUNIT)))
 
 	-- Sum all that up and return it
 	return ((meleeBaseDamage + meleeSpdDmg) * meleeMult)
