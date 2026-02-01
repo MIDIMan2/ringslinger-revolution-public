@@ -31,7 +31,7 @@ RSR.DEATH_USEDDISINTEGRATECMD = 64
 RSR.DEATHCAM_SPEED_MAX = 96*FRACUNIT
 
 RSR.WARN_COOLDOWN = TICRATE
-RSR.MINOR_COOLDOWN = TICRATE/4
+RSR.MINOR_COOLDOWN = TICRATE/2
 
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
@@ -1098,11 +1098,10 @@ RSR.GetPlayerMeleeDamage = function(player)
 		meleeMult = 1
 	end
 
-	-- Do more damage if you exceed the normal speed cap
-	if player.normalspeed > skins[player.skin].normalspeed*2 then
-		meleeSpdDmg = 10
-	elseif player.normalspeed > skins[player.skin].normalspeed then
-		meleeSpdDmg = 5
+	-- Do more damage if you exceed the normalspeed cap
+	if player.normalspeed > skins[player.skin].normalspeed then
+		-- Increase damage by 5 in 18*FRACUNIT increments of speed
+		meleeSpdDmg = 5 * ((player.normalspeed - skins[player.skin].normalspeed) / (18*FRACUNIT))
 	end
 
 	-- Sum all that up and return it

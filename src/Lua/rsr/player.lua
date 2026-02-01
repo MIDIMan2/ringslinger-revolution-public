@@ -20,7 +20,7 @@ dofolder("ghostbusters.lua")
 dofolder("skininfo.lua")
 
 dofolder("screenfade.lua")
-dofolder("healthflash.lua")
+dofolder("ehpflash.lua")
 
 --- Initializes the player's weapon variables.
 ---@param player player_t

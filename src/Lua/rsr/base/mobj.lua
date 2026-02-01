@@ -36,7 +36,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 		if Valid(bomb.target) and not bomb.target == enemy and RSR.PlayersAreTeammates(bomb.target.player, enemy.player) then return end -- Don't apply knockback to teammates
 
 		-- Make an exception for MT_BLASTEXECUTOR so the breakable wall in Jade Valley works
-		if enemy.type ~= MT_BLASTEXECUTOR and not P_CheckSight(bomb, enemy) then return end
+		if not (RSR.MOBJ_INFO[enemy.type] and RSR.MOBJ_INFO[enemy.type].nosplashsightcheck) and not P_CheckSight(bomb, enemy) then return end
 		local source = bomb.target
 		local damagetype = 0
 		if enemy == bomb.target then source = nil end
@@ -59,7 +59,9 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 
 		if not Valid(enemy) then return end -- Sanity check in case the enemy was removed
 
-		if dist <= thrustDist then
+		-- enemy.flags wasn't working with gold monitors, so we check enemy.info.flags instead
+		if not ((enemy.info.flags & (MF_BOSS|MF_MONITOR)) or (RSR.MOBJ_INFO[enemy.type] and RSR.MOBJ_INFO[enemy.type].nosplashthrust)) -- Don't thrust bosses or monitors
+		and dist <= thrustDist then -- Make sure the "enemy" is within thrustDist
 			local angle = R_PointToAngle2(bomb.x, bomb.y, enemy.x, enemy.y)
 			local pitch = R_PointToAngle2(0, bomb.z + bomb.height/2, distXY, enemy.z + enemy.height/2)
 
@@ -78,28 +80,25 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 				pitch = R_PointToAngle2(0, aheadZ, FixedHypot(aheadX - enemy.x, aheadY - enemy.y), enemy.z + enemy.height/2)
 			end
 
-			-- enemy.flags wasn't working with gold monitors, so we check enemy.info.flags instead
-			if not (enemy.info.flags & (MF_BOSS|MF_MONITOR)) then -- Don't thrust bosses or monitors
-				local thrust = thrustDamage * FixedDiv(thrustDist - dist, thrustDist)
-				-- Reverse the thrust if aimThrust is active
-				if aimThrust and enemy == bomb.target then
-					thrust = -$
-				end
-
-				-- Don't fling the enemy horizontally, if the player fired right under them
-				if FixedHypot(aheadX - enemy.x, aheadY - enemy.y) > 0 then
-					enemy.momx = $ + FixedMul(thrust, FixedMul(cos(angle), cos(pitch)))
-					enemy.momy = $ + FixedMul(thrust, FixedMul(sin(angle), cos(pitch)))
-
-					-- Fixes a bug where the player doesn't get thrusted while standing still
-					if Valid(enemy.player) then
-						enemy.player.rmomx = enemy.momx + enemy.player.cmomx
-						enemy.player.rmomy = enemy.momy + enemy.player.cmomy
-					end
-				end
-
-				enemy.momz = $ + FixedMul(thrust, sin(pitch))
+			local thrust = thrustDamage * FixedDiv(thrustDist - dist, thrustDist)
+			-- Reverse the thrust if aimThrust is active
+			if aimThrust and enemy == bomb.target then
+				thrust = -$
 			end
+
+			-- Don't fling the enemy horizontally, if the player fired right under them
+			if FixedHypot(aheadX - enemy.x, aheadY - enemy.y) > 0 then
+				enemy.momx = $ + FixedMul(thrust, FixedMul(cos(angle), cos(pitch)))
+				enemy.momy = $ + FixedMul(thrust, FixedMul(sin(angle), cos(pitch)))
+
+				-- Fixes a bug where the player doesn't get thrusted while standing still
+				if Valid(enemy.player) then
+					enemy.player.rmomx = enemy.momx + enemy.player.cmomx
+					enemy.player.rmomy = enemy.momy + enemy.player.cmomy
+				end
+			end
+
+			enemy.momz = $ + FixedMul(thrust, sin(pitch))
 		end
 	end, mo, mo.x - bombDist, mo.x + bombDist, mo.y - bombDist, mo.y + bombDist)
 

@@ -64,6 +64,8 @@
 ---@field poweritem boolean Object is a power item (takes 1.5x the normal time to respawn).
 ---@field nopainstate boolean Prevents the enemy from using their painstate defined by mobjinfo.
 ---@field painchance integer|nil Makes the enemy use their painstate in a chance out of 255. Only use for Doom-style enemies. Default is nil.
+---@field nosplashsightcheck boolean Skips the P_CheckSight when RSR.Explode is used on this Object.
+---@field nosplashthrust boolean Prevents the Object from being thrusted by RSR.Explode. Always on for bosses and monitors.
 ---@field killfeedIcon string Graphic to use for the mobj type in the killfeed.
 ---@field killfeedName string Name to use for the mobj type in the killfeed.
 ---@field killfeedObituary rsrobituaryinfo_t Table of death messages to use for the mobj type in the killfeed.
