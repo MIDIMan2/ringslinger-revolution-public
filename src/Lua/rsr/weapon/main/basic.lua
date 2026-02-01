@@ -173,7 +173,7 @@ addHook("MobjThinker", RSR.WeaponPickupThinker, MT_RSR_PICKUP_BASIC)
 -- ACTIONS & STATES
 -- --------------------------------
 
---- Fires a Charge Shot ring from the player.
+--- Fires a Charged Shot ring from the player.
 ---@param player player_t
 ---@param rsrinfo rsrinfo_t
 ---@param chargeSound integer
@@ -244,7 +244,7 @@ pspractions.A_BasicAttackAltChoose = function(player, args)
 	end
 end
 
---- Fires a Charge Shot ring from the player. Behavior heavily inspired by Snap the Sentinel's Static Charger.
+--- Fires a Charged Shot ring from the player. Behavior heavily inspired by Snap the Sentinel's Static Charger.
 ---@param player player_t
 pspractions.A_BasicAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
@@ -308,7 +308,7 @@ pspractions.A_BasicAttackAlt = function(player, args)
 		return
 	end
 
-	-- Force the player to fire a Charge Shot ring if they no longer have the super powerup or the green emerald.
+	-- Force the player to fire a Charged Shot ring if they no longer have the super powerup or the green emerald.
 	if not (RSR.PlayerHasEmerald(player, EMERALD1) or player.powers[pw_super]) then forceFire = true end
 
 	if forceFire or not (player.cmd.buttons & BT_FIRENORMAL) then

@@ -277,6 +277,7 @@ RSR.PlayerDamageKnockback = function(target, inflictor, source, damage, damagety
 		end
 	end
 
+	---@type player_t
 	local player = target.player
 	local shield = (player.powers[pw_shield] & SH_NOSTACK)
 
@@ -549,8 +550,9 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
 	if target.health <= 0 then return end
+	---@type player_t
 	local player = target.player
-	if not (Valid(player) and player.rsrinfo) then return end -- Don't run this code if the target is not a player in RSR
+	if not (Valid(target.player) and target.player.rsrinfo) then return end -- Don't run this code if the target is not a player in RSR
 
 	local hookEvent, hookName = RSR.findEvent("PlayerDamage")
 	if hookEvent then
@@ -742,6 +744,7 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
 	damagetype = $ or 0 -- TODO: See if this is even necessary
+	---@type player_t
 	local player = target.player
 	if not (Valid(player) and player.rsrinfo) then return end
 
@@ -871,9 +874,11 @@ end
 RSR.PlayerDropItems = function(player)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 	local rsrinfo = player.rsrinfo
+	local conserveAmmo = ((G_CoopGametype() and (multiplayer or netgame)) and not (mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrloseinvondeath))
 
-	-- Let players keep their weapons and some of their ammo when dying in co-op
-	if G_CoopGametype() and rsrinfo.starpostData then
+	-- Let players keep their weapons and some of their ammo when dying in co-op, unless RSRLoseInvOnDeath is true
+	if conserveAmmo then
+		if not rsrinfo.starpostData then rsrinfo.starpostData = {} end
 		local starpostData = rsrinfo.starpostData
 		starpostData.weapons = RSR.DeepCopy(rsrinfo.weapons)
 		starpostData.ammo = RSR.DeepCopy(rsrinfo.ammo)
@@ -900,14 +905,20 @@ RSR.PlayerDropItems = function(player)
 		---@type rsrweaponinfo_t
 		local weaponInfo = RSR.WEAPON_INFO[weapon]
 		if not (weaponInfo and weaponInfo.pickup) then continue end
+		local ammoInfo = RSR.AMMO_INFO[weaponInfo.ammotype]
 		local ammoAmount = rsrinfo.ammo[weaponInfo.ammotype]
 		if ammoAmount < 1 then continue end -- If the player has no ammo for this weapon, move on to the next weapon
+		if conserveAmmo and ammoAmount <= ammoInfo.amount then continue end
 
 		local angle = FixedAngle(weapon * (360*FRACUNIT / #rsrinfo.weapons))
 
 		local pickup = P_SpawnMobjFromMobj(player.mo, 0, 0, FRACUNIT, weaponInfo.pickup)
 		if Valid(pickup) then
-			pickup.rsrAmmoAmount = ammoAmount
+			if conserveAmmo and ammoAmount >= ammoInfo.amount then
+				pickup.rsrAmmoAmount = ammoAmount - ammoInfo.amount
+			else
+				pickup.rsrAmmoAmount = ammoAmount
+			end
 			if pickup.info.seestate then pickup.state = pickup.info.seestate end
 			pickup.flags = $ & ~(MF_NOGRAVITY|MF_NOCLIPHEIGHT) -- Make the dropped weapon affected by gravity
 			pickup.flags2 = $|MF2_DONTRESPAWN -- Don't respawn
@@ -948,6 +959,9 @@ end
 RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
+	---@type player_t
+	local player = target.player
+	if not (Valid(player) and player.rsrinfo) then return end
 
 	local hookEvent, hookName = RSR.findEvent("PlayerDeath")
 	if hookEvent then
@@ -960,8 +974,6 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 		end
 	end
 
-	local player = target.player
-	if not (Valid(player) and player.rsrinfo) then return end
 
 	local rsrinfo = player.rsrinfo
 
@@ -1055,36 +1067,15 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrloseinvondeath then rsrinfo.starpostData = {} end
 end
 
---- Handles collision between two player Objects, and deals melee damage when possible.
----@param pmo mobj_t
----@param pmo2 mobj_t
-RSR.PlayerMelee = function(pmo, pmo2)
-	if not RSR.GamemodeActive() then return end
--- 	if not G_RingSlingerGametype() then return end -- Only works in deathmatch and CTF (NOT ANYMORE)
-	if not (Valid(pmo) and Valid(pmo2)) then return end
-
-	if not (Valid(pmo.player) and pmo.player.rsrinfo and Valid(pmo2.player) and pmo2.player.rsrinfo) then return end -- Only for players
-
-	local player = pmo.player
-	local player2 = pmo2.player
-
-	if RSR.PlayersAreTeammates(player, player2) and not RSR.CheckFriendlyFire() then return end -- Don't hurt teammates unless friendlyfire is on
-
-	-- Height check
-	if not (pmo.z <= pmo2.z + pmo2.height
-	and pmo2.z <= pmo.z + pmo.height) then
-		return
-	end
+--- Helper function for getting the damage value of a meleeing player.
+---@param player player_t
+RSR.GetPlayerMeleeDamage = function(player)
+	if not (Valid(player) and player.rsrinfo) then return 0 end
 
 	local meleeBaseDamage = 15
-	local meleeBaseDamage2 = 15
 	local meleeMult = 1
-	local meleeMult2 = 1
 	local meleeSpdDmg = 0
-	local meleeSpdDmg2 = 0
-
 	local shield = (player.powers[pw_shield] & SH_NOSTACK)
-	local shield2 = (player2.powers[pw_shield] & SH_NOSTACK)
 
 	-- This big chunk of elifs sets melee damage to use in the interaction based on the players' shields and powerups
 	-- -orbitalviolet
@@ -1100,11 +1091,6 @@ RSR.PlayerMelee = function(pmo, pmo2)
 		meleeBaseDamage = RSR.SHIELD_INFO[shield].meleedamage
 	end
 
-	if ((shield2 ~= SH_ATTRACT and (player2.pflags & PF_SHIELDABILITY)) or (shield2 == SH_ATTRACT and player2.rsrinfo.homing))
-	and RSR.SHIELD_INFO[shield2] and RSR.SHIELD_INFO[shield2].meleedamage then
-		meleeBaseDamage2 = RSR.SHIELD_INFO[shield2].meleedamage
-	end
-
 	-- Invincibility or Super: x3 damage
 	if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) or player.powers[pw_invulnerability] or player.powers[pw_super] then
 		meleeMult = 3
@@ -1112,28 +1098,42 @@ RSR.PlayerMelee = function(pmo, pmo2)
 		meleeMult = 1
 	end
 
-	if RSR.HasPowerup(player2, RSR.POWERUP_INVINCIBILITY) or player2.powers[pw_invulnerability] or player2.powers[pw_super] then
-		meleeMult2 = 3
-	else
-		meleeMult2 = 1
-	end
-
 	-- Do more damage if you exceed the normal speed cap
-	if player.normalspeed > 64*FRACUNIT then
+	if player.normalspeed > skins[player.skin].normalspeed*2 then
 		meleeSpdDmg = 10
-	elseif player.normalspeed > 40*FRACUNIT then
+	elseif player.normalspeed > skins[player.skin].normalspeed then
 		meleeSpdDmg = 5
 	end
 
-	if player2.normalspeed > 64*FRACUNIT then
-		meleeSpdDmg2 = 10
-	elseif player2.normalspeed > 40*FRACUNIT then
-		meleeSpdDmg2 = 5
+	-- Sum all that up and return it
+	return ((meleeBaseDamage + meleeSpdDmg) * meleeMult)
+end
+
+--- Handles collision between two player Objects, and deals melee damage when possible.
+---@param pmo mobj_t
+---@param pmo2 mobj_t
+RSR.PlayerMelee = function(pmo, pmo2)
+	if not RSR.GamemodeActive() then return end
+-- 	if not G_RingSlingerGametype() then return end -- Only works in deathmatch and CTF (NOT ANYMORE)
+	if not (Valid(pmo) and Valid(pmo2)) then return end
+
+	if not (Valid(pmo.player) and pmo.player.rsrinfo and Valid(pmo2.player) and pmo2.player.rsrinfo) then return end -- Only for players
+
+	---@type player_t
+	local player = pmo.player
+	---@type player_t
+	local player2 = pmo2.player
+
+	if RSR.PlayersAreTeammates(player, player2) and not RSR.CheckFriendlyFire() then return end -- Don't hurt teammates unless friendlyfire is on
+
+	-- Height check
+	if not (pmo.z <= pmo2.z + pmo2.height
+	and pmo2.z <= pmo.z + pmo.height) then
+		return
 	end
 
-	-- Sum all that up
-	local playerDamage = (meleeBaseDamage + meleeSpdDmg) * meleeMult
-	local playerDamage2 = (meleeBaseDamage2 + meleeSpdDmg2) * meleeMult2
+	local playerDamage = RSR.GetPlayerMeleeDamage(player)
+	local playerDamage2 = RSR.GetPlayerMeleeDamage(player2)
 
 	local touchTag = (G_TagGametype() and CV_FindVar("touchtag").value)
 

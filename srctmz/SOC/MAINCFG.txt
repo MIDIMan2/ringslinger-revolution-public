@@ -4,7 +4,7 @@ SStage_Start = 50
 GameData = rsr_s_technomadness-v2.dat
 NumDemos = 0
 IntroToPlay = -1
-CustomVersion = v2.0
+CustomVersion = v2.1
 
 Clear Unlockables
 Clear Emblems
