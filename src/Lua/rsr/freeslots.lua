@@ -73,6 +73,7 @@ freeslot(
 	"sfx_rsrcth", -- Created by orbitalviolet
 	"sfx_rsrlhp", -- Created by orbitalviolet
 	"sfx_rsrgfd", -- Created by orbitalviolet
+	"sfx_rsrquk", -- Created by orbitalviolet
 	"sfx_wvstrt",
 	"sfx_wvdone",
 	"sfx_wvpass"
@@ -285,7 +286,8 @@ freeslot(
 	"S_RSR_INVINSPARKLE6",
 	"S_RSR_ITEM_DEATH",
 	"S_RSR_RINGEXPLODE",
-	"S_RSR_RINGEXPLODEALT",
+	"S_RSR_RINGEXPLODELOW",
+	"S_RSR_RINGEXPLODEULTRALOW",
 	"S_RSR_XPLD1", -- Because the regular explode states don't let sounds play long enough
 	"S_RSR_XPLD2",
 	"S_RSR_XPLD3",
@@ -381,6 +383,8 @@ sfxinfo[sfx_rsrcth].caption = "Critical heal!"
 sfxinfo[sfx_rsrlhp].caption = "You're low on HP..!"
 sfxinfo[sfx_rsrgfd].caption = "Flag damage amplifier..."
 sfxinfo[sfx_rsrgfd].singular = true
+sfxinfo[sfx_rsrquk].caption = "Scored hit"
+sfxinfo[sfx_rsrquk].singular = true
 
 -- Spawners
 sfxinfo[sfx_rsrsp1].caption = "Player spawned"

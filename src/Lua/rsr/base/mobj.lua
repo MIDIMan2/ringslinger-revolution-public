@@ -36,7 +36,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 		if Valid(bomb.target) and not bomb.target == enemy and RSR.PlayersAreTeammates(bomb.target.player, enemy.player) then return end -- Don't apply knockback to teammates
 
 		-- Make an exception for MT_BLASTEXECUTOR so the breakable wall in Jade Valley works
-		if enemy.type ~= MT_BLASTEXECUTOR and not P_CheckSight(bomb, enemy) then return end
+		if not (RSR.MOBJ_INFO[enemy.type] and RSR.MOBJ_INFO[enemy.type].nosplashsightcheck) and not P_CheckSight(bomb, enemy) then return end
 		local source = bomb.target
 		local damagetype = 0
 		if enemy == bomb.target then source = nil end
@@ -59,7 +59,9 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 
 		if not Valid(enemy) then return end -- Sanity check in case the enemy was removed
 
-		if dist <= thrustDist then
+		-- enemy.flags wasn't working with gold monitors, so we check enemy.info.flags instead
+		if not ((enemy.info.flags & (MF_BOSS|MF_MONITOR)) or (RSR.MOBJ_INFO[enemy.type] and RSR.MOBJ_INFO[enemy.type].nosplashthrust)) -- Don't thrust bosses or monitors
+		and dist <= thrustDist then -- Make sure the "enemy" is within thrustDist
 			local angle = R_PointToAngle2(bomb.x, bomb.y, enemy.x, enemy.y)
 			local pitch = R_PointToAngle2(0, bomb.z + bomb.height/2, distXY, enemy.z + enemy.height/2)
 
@@ -78,28 +80,25 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 				pitch = R_PointToAngle2(0, aheadZ, FixedHypot(aheadX - enemy.x, aheadY - enemy.y), enemy.z + enemy.height/2)
 			end
 
-			-- enemy.flags wasn't working with gold monitors, so we check enemy.info.flags instead
-			if not (enemy.info.flags & (MF_BOSS|MF_MONITOR)) then -- Don't thrust bosses or monitors
-				local thrust = thrustDamage * FixedDiv(thrustDist - dist, thrustDist)
-				-- Reverse the thrust if aimThrust is active
-				if aimThrust and enemy == bomb.target then
-					thrust = -$
-				end
-
-				-- Don't fling the enemy horizontally, if the player fired right under them
-				if FixedHypot(aheadX - enemy.x, aheadY - enemy.y) > 0 then
-					enemy.momx = $ + FixedMul(thrust, FixedMul(cos(angle), cos(pitch)))
-					enemy.momy = $ + FixedMul(thrust, FixedMul(sin(angle), cos(pitch)))
-
-					-- Fixes a bug where the player doesn't get thrusted while standing still
-					if Valid(enemy.player) then
-						enemy.player.rmomx = enemy.momx + enemy.player.cmomx
-						enemy.player.rmomy = enemy.momy + enemy.player.cmomy
-					end
-				end
-
-				enemy.momz = $ + FixedMul(thrust, sin(pitch))
+			local thrust = thrustDamage * FixedDiv(thrustDist - dist, thrustDist)
+			-- Reverse the thrust if aimThrust is active
+			if aimThrust and enemy == bomb.target then
+				thrust = -$
 			end
+
+			-- Don't fling the enemy horizontally, if the player fired right under them
+			if FixedHypot(aheadX - enemy.x, aheadY - enemy.y) > 0 then
+				enemy.momx = $ + FixedMul(thrust, FixedMul(cos(angle), cos(pitch)))
+				enemy.momy = $ + FixedMul(thrust, FixedMul(sin(angle), cos(pitch)))
+
+				-- Fixes a bug where the player doesn't get thrusted while standing still
+				if Valid(enemy.player) then
+					enemy.player.rmomx = enemy.momx + enemy.player.cmomx
+					enemy.player.rmomy = enemy.momy + enemy.player.cmomy
+				end
+			end
+
+			enemy.momz = $ + FixedMul(thrust, sin(pitch))
 		end
 	end, mo, mo.x - bombDist, mo.x + bombDist, mo.y - bombDist, mo.y + bombDist)
 
@@ -131,11 +130,14 @@ end
 
 --- Makes the actor explode like an Explosion Ring or Grenade Ring, but for RSR.
 ---@param mo mobj_t
----@param var1 integer Determines the explosion FX type. 0 is for the normal paraloop-based explosion; 1 is for the Mass Scrambler's bomblets.
+---@param var1 integer Determines the explosion FX type. 0 is for the normal paraloop-based explosion; 1 is for the low-CPU paraloop-based explosion; 2 is for the Mass Scrambler's bomblets.
 A_RSRRingExplode = function(mo, var1, var2)
 	if not Valid(mo) then return end
+	S_StopSound(mo) -- Attempt to stop all sounds (travel sounds included)
 
 	local sparkleState = S_NULL
+	local iterCount = 0
+	local iterAngle = ANGLE_45
 	if G_GametypeHasTeams() and Valid(mo.target) and Valid(mo.target.player) then
 		if mo.target.player.ctfteam == 1 then
 			sparkleState = S_NIGHTSPARKLESUPER1 -- Red
@@ -145,10 +147,17 @@ A_RSRRingExplode = function(mo, var1, var2)
 	end
 
 	if var1 == 1 then
+		iterCount = 7
+		iterAngle = ANGLE_45
+	else
+		iterCount = 15
+		iterAngle = ANGLE_22h
+	end
+	if var1 == 2 then
 		for i = 0, 6 do
 			local spark = P_SpawnMobj(mo.x, mo.y, mo.z, MT_NIGHTSPARKLE)
 			if Valid(spark) then
-				spark.state = sparkleState
+				if sparkleState then spark.state = sparkleState end -- Don't set the state to S_NULL!
 				spark.scale = 11*FRACUNIT/5
 				-- Randomize the spark's momentum
 				spark.momx = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
@@ -165,15 +174,15 @@ A_RSRRingExplode = function(mo, var1, var2)
 			end
 		end
 	else
-		for d = 0, 15 do
+		for d = 0, iterCount do
 			P_SpawnParaloop(
 				mo.x,
 				mo.y,
 				mo.z + mo.height/2,
 				FixedMul(mo.info.painchance, mo.scale),
-				16,
+				iterCount + 1,
 				MT_NIGHTSPARKLE,
-				d * ANGLE_22h,
+				d * iterAngle,
 				sparkleState,
 				true
 			)
@@ -189,8 +198,9 @@ A_RSRRingExplode = function(mo, var1, var2)
 	end
 end
 
-states[S_RSR_RINGEXPLODE] =		{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
-states[S_RSR_RINGEXPLODEALT] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	1,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODE] =			{SPR_NULL,	0,	0,	A_RSRRingExplode,	0,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODELOW] =		{SPR_NULL,	0,	0,	A_RSRRingExplode,	1,	0,	S_RSR_XPLD1}
+states[S_RSR_RINGEXPLODEULTRALOW] =	{SPR_NULL,	0,	0,	A_RSRRingExplode,	2,	0,	S_RSR_XPLD1}
 
 states[S_RSR_XPLD1] =		{SPR_BOM1,	A,				2,	A_ShadowScream,	0,	0,	S_RSR_XPLD2}
 states[S_RSR_XPLD2] =		{SPR_BOM1,	B,				2,	nil,			0,	0,	S_RSR_XPLD3}
