@@ -39,12 +39,12 @@ RSR.CV_LaserTag = CV_RegisterVar({
 ---@return boolean
 RSR.CanUseKillCMD = function(player)
 	if not RSR.GamemodeActive() then
-		print("You must be in a Ringslinger Revolution level or gametype to use this.")
+		CONS_Printf(player, "You must be in a Ringslinger Revolution level or gametype to use this.")
 		return false
 	end
 
 	if not (netgame or multiplayer) then
-		print("You can't use this in Single Player! Use \"retry\" instead.")
+		CONS_Printf(player, "You can't use this in Single Player! Use \"retry\" instead.")
 		return false
 	end
 
@@ -83,7 +83,7 @@ end)
 
 if not RSR.DEV_MODE then return end
 
-COM_AddCommand("rsr_getemeralds", function(player, arg)
+RSR.COM_GetEmeralds = function(player, arg)
 	if not (Valid(player) and player.rsrinfo) then return end
 
 	if (gametyperules & GTR_POWERSTONES) then
@@ -92,11 +92,26 @@ COM_AddCommand("rsr_getemeralds", function(player, arg)
 		emeralds = 127
 	end
 	player.rsrinfo.hype = RSR.MAX_HYPE
-end)
+end
 
-COM_AddCommand("rsr_getweapons", function(player, arg)
+RSR.COM_GetWeapons = function(player, arg)
 	if not (Valid(player) and player.rsrinfo) then return end
 	for i = 1, RSR.WEAPON_MAX - 1 do RSR.GiveWeapon(player, i, 999) end
+end
+
+RSR.COM_GetHealth = function(player, arg)
+	if not (Valid(player) and player.rsrinfo) then return end
+	RSR.GiveHealth(player, 200, true)
+	RSR.GiveArmor(player, 200, true)
+end
+
+COM_AddCommand("rsr_getemeralds", RSR.COM_GetEmeralds)
+COM_AddCommand("rsr_getweapons", RSR.COM_GetWeapons)
+COM_AddCommand("rsr_gethealth", RSR.COM_GetHealth)
+COM_AddCommand("rsr_geteverything", function(player, arg)
+	RSR.COM_GetEmeralds(player, arg)
+	RSR.COM_GetWeapons(player, arg)
+	RSR.COM_GetHealth(player, arg)
 end)
 
 COM_AddCommand("rsr_killallenemies", function(player, arg)

@@ -2,9 +2,9 @@
 
 if not RSR then rawset(_G, "RSR", {}) end
 
--- Makes certain CVARs active
--- TODO: Set this to false for MB releases
-RSR.DEV_MODE = true
+-- Makes certain console variables and commands active when true
+-- Set this to false for MB releases
+RSR.DEV_MODE = false
 
 RSR.MAX_HEALTH = 100
 RSR.MAX_ARMOR = 100
