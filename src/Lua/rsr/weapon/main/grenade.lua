@@ -4,7 +4,7 @@
 
 RSR.AddAmmo("GRENADE", {
 	amount = 10,
-	maxamount = 100,
+	maxamount = 50,
 	motype = MT_RSR_PICKUP_GRENADE
 })
 
@@ -43,7 +43,7 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE] = {
 	reactiontime = 50,
 	attacksound = sfx_gbeep,
 	painchance = 192*FRACUNIT,
-	deathstate = S_RSR_RINGEXPLODE,
+	deathstate = S_RSR_RINGEXPLODELOW,
 	deathsound = sfx_pop,
 	speed = 50*FRACUNIT,
 	radius = 25*FRACUNIT,
@@ -239,8 +239,8 @@ addHook("MobjThinker", function(mo)
 	if (mo.flags & MF_STICKY) and (hitFloor or hitCeiling) then
 		if Valid(mo.subsector) and Valid(mo.subsector.sector) then
 			local curSector = mo.subsector.sector
-			if (hitFloor and curSector.floorpic == "F_SKY1" and curSector.floorheight == mo.floorz)
-			or (hitCeiling and curSector.ceilingpic == "F_SKY1" and curSector.ceilingheight == mo.ceilingz) then
+			if (hitFloor and (curSector.floorpic == "F_SKY1" or curSector.damagetype == SD_DEATHPITNOTILT or curSector.damagetype == SD_DEATHPITTILT) and curSector.floorheight == mo.floorz)
+			or (hitCeiling and (curSector.ceilingpic == "F_SKY1" or curSector.damagetype == SD_DEATHPITNOTILT or curSector.damagetype == SD_DEATHPITTILT) and curSector.ceilingheight == mo.ceilingz) then
 				P_RemoveMobj(mo)
 				return
 			end

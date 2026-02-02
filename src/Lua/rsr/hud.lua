@@ -63,10 +63,14 @@ RSR.HUDHealth = function(v, player)
 	if not (v and Valid(player) and player.rsrinfo) then return end
 
 	local vFlags = V_SNAPTOLEFT|V_SNAPTOBOTTOM|V_HUDTRANS|V_PERPLAYER
-	if player.rsrinfo.healCooldown > 0 and ((player.rsrinfo.healCooldown/2) & 1) then
-		vFlags = $|V_YELLOWMAP
-	elseif player.rsrinfo.warnCooldown > 0 and ((player.rsrinfo.warnCooldown/2) & 1) then
-		vFlags = $|V_REDMAP
+	if player.rsrinfo.ehpFlash and player.rsrinfo.ehpFlash.tics then
+		if ((player.rsrinfo.ehpFlash.tics/player.rsrinfo.ehpFlash.frequency) & 1) then
+			vFlags = $|player.rsrinfo.ehpFlash.color
+		end
+	elseif player.rsrinfo.health and player.rsrinfo.health + player.rsrinfo.armor <= RSR.CRIT_EHP then
+		if ((leveltime/35) & 1) then
+			vFlags = $|V_GRAYMAP
+		end
 	end
 
 	v.draw(6, 186, v.cachePatch("RSRHLTH"), vFlags & ~V_CHARCOLORMASK)
@@ -90,10 +94,14 @@ RSR.HUDArmor = function(v, player)
 	local armorPatch = v.cachePatch(armorIcon)
 
 	local vFlags = V_SNAPTOLEFT|V_SNAPTOBOTTOM|V_HUDTRANS|V_PERPLAYER
-	if player.rsrinfo.healCooldown > 0 and ((player.rsrinfo.healCooldown/2) & 1) then
-		vFlags = $|V_YELLOWMAP
-	elseif player.rsrinfo.warnCooldown > 0 and ((player.rsrinfo.warnCooldown/2) & 1) then
-		vFlags = $|V_REDMAP
+	if player.rsrinfo.ehpFlash and player.rsrinfo.ehpFlash.tics then
+		if ((player.rsrinfo.ehpFlash.tics/player.rsrinfo.ehpFlash.frequency) & 1) then
+			vFlags = $|player.rsrinfo.ehpFlash.color
+		end
+	elseif player.rsrinfo.health and player.rsrinfo.health + player.rsrinfo.armor <= RSR.CRIT_EHP then
+		if ((leveltime/35) & 1) then
+			vFlags = $|V_GRAYMAP
+		end
 	end
 
 	if Valid(armorPatch) then

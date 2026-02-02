@@ -320,7 +320,7 @@ RSR.MOBJ_INFO[MT_TNTBARREL] = {
 		solo = "$v bought an ACME TNT barrel."
 	}
 }
-RSR.MOBJ_INFO[MT_BLASTEXECUTOR] = {health = 1, nothomable = true} -- Don't let homing rings home in on blast executors
+RSR.MOBJ_INFO[MT_BLASTEXECUTOR] = {health = 1, nothomable = true, nosplashsightcheck = true, nosplashthrust = true} -- Don't let homing rings home in on blast executors
 
 -- --------------------------------
  -- SHIELD INFO

@@ -48,10 +48,10 @@ RSR.CanUseKillCMD = function(player)
 		return false
 	end
 
-	if G_PlatformGametype() then
-		print("You can't use this in co-op, race, or competition! Use \"suicide\" instead.")
-		return false
-	end
+	-- if G_PlatformGametype() then
+	-- 	print("You can't use this in co-op, race, or competition! Use \"suicide\" instead.")
+	-- 	return false
+	-- end
 
 	if not (Valid(player) and Valid(player.realmo)) then return false end
 

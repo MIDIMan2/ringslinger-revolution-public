@@ -67,6 +67,7 @@ addHook("TouchSpecial", function(special, toucher)
 	if not (Valid(special) and Valid(toucher)) then return end
 	if not Valid(toucher.player) then return end
 
+	---@type player_t
 	local player = toucher.player
 
 	if not P_CanPickupItem(player, true) or player.tossdelay then

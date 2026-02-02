@@ -4,7 +4,7 @@ orbitalviolet: mod co-author, primary sound designer, programming, graphic desig
 Othius: initial playtesting
 GomaTheMascar: initial playtesting
 Sylve: programming help and allowing reuse of a few Lua scripts
-Snu: the "Hook Library" addon used for RSR's hook system
-Jisk: rewriting and improving RSR's hook system
+Snu: the "Hook Library" addon used for RSR's hook system (v2.0)
+Jisk: rewriting and improving RSR's hook system (v2.1+)
 Lunewulff, Skydusk: the "WorldToScreen" library used for the enemy radar in "Waves" maps
 TehRealSalt: the "Custom HUD" library used for drawing the HUD, some code borrowed from Snap the Sentinel v3.1
