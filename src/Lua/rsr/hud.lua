@@ -196,9 +196,9 @@ RSR.HUD_ITEMS = {
 	{"rsr_time", RSR.HUDTime, 3},
 	{"rsr_wavesenemycount", RSR.HUDWavesEnemyCount, 3},
 
-	{"rsr_killfeed", RSR.HUDKillfeed, 4},
 	{"rsr_waves", RSR.HUDWaves, 4},
 	{"rsr_flagradar", RSR.HUDCTFFlagRadar, 4},
+	{"rsr_killfeed", RSR.HUDKillfeed, 4},
 
 	{"rsr_screenfade", RSR.HUDScreenFade, 32},
 

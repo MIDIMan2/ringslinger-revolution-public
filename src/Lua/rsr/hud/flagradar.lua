@@ -1,6 +1,6 @@
 -- Ringslinger Revolution - Flag Radar HUD
 
---- Draws a radar for flagrunners to the HUD.
+--- Draws a radar for flagrunners (and an indicator if the player has the flag) to the HUD.
 ---@param v videolib
 ---@param player player_t
 RSR.HUDCTFFlagRadar = function(v, player, thiscam)
@@ -8,6 +8,16 @@ RSR.HUDCTFFlagRadar = function(v, player, thiscam)
 	if not RSR.GamemodeActive() then return end -- Only run in RSR maps
 	if not (gametyperules & GTR_TEAMFLAGS) then return end -- Only run in CTF maps
 	if not Valid(player) and Valid(player.realmo) then return end
+
+	if player.gotflag then
+		local flagIconPatch = "RSRRFLAG"
+		if player.gotflag == GF_BLUEFLAG then flagIconPatch = "RSRBFLAG" end
+		local y = 180
+		if player.rsrinfo and player.rsrinfo.powerups then
+			y = $ - (#player.rsrinfo.powerups * RSR.POWERUP_YOFFSET) -- Don't draw on top of the powerups HUD
+		end
+		v.draw(300, y, v.cachePatch(flagIconPatch), V_PERPLAYER|V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTORIGHT)
+	end
 
 	-- Display a flagrunner radar
 	for player2 in players.iterate do
