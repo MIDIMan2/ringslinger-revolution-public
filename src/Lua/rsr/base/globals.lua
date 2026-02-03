@@ -2,9 +2,9 @@
 
 if not RSR then rawset(_G, "RSR", {}) end
 
--- Makes certain CVARs active
--- TODO: Set this to false for MB releases
-RSR.DEV_MODE = true
+-- Makes certain console variables and commands active when true
+-- Set this to false for MB releases
+RSR.DEV_MODE = false
 
 RSR.MAX_HEALTH = 100
 RSR.MAX_ARMOR = 100
@@ -13,9 +13,9 @@ RSR.TRIGGER_HYPE = 1750
 RSR.MAX_HEALTH_BONUS = 200
 RSR.MAX_ARMOR_BONUS = 200
 RSR.MAX_HYPE = 3000
-RSR.CRIT_COOLDOWN = 15*TICRATE
+RSR.CRIT_COOLDOWN = 7*TICRATE
 RSR.CRIT_EHP = 40
-RSR.SUPERCRIT_EHP = 20
+RSR.SUPERCRIT_EHP = 25
 
 RSR.MAX_REAPING = 50
 

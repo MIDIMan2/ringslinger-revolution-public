@@ -1,5 +1,7 @@
 -- Ringslinger Revolution - Powerups HUD
 
+RSR.POWERUP_YOFFSET = 18
+
 --- Draws the player's active powerups to the HUD.
 ---@param v videolib
 ---@param player player_t
@@ -27,7 +29,7 @@ RSR.HUDPowerups = function(v, player)
 		if icon == "RSRSUPRI" then colormap = v.getColormap(player.skin, player.skincolor) end
 
 		if Valid(patch) and power.tics > 3*TICRATE or (leveltime & 1) then
-			local yOffset = -18 * (key - 1)
+			local yOffset = -RSR.POWERUP_YOFFSET * (key - 1)
 			v.draw(x - patch.width/2, y - patch.height/2 + yOffset, patch, vflags, colormap)
 			v.drawNum(x + 28, y - 6 + yOffset, G_TicsToSeconds(power.tics), vflags)
 		end

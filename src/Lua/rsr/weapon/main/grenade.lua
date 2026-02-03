@@ -4,7 +4,7 @@
 
 RSR.AddAmmo("GRENADE", {
 	amount = 10,
-	maxamount = 100,
+	maxamount = 50,
 	motype = MT_RSR_PICKUP_GRENADE
 })
 
@@ -43,7 +43,7 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE] = {
 	reactiontime = 50,
 	attacksound = sfx_gbeep,
 	painchance = 192*FRACUNIT,
-	deathstate = S_RSR_RINGEXPLODE,
+	deathstate = S_RSR_RINGEXPLODELOW,
 	deathsound = sfx_pop,
 	speed = 50*FRACUNIT,
 	radius = 25*FRACUNIT,
@@ -62,7 +62,7 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	RSR.ProjectileTravelSound(mo, 3, sfx_grndab) -- Travelling sound
+	RSR.ProjectileTravelSound(mo, 6, sfx_grndab) -- Travelling sound
 	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
 
 	if mo.fuse % TICRATE == 0 then
@@ -205,7 +205,7 @@ addHook("MobjThinker", function(mo)
 			return true -- Stop the blockmap search
 		end, mo, mo.x - proxDist, mo.x + proxDist, mo.y - proxDist, mo.y + proxDist)
 	else
-		RSR.ProjectileTravelSound(mo, 3, sfx_gratab) -- Travelling sound
+		RSR.ProjectileTravelSound(mo, 67, sfx_gratab) -- Travelling sound
 		RSR.ProjectileGhostTimer(mo) -- Ghost trail
 	end
 
@@ -239,8 +239,8 @@ addHook("MobjThinker", function(mo)
 	if (mo.flags & MF_STICKY) and (hitFloor or hitCeiling) then
 		if Valid(mo.subsector) and Valid(mo.subsector.sector) then
 			local curSector = mo.subsector.sector
-			if (hitFloor and curSector.floorpic == "F_SKY1" and curSector.floorheight == mo.floorz)
-			or (hitCeiling and curSector.ceilingpic == "F_SKY1" and curSector.ceilingheight == mo.ceilingz) then
+			if (hitFloor and (curSector.floorpic == "F_SKY1" or curSector.damagetype == SD_DEATHPITNOTILT or curSector.damagetype == SD_DEATHPITTILT) and curSector.floorheight == mo.floorz)
+			or (hitCeiling and (curSector.ceilingpic == "F_SKY1" or curSector.damagetype == SD_DEATHPITNOTILT or curSector.damagetype == SD_DEATHPITTILT) and curSector.ceilingheight == mo.ceilingz) then
 				P_RemoveMobj(mo)
 				return
 			end

@@ -69,7 +69,7 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_SCATTER,
 	seesound = sfx_sctrfr,
-	reactiontime = 9,
+	reactiontime = 11,
 	painchance = 192*FRACUNIT,
 	deathstate = S_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION_XPLDSOUND,
 	deathsound = sfx_none,
@@ -81,7 +81,7 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	flags = MF_NOBLOCKMAP|MF_MISSILE
 }
 
-states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION_XPLDSOUND] =	{SPR_NULL,	A,	0,	A_ScatterFlakCannonXpldSound,	0,	0,	S_RSR_RINGEXPLODEALT}
+states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION_XPLDSOUND] =	{SPR_NULL,	A,	0,	A_ScatterFlakCannonXpldSound,	0,	0,	S_RSR_RINGEXPLODEULTRALOW}
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 addHook("MobjThinker", function(mo)
@@ -90,7 +90,7 @@ addHook("MobjThinker", function(mo)
 	if not (mo.flags & MF_MISSILE) then return end
 
 	P_SetObjectMomZ(mo, -abs(2*P_GetMobjGravity(mo)), true) -- Artificial gravity for bomblets
-	RSR.ProjectileTravelSound(mo, 3) -- Bomblet sizzling
+	RSR.ProjectileTravelSound(mo, 6) -- Bomblet sizzling
 	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
 end, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
@@ -178,7 +178,7 @@ A_ScatterFlakCannon = function(actor, var1, var2)
 			flakShot.pitch = actor.pitch + (flakPitchOffset)
 			flakShot.target = actor.target -- Don't let players hurt themselves with a Mass Scrambler
 			flakShot.rsrProjectile = true
-			flakShot.rsrSoundTimer = P_RandomRange(1, 3) -- Randomize travelling sound timer so the sounds don't overlap each other and pierce the player's eardrums
+			flakShot.rsrSoundTimer = P_RandomRange(1, 12) -- Randomize travelling sound timer so the sounds don't overlap each other and pierce the player's eardrums
 			-- Make it smaller
 			local flakRandomMod = P_RandomRange(4, 7) -- Randomise scale between each bomblet a bit
 			local flakVMod = P_RandomRange(2, 4) -- Randomise scale between each bomblet a bit

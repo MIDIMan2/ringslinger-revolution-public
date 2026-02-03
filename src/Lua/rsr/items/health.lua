@@ -33,10 +33,12 @@ RSR.GiveHealth = function(player, health, isBonus, lowMod)
 	-- Only do crit healing if we don't have the flag!
 	if lowMod and not player.gotflag then
 		-- If the player is critically low on health, add a flat increase to health yielded from pickups
-		if (player.rsrinfo.health + player.rsrinfo.armor < RSR.CRIT_EHP) and (player.rsrinfo.critCooldown < 1) then
+		if (player.rsrinfo.health + player.rsrinfo.armor <= RSR.CRIT_EHP) and (player.rsrinfo.critCooldown < 1) then
 			health = $ + 8
+			S_StartSound(nil, sfx_rsrcth, player)
+			RSR.SetEHPFlash(player, V_YELLOWMAP, RSR.WARN_COOLDOWN, 2)
 			-- If a critical heal brings the player above supercritical health, put this effect on cooldown
-			if ((player.rsrinfo.health + health) + player.rsrinfo.armor >= RSR.SUPERCRIT_EHP) then
+			if ((player.rsrinfo.health + health) + player.rsrinfo.armor > RSR.SUPERCRIT_EHP) then
 				player.rsrinfo.critCooldown = RSR.CRIT_COOLDOWN
 			end
 		end
@@ -77,10 +79,12 @@ RSR.GiveArmor = function(player, armor, isBonus, lowMod)
 	-- Only do crit healing if we don't have the flag!
 	if lowMod and not player.gotflag then
 		-- If the player is critically low on health, add a flat increase to armor yielded from pickups
-		if (player.rsrinfo.health + player.rsrinfo.armor < RSR.CRIT_EHP) and (player.rsrinfo.critCooldown < 1) then
+		if (player.rsrinfo.health + player.rsrinfo.armor <= RSR.CRIT_EHP) and (player.rsrinfo.critCooldown < 1) then
 			armor = $ + 8
+			S_StartSound(nil, sfx_rsrcth, player)
+			RSR.SetEHPFlash(player, V_YELLOWMAP, RSR.WARN_COOLDOWN, 2)
 			-- If a critical heal brings the player above supercritical health, put this effect on cooldown
-			if (player.rsrinfo.health + (player.rsrinfo.armor + armor) >= RSR.SUPERCRIT_EHP) then
+			if (player.rsrinfo.health + (player.rsrinfo.armor + armor) > RSR.SUPERCRIT_EHP) then
 				player.rsrinfo.critCooldown = RSR.CRIT_COOLDOWN
 			end
 		end

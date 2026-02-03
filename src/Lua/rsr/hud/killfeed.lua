@@ -164,7 +164,7 @@ end
 ---@param inflictorPatch string|nil Default is "RSREGGM".
 ---@param infReflected boolean|nil
 ---@param highlight boolean|nil
----@param skincolor skincolor_t|nil
+---@param skincolor skincolornum_t|nil
 ---@param obituary string|nil Default is "$v died.".
 RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary)
 	if not victimName then return end -- We can't display a message if there is no victim!
@@ -224,7 +224,7 @@ end
 --- Adds a message to the killfeed.
 ---@param victim player_t
 ---@param inflictor mobj_t
----@param attacker player_t
+---@param attacker player_t|nil
 ---@param damagetype integer
 RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	if not Valid(victim) then return end
@@ -315,6 +315,10 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		inflictorPatch = "RSRDISNT"
 		obituary = "$v was abducted by aliens."
 		if Valid(attacker) then obituary = "$a abducted $v." end
+	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_SWITCHEDTEAMS) then
+		inflictorPatch = "RSRSWTCH"
+		obituary = "$v abandoned their team."
+		if Valid(attacker) and not RSR.PlayersAreTeammates(victim, attacker) then obituary = "$a joined $v's cause." end
 	end
 
 	-- Don't show highlighted backgrounds in splitscreen

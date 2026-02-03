@@ -368,7 +368,10 @@ end
 ---@param toucher mobj_t The player object touching the weapon.
 ---@param weaponType integer The weapon to give the player (RSR.WEAPON_* constants).
 RSR.TouchWeaponDefault = function(special, toucher, weaponType)
+	if not (Valid(special) and Valid(toucher) and weaponType) then return end
+	---@type player_t
 	local player = toucher.player
+	if not (Valid(player) and player.rsrinfo) then return end
 
 	-- Don't pick up the weapon if the player can't use it (e.g. Non-tagged players in Tag gametypes)
 	if not RSR.CanUseWeapons(player) then return true end
@@ -415,6 +418,7 @@ end
 ---@param weaponType integer
 RSR.WeaponTouchSpecial = function(special, toucher, weaponType)
 	if not (Valid(special) and Valid(toucher) and weaponType) then return end
+	---@type player_t
 	local player = toucher.player
 	if not (Valid(player) and player.rsrinfo) then return end
 
@@ -513,6 +517,8 @@ RSR.WeaponMobjFuse = function(mo)
 
 	P_RemoveMobj(mo)
 end
+
+folder = "rsr/weapon/main"
 
 dofolder("basic.lua")
 dofolder("scatter.lua")

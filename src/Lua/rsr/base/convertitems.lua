@@ -135,6 +135,8 @@ RSR.ConvertMapItem = function(mo, convertTable)
 	end
 
 	local origDamage = mo.info.damage
+	-- TODO: Apparently, there's a bug where the blockmap isn't refreshed when mo.radius is set, but only when mo.scale is set
+	-- Set mo.scale here, or wait until 2.2.16 comes out (if it fixes this...)
 	if type(moInfo.motype) == "table" and Valid(mo.spawnpoint) then
 		mo.type = moInfo.motype[(#mo.spawnpoint % #moInfo.motype) + 1]
 	else

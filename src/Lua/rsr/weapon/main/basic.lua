@@ -82,6 +82,7 @@ end, MT_RSR_PROJECTILE_BASIC_CHARGED)
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 
+	if mo.rsrChargeTravelSound then RSR.ProjectileTravelSound(mo, 12, sfx_rrchab) end
 	RSR.ProjectileGhostTimer(mo)
 	if (leveltime & 1) then
 		mo.color = SKINCOLOR_SALMON
@@ -172,7 +173,7 @@ addHook("MobjThinker", RSR.WeaponPickupThinker, MT_RSR_PICKUP_BASIC)
 -- ACTIONS & STATES
 -- --------------------------------
 
---- Fires a Charge Shot ring from the player.
+--- Fires a Charged Shot ring from the player.
 ---@param player player_t
 ---@param rsrinfo rsrinfo_t
 ---@param chargeSound integer
@@ -197,6 +198,7 @@ RSR.SpawnBasicAlt = function(player, rsrinfo, chargeSound)
 	local altSound = sfx_redal1 + min(3, 2*addScale/FRACUNIT)
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BASIC_CHARGED, player.mo.angle, player.cmd.aiming<<16, nil, 90*FRACUNIT + addChargeSpeed, altSound)
 	if Valid(missile) then
+		if rsrinfo.basicCharge >= 35 then missile.rsrChargeTravelSound = true end
 		missile.scale = FixedMul($, FRACUNIT/2 + addScale)
 		missile.rsrDamage = 20 + addDamage
 	end
@@ -231,7 +233,7 @@ pspractions.A_BasicAttackAltChoose = function(player, args)
 	-- Reset these variables just in case...
 	player.rsrinfo.basicCharge = 0
 	player.rsrinfo.basicChargeSound = 0
-	player.rsrinfo.basicChareeDontTakeAmmo = false
+	player.rsrinfo.basicChargeDontTakeAmmo = false
 
 	-- Use the "ATTACKALTSPEED" state if the player has speed shoes or is super.
 	if (player.rsrinfo.rapidfire > 0) or player.powers[pw_super] then
@@ -242,7 +244,7 @@ pspractions.A_BasicAttackAltChoose = function(player, args)
 	end
 end
 
---- Fires a Charge Shot ring from the player. Behavior heavily inspired by Snap the Sentinel's Static Charger.
+--- Fires a Charged Shot ring from the player. Behavior heavily inspired by Snap the Sentinel's Static Charger.
 ---@param player player_t
 pspractions.A_BasicAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
@@ -306,7 +308,7 @@ pspractions.A_BasicAttackAlt = function(player, args)
 		return
 	end
 
-	-- Force the player to fire a Charge Shot ring if they no longer have the super powerup or the green emerald.
+	-- Force the player to fire a Charged Shot ring if they no longer have the super powerup or the green emerald.
 	if not RSR.CanUseAttack(player, EMERALD1, true) then forceFire = true end
 
 	if forceFire or not (player.cmd.buttons & RSR.GetAttackButton(true)) then

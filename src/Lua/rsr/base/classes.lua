@@ -35,7 +35,7 @@
 ---@field homingThreshold integer The player's homing threshold before they are knocked out of a homing attack.
 ---@field basicCharge integer|nil Determines the current "charge" of the Red Ring's altfire.
 ---@field basicChargeSound integer|nil Counter for the Red Ring's altfire's "charge" sound.
----@field basicChargeDontTakeAmmo boolean|nil Determines if the Charge Shot shouldn't take ammo.
+---@field basicChargeDontTakeAmmo boolean|nil Determines if the Charged Shot shouldn't take ammo.
 ---@field scatterFlak mobj_t|nil A reference to the player's last Mass Scrambler ring fired.
 ---@field bounceMega mobj_t|nil A reference to the player's last Goldburster ring fired.
 ---@field waspTime integer|nil Timer for the Homing Ring's altfire.
@@ -46,6 +46,7 @@
 ---@field useZoom boolean Determines if the weapon zoom should be active or not.
 ---@field fovZoom integer Timer for the weapon zoom (max is 14).
 ---@field critCooldown tic_t Cooldown timer for critical healing.
+---@field ehpFlash rsrehpflash_t Determines the current properties of the player's EHP (effective hit points) flash.
 ---@field deathCamPos vector3_t|nil Position for the camera upon death (only applies if the player is moving fast enough).
 
 ---@class rsrmobjinfo_t
@@ -63,6 +64,8 @@
 ---@field poweritem boolean Object is a power item (takes 1.5x the normal time to respawn).
 ---@field nopainstate boolean Prevents the enemy from using their painstate defined by mobjinfo.
 ---@field painchance integer|nil Makes the enemy use their painstate in a chance out of 255. Only use for Doom-style enemies. Default is nil.
+---@field nosplashsightcheck boolean Skips the P_CheckSight when RSR.Explode is used on this Object.
+---@field nosplashthrust boolean Prevents the Object from being thrusted by RSR.Explode. Always on for bosses and monitors.
 ---@field killfeedIcon string Graphic to use for the mobj type in the killfeed.
 ---@field killfeedName string Name to use for the mobj type in the killfeed.
 ---@field killfeedObituary rsrobituaryinfo_t Table of death messages to use for the mobj type in the killfeed.
@@ -125,6 +128,11 @@
 ---@field color integer Color of the screen fade (palette index).
 ---@field strength integer Strength of the screen fade (0 to FRCAUNIT).
 
+---@class rsrehpflash_t
+---@field tics tic_t Timer for the current flash in tics.
+---@field frequency tic_t Determines how frequent the flash is. Larger values mean slower flashes.
+---@field color integer Color of the flash (V_* constants (chat colors only)).
+
 ---@class rsrskininfo_t
 ---@field noweapons boolean Disables RSR's weapon system for this character/skin.
 ---@field nodamage boolean Disables RSR's player damage system for this character/skin.
@@ -154,7 +162,7 @@
 ---@field infReflected boolean If true, the killfeed will display a Force Shield icon to signify this inflictor was reflected.
 ---@field attacker string Name of the attacker.
 ---@field highlight boolean If true, this killfeed entry's background will be white instead of black.
----@field skincolor skincolor_t Skin color of the attacker, if they exist.
+---@field skincolor skincolornum_t Skin color of the attacker, if they exist.
 ---@field tics tic_t Timer for the killfeed entry to stay on screen.
 
 -- --------------------------------
@@ -180,18 +188,20 @@
 ---@field rsrKilled boolean|nil Automatically set to true when the enemy is killed in RSR gamemodes.
 ---@field rsrGhostTimer integer|nil Timer for spawning a ghost from a projectile.
 ---@field rsrSoundTimer integer|nil Timer for playing a projectile's travelling sound.
+---@field rsrChargeTravelSound boolean|nil Determines if the Charged Shot should play its travel sound.
 ---@field rsrIsPanel boolean|nil Determines if the weapon pickup is a panel.
 ---@field rsrAmmoAmount integer|nil Custom amount for the ammo pickup.
 ---@field rsrDontDespawn boolean|nil Makes the item not disappear when collected in co-op.
 ---@field rsrFloatOffset angle_t|nil Angle offset for the item's "floating" animation.
 ---@field rsrSpawner mobj_t|nil Spawner of the item.
 ---@field rsrOrigScale fixed_t|nil Scale of the Object when it was spawned. Used by Goldburster and Mass Scrambler when spawning smaller projectiles.
+---@field rsrChargeHitList boolean[] Table of Objects (indices) the Charged Shot has hit
 ---@field rsrBounced integer|nil Bounce counter for the Bounce ring.
 ---@field rsrPrevMomX fixed_t|nil Previous X momentum of the Object.
 ---@field rsrPrevMomY fixed_t|nil Previous Y momentum of the Object.
 ---@field rsrPrevMomZ fixed_t|nil Previous Z momentum of the Object.
 ---@field rsrLockOnSound boolean|nil Prevents the Homing ring lock on sound from playing more than once.
----@field rsrRailHitList boolean[] Table of Objects the rail ring has hit.
+---@field rsrRailHitList boolean[] Table of Objects (indices) the rail ring has hit.
 ---@field rsrRailHitCount integer|nil Player hit count for the rail ring.
 ---@field rsrStrongBoxIcon mobj_t|nil Icon to display for the strong random monitor.
 ---@field rsrInfernoFire boolean|nil Used by the player's spindust to check if they have a Flame Shield.

@@ -20,6 +20,7 @@ dofolder("ghostbusters.lua")
 dofolder("skininfo.lua")
 
 dofolder("screenfade.lua")
+dofolder("ehpflash.lua")
 
 --- Initializes the player's weapon variables.
 ---@param player player_t
@@ -73,6 +74,7 @@ RSR.PlayerInit = function(player)
 	rsrinfo.bob = {x = 0, y = 0}
 
 	RSR.PlayerScreenFadeInit(player)
+	RSR.PlayerEHPFlashInit(player)
 
 	PSprites.PlayerPSpritesInit(player)
 	PSprites.PlayerPSpritesReset(player)
@@ -197,7 +199,7 @@ RSR.PlayerDeathTick = function(player)
 	if player.mo.rsrPrevMomX or player.mo.rsrPrevMomY or player.mo.rsrPrevMomZ then
 		player.mo.momx = $ + (player.mo.rsrPrevMomX or 0)
 		player.mo.momy = $ + (player.mo.rsrPrevMomY or 0)
-		player.mo.momz = $ + (player.mo.rsrPrevMomZ or 0) -- TODO: This is supposed to make the player go up...
+		player.mo.momz = $ + (player.mo.rsrPrevMomZ or 0)
 		player.mo.rsrPrevMomX = 0
 		player.mo.rsrPrevMomY = 0
 		player.mo.rsrPrevMomZ = 0
@@ -315,7 +317,8 @@ RSR.PlayerThink = function(player)
 	RSR.PlayerSuperTick(player)
 
 	PSprites.TickPSprites(player)
-	RSR.ScreenFadeTick(player)
+	RSR.PlayerScreenFadeTick(player)
+	RSR.PlayerEHPFlashTick(player)
 
 	RSR.PlayerStarpostDataTick(player)
 

@@ -16,6 +16,72 @@ RSR.EnemySetBlink = function(mo, timer)
 	mo.rsrEnemyBlink = timer
 end
 
+--- Gets the health scale based on the enemy's object type
+---@param moType mobjtype_t|nil
+---@return integer healthScale Default is 30.
+RSR.GetEnemyHealthScale = function(moType)
+	local healthScale = 30
+	if moType and RSR.MOBJ_INFO[moType] and RSR.MOBJ_INFO[moType].health then
+		healthScale = (RSR.MOBJ_INFO[moType].health / mobjinfo[moType].spawnhealth)
+	end
+	return healthScale
+end
+
+--- Makes the given enemy face the source and alerts other enemies to their presence.
+---@param target mobj_t Enemy to alert.
+---@param source mobj_t Player object to target.
+RSR.AlertNearbyEnemies = function(target, source)
+	if not (Valid(target) and Valid(source)) then return end
+	if Valid(target.target) then return end -- Don't run this code if the enemy is already targetting a player
+
+	target.angle = R_PointToAngle2(target.x, target.y, source.x, source.y)
+	target.target = source
+
+	local searchRadius = 1024*target.scale
+
+	searchBlockmap("objects", function(targetMo, enemyMo)
+		if not (Valid(targetMo) and Valid(enemyMo)) then return end
+		-- TODO: There is a bug where enemies that fired at a TNT barrel face nearby exploded enemies
+		-- The ideal solution would be to check if enemyMo == source, but "source" is the TNT barrel
+		-- Figure out how to prevent that, eventually
+		if (enemyMo.flags & (MF_ENEMY|MF_SHOOTABLE)) ~= (MF_ENEMY|MF_SHOOTABLE) then return end
+		if Valid(enemyMo.target) then return end
+
+		local distXY = FixedHypot(enemyMo.x - targetMo.x, enemyMo.y - targetMo.y)
+		local dist = FixedHypot(distXY, enemyMo.z - targetMo.z)
+
+		if dist > searchRadius then return end
+
+		enemyMo.angle = R_PointToAngle2(enemyMo.x, enemyMo.y, targetMo.x, targetMo.y)
+	end, target, target.x - searchRadius, target.x + searchRadius, target.y - searchRadius, target.y + searchRadius)
+end
+
+--- Decrements the enemy's health by the damage value given.
+---@param target mobj_t
+---@param source mobj_t|nil
+---@param damage integer
+---@param healthScale integer
+RSR.EnemyDecrementHealth = function(target, source, damage, healthScale)
+	if not (Valid(target) and damage) then return -1, false end
+	if not healthScale then healthScale = RSR.GetEnemyHealthScale(target.type) end
+	if Valid(source) and Valid(source.player) then RSR.GiveHype(source.player, min(damage, target.rsrHealth)) end
+	target.rsrHealth = max(0, $ - damage)
+
+	local triggerPainState = false
+
+	local painChance = RSR.MOBJ_INFO[target.type].painchance
+	if painChance == nil then painChance = -1 end
+
+	-- Decrease the target's health until it matches its snapHealth divided by its health scale
+	while FixedCeil((target.rsrHealth * FRACUNIT) / healthScale) < target.health * FRACUNIT do
+		target.health = $ - 1
+		if painChance == -1 then triggerPainState = true end
+	end
+	if painChance ~= -1 and P_RandomByte() < painChance and not (target.flags2 & MF2_SKULLFLY) then triggerPainState = true end
+
+	return painChance, triggerPainState
+end
+
 --- Sets the enemy's health based on damage dealt to it.
 ---@param target mobj_t Enemy that took damage.
 ---@param inflictor mobj_t
@@ -26,13 +92,19 @@ RSR.EnemySetHealth = function(target, inflictor, source, damage, damagetype)
 	if not Valid(target) then return end
 	if not damage then return end
 
-	damage = RSR.GetRandomDamage($)
-
-	local healthScale = 30
-	local enemyHealth = RSR.MOBJ_INFO[target.type].health
-	if enemyHealth ~= nil then
-		healthScale = (enemyHealth / target.info.spawnhealth)
+	local hookEvent, hookName = RSR.findEvent("EnemySetHealth")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(target, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
+			if result == true then return end
+		end
 	end
+
+	damage = RSR.GetRandomDamage($)
+	local healthScale = RSR.GetEnemyHealthScale(target.type)
 
 	-- Handles enemies that regenerate their health
 	if not target.rsrHealth and target.health then
@@ -45,23 +117,7 @@ RSR.EnemySetHealth = function(target, inflictor, source, damage, damagetype)
 		target.rsrHealth = target.health * healthScale
 	end
 
-	if Valid(source) and Valid(source.player) then RSR.GiveHype(source.player, min(damage, target.rsrHealth)) end
-	target.rsrHealth = max(0, $ - damage)
-
-	local currentHealth = target.health
-	local triggerPainState = false
-
-	local painChance = RSR.MOBJ_INFO[target.type].painchance
-	if painChance == nil then painChance = -1 end
-
-	-- Decrease the target's health until it matches its snapHealth divided by its health scale
-	while FixedCeil((target.rsrHealth * FRACUNIT) / healthScale) < currentHealth * FRACUNIT do
-		currentHealth = $ - 1
-		if painChance == -1 then triggerPainState = true end
-	end
-	if painChance ~= -1 and P_RandomByte() < painChance and not (target.flags2 & MF2_SKULLFLY) then triggerPainState = true end
-
-	target.health = currentHealth
+	local painChance, triggerPainState = RSR.EnemyDecrementHealth(target, source, damage, healthScale)
 
 	if target.health < 1 or target.rsrHealth < 1 then
 		target.rsrKilled = true
@@ -73,44 +129,15 @@ RSR.EnemySetHealth = function(target, inflictor, source, damage, damagetype)
 		if Valid(source) and Valid(source.player) then RSR.GiveHype(source.player, 50) end -- Give a 50 hype bonus for killing an enemy
 	else
 		RSR.EnemySetBlink(target)
-		if not triggerPainState then S_StartSound(target, sfx_dmpain) end
+		if not triggerPainState and painChance == -1 then S_StartSound(target, sfx_dmpain) end
+		RSR.AlertNearbyEnemies(target, source)
 
--- 		if not Valid(target.target) and Valid(source) and target.info.seestate then
-		if not Valid(target.target) and Valid(source) then
--- 			print("Snuck up from behind!")
--- 			target.target = source
--- 			target.state = target.info.seestate
-			target.angle = R_PointToAngle2(target.x, target.y, source.x, source.y)
-			target.target = source
-
-			local searchRadius = 1024*target.scale
-
-			searchBlockmap("objects", function(targetMo, enemyMo)
-				if not (Valid(targetMo) and Valid(enemyMo)) then return end
-				-- TODO: There is a bug where enemies that fired at a TNT barrel face nearby exploded enemies
-				-- The ideal solution would be to check if enemyMo == source, but "source" is the TNT barrel
-				-- Figure out how to prevent that, eventually
-				if (enemyMo.flags & (MF_ENEMY|MF_SHOOTABLE)) ~= (MF_ENEMY|MF_SHOOTABLE) then return end
-				if Valid(enemyMo.target) then return end
-
-				local distXY = FixedHypot(enemyMo.x - targetMo.x, enemyMo.y - targetMo.y)
-				local dist = FixedHypot(distXY, enemyMo.z - targetMo.z)
-
-				if dist > searchRadius then return end
-
-				enemyMo.angle = R_PointToAngle2(enemyMo.x, enemyMo.y, targetMo.x, targetMo.y)
--- 				enemyMo.target = source
-			end, target, target.x - searchRadius, target.x + searchRadius, target.y - searchRadius, target.y + searchRadius)
-		end
-
-		-- if (target.flags & MF_BOSS) then
 		if not (RSR.MOBJ_INFO[target.type] and RSR.MOBJ_INFO[target.type].nopainstate) then
 			if triggerPainState and target.info.painstate then
 				target.state = target.info.painstate
 				target.flags2 = $|MF2_FRET
 			end
 		end
-		-- end
 	end
 end
 
@@ -125,12 +152,22 @@ RSR.EnemyShouldDamage = function(target, inflictor, source, damage, damagetype)
 	if not (Valid(target) and (target.flags & (MF_ENEMY|MF_BOSS))) then return end -- Only run this hook for enemies and bosses
 	if Valid(target.player) then return end -- Don't override the player's ShouldDamage hook
 
+	local hookEvent, hookName = RSR.findEvent("EnemyShouldDamage")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(target, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
+			if result ~= nil then return end
+		end
+	end
+
 	local rsrDamage = false
 	local inflictorIsPlayer = false
 
 	if Valid(inflictor) then
 		if Valid(inflictor.player) then
-			if RSR.SKIN_INFO[inflictor.skin] and RSR.SKIN_INFO[inflictor.skin].noenemydamage then return end
 			inflictorIsPlayer = true
 		elseif RSR.MOBJ_INFO[inflictor.type] and RSR.MOBJ_INFO[inflictor.type].damage and (Valid(source) and Valid(source.player)) then
 			-- Makes projectiles fired from players deal custom damage
@@ -142,8 +179,6 @@ RSR.EnemyShouldDamage = function(target, inflictor, source, damage, damagetype)
 			rsrDamage = true
 		end
 	end
-
-	if Valid(source) and Valid(source.player) and RSR.SKIN_INFO[source.skin] and RSR.SKIN_INFO[source.skin].noenemydamage then return end
 
 	if not rsrDamage then
 		damage = 10
@@ -178,10 +213,19 @@ RSR.EnemyTouchSpecial = function(special, toucher)
 	if not RSR.GamemodeActive() then return end -- Only run this code in Ringslinger Revolution maps
 	if not (Valid(special) and Valid(toucher)) then return end
 
+	local hookEvent, hookName = RSR.findEvent("EnemyTouchSpecial")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(special, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, special, toucher)
+			if result ~= nil then return end
+		end
+	end
+
 	local player = toucher.player
 	if not Valid(player) then return end
-
-	if RSR.SKIN_INFO[toucher.skin] and RSR.SKIN_INFO[toucher.skin].noenemydamage then return end
 
 	-- Fixes a bug where the player can get stuck in an enemy while jumping/spinning into it
 	if (special.flags & (MF_ENEMY|MF_BOSS)) and (special.rsrEnemyBlink) then return true end

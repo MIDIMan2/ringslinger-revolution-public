@@ -89,7 +89,7 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	RSR.ProjectileTravelSound(mo, 3) -- Travelling sound
+	RSR.ProjectileTravelSound(mo, 6) -- Travelling sound
 	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
 end, MT_RSR_PROJECTILE_BOMB)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOMB)

@@ -8,6 +8,7 @@ addHook("MapChange", function(_)
 	RSR.HUDBossHealthMapChange()
 	RSR.HUDHypeMapChange()
 	RSR.HUDKillfeedMapChange()
+	RSR.PlayerStarpostDataMapChange()
 end)
 
 addHook("MapLoad", function(_)
@@ -19,7 +20,6 @@ end)
 
 addHook("ThinkFrame", function()
 	if not RSR.GamemodeActive() then return end
-
 	RSR.EnemyThinkersThinkFrame()
 	RSR.WavesThinkFrame()
 	RSR.HUDBossHealthThinkFrame()
