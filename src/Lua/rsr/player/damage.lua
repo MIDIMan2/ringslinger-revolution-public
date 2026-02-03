@@ -22,11 +22,12 @@ RSR.HITSOUND_TO_SFX = {
 
 RSR.DEATH_REMOVEDEATHMASK = 1
 RSR.DEATH_MAKESPECTATOR = 2
-RSR.DEATH_GOTBURNT = 4
-RSR.DEATH_FLIPSPRITEROLL = 8
-RSR.DEATH_USEDKILLCMD = 16
-RSR.DEATH_USEDEXPLODECMD = 32
-RSR.DEATH_USEDDISINTEGRATECMD = 64
+RSR.DEATH_SWITCHEDTEAMS = 4
+RSR.DEATH_GOTBURNT = 8
+RSR.DEATH_FLIPSPRITEROLL = 16
+RSR.DEATH_USEDKILLCMD = 32
+RSR.DEATH_USEDEXPLODECMD = 64
+RSR.DEATH_USEDDISINTEGRATECMD = 128
 
 RSR.DEATHCAM_SPEED_MAX = 96*FRACUNIT
 
@@ -861,12 +862,18 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 	return false
 end
 
---- TeamSwitch hook code for when the player switches to the "spectator" team.
+--- TeamSwitch hook code for when the player switches to the "spectator" team (or the Opposing Force™).
 ---@param player player_t
 ---@param team integer
 RSR.TeamSwitch = function(player, team)
 	if not (Valid(player) and player.rsrinfo) then return end
-	if team == 0 then player.rsrinfo.deathFlags = $|RSR.DEATH_MAKESPECTATOR end
+	if team == 0 then
+		player.rsrinfo.deathFlags = $|RSR.DEATH_MAKESPECTATOR
+		return
+	end
+	if player.ctfteam and team ~= player.ctfteam then
+		player.rsrinfo.deathFlags = $|RSR.DEATH_SWITCHEDTEAMS
+	end
 end
 
 --- Drop the player's items when they die.
@@ -974,7 +981,6 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 		end
 	end
 
-
 	local rsrinfo = player.rsrinfo
 
 	-- Don't let the player's lives counter go down
@@ -1003,7 +1009,13 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			end
 
 			if (rsrinfo.deathFlags & RSR.DEATH_REMOVEDEATHMASK) then damagetype = $ & ~DMG_DEATHMASK end
-			if damagetype == DMG_INSTAKILL and (rsrinfo.deathFlags & RSR.DEATH_MAKESPECTATOR) then damagetype = DMG_SPECTATOR end
+			if damagetype == DMG_INSTAKILL then
+				if (rsrinfo.deathFlags & RSR.DEATH_MAKESPECTATOR) then
+					damagetype = DMG_SPECTATOR
+				elseif (rsrinfo.deathFlags & RSR.DEATH_SWITCHEDTEAMS) then
+					damagetype = 0
+				end
+			end
 			RSR.KillfeedAdd(player, inflictor, sourcePlayer, damagetype)
 			-- rsrinfo.deathFlags = 0 -- TODO: Make sure this doesn't cause any anomalies when not cleared out
 			-- Reset forceInflictorType and forceInflictorReflected so they don't linger around
