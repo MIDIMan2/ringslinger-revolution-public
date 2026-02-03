@@ -317,8 +317,18 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		if Valid(attacker) then obituary = "$a abducted $v." end
 	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_SWITCHEDTEAMS) then
 		inflictorPatch = "RSRSWTCH"
-		obituary = "$v abandoned their team."
-		if Valid(attacker) and not RSR.PlayersAreTeammates(victim, attacker) then obituary = "$a joined $v's cause." end
+		if Valid(attacker) and not RSR.PlayersAreTeammates(victim, attacker) then
+			obituary = "$a joined $v's cause."
+		else
+			local teamRandInt = P_RandomKey(3)
+			if teamRandInt == 2 then
+				obituary = "$v went AWOL."
+			elseif teamRandInt == 1 then
+				obituary = "$v got involved in the conversion ritual."
+			else
+				obituary = "$v abandoned their team."
+			end
+		end
 	end
 
 	-- Don't show highlighted backgrounds in splitscreen
