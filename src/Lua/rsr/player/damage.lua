@@ -555,20 +555,6 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	local player = target.player
 	if not (Valid(target.player) and target.player.rsrinfo) then return end -- Don't run this code if the target is not a player in RSR
 
-	local hookEvent, hookName = RSR.findEvent("PlayerDamage")
-	if hookEvent then
-		for i, v in ipairs(hookEvent) do
-			if hookEvent.typefor ~= nil then
-				if hookEvent.typefor(player, v.typedef) == false then continue end
-			end
-			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
-			if result then return end
-		end
-	end
-
-	-- Don't run this code if DMG_DEATHMASK is in effect
-	if ((damagetype or 0) & DMG_DEATHMASK) then return end
-
 	local knockbackScale = FRACUNIT
 
 	local hurtByEnemy = false
@@ -585,6 +571,20 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 			knockbackScale = damageInfo.knockbackScale
 		end
 	end
+
+	local hookEvent, hookName = RSR.findEvent("PlayerDamage")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
+			if result then return end
+		end
+	end
+
+	-- Don't run this code if DMG_DEATHMASK is in effect
+	if ((damagetype or 0) & DMG_DEATHMASK) then return end
 
 	local rsrinfo = player.rsrinfo
 
