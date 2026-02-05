@@ -140,8 +140,9 @@ end
 RSR.CanUseWeapons = function(player)
 	if not Valid(player) then return false end
 
-	-- Don't let non-IT players use weapons unless rsr_lasertag is true
-	if G_TagGametype() and not (player.pflags & PF_TAGIT) and not RSR.CV_LaserTag.value then return false end
+	-- Don't let hiders use weapons unless rsr_lasertag is true
+	if G_TagGametype() and not (player.pflags & PF_TAGIT)
+	and not (RSR.CV_LaserTag.value and not (gametyperules & GTR_HIDEFROZEN)) then return false end
 
 	-- Don't let skins with their own weapon system use RSR weapons
 	if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].noweapons then return false end

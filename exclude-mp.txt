@@ -10,3 +10,6 @@ init.lua
 LICENSE.gpl.txt
 LICENSE.txt
 TRNSLATE.txt
+*.dbs
+*.backup*
+*.bak
