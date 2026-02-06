@@ -143,7 +143,7 @@ local function R_World2Screen3FPS(v, player, cam, point, reverse)
 	end
 
 	// Flipped screen?
-	if player.realmo and player.realmo.valid and P_MobjFlip(player.realmo) == -1
+	if player.realmo and player.realmo.valid and (player.realmo.eflags & MFE_VERTICALFLIP)
 	and (not cam.chase or player.pflags & PF_FLIPCAM) then
 		result.y = -$
 	end

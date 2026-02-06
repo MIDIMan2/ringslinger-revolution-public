@@ -708,7 +708,7 @@ RSR.PlayerSourceShouldDamage = function(player, inflictor, source, damage, damag
 	end
 
 	if Valid(source.player) and RSR.PlayersAreTeammates(player, source.player) then
-		if player == source.player or not RSR.CheckFriendlyFire() then -- If the player is not damaging themselves and friendly fire is not enabled, don't deal damage
+		if not ((player == source.player and (damagetype & DMG_CANHURTSELF)) or RSR.CheckFriendlyFire()) then -- If the player is not damaging themselves and friendly fire is not enabled, don't deal damage
 			return false
 		else -- Otherwise, force damage and (possibly) death
 			return true
@@ -958,6 +958,36 @@ RSR.PlayerReplenishPowerups = function(player)
 	end
 end
 
+-- TODO: Remove this function when 2.2.16 comes out
+
+--- Cancels out the points awarded for hurting yourself when DMG_CANHURTSELF is applied (pre-2.2.16 bug).
+---@param player player_t
+---@param sourcePlayer player_t
+---@param damagetype integer|nil
+RSR.CancelHurtSelfPoints = function(player, sourcePlayer, damagetype)
+	if not (Valid(player) and Valid(sourcePlayer)) then return end
+	damagetype = $ or 0
+	if not (player == sourcePlayer and (damagetype & DMG_CANHURTSELF)) then return end
+
+	local totalScore = 0
+	if (gametyperules & GTR_TEAMFLAGS) and (player.gotflag & (GF_REDFLAG|GF_BLUEFLAG)) then
+		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and source ~= player.mo) then
+			totalScore = $ + 25
+		end
+	end
+	if not player.powers[pw_super] then
+		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and source ~= player.mo) then
+			totalScore = $ + 100
+		end
+	end
+	if (gametyperules & GTR_DEATHPENALTY) then
+		if player.score >= 50 then
+			totalScore = $ - 50
+		end
+	end
+	P_AddPlayerScore(player, -totalScore)
+end
+
 --- MobjDeath hook code for players.
 ---@param target mobj_t Object that dies.
 ---@param inflictor mobj_t Object that caused the target's death.
@@ -1002,7 +1032,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 
 	-- Only run this code in multiplayer gamemodes
 	if multiplayer or netgame then
-		if G_RingSlingerGametype() then
+		if G_RingSlingerGametype() then			
 			local sourcePlayer = Valid(source) and source.player or nil
 			if #rsrinfo.attackerInfo then
 				sourcePlayer = rsrinfo.attackerInfo[1].player
@@ -1068,6 +1098,8 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 					P_AddPlayerScore(info.player, 50)
 				end
 			end
+
+			RSR.CancelHurtSelfPoints(player, sourcePlayer, damagetype)
 
 			rsrinfo.attackerInfo = {} -- Clear attackerInfo since we've already died
 		end

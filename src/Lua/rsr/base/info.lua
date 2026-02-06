@@ -190,7 +190,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOMB] = {
 	killfeedName = "Explosion Ring",
 	killfeedObituary = {
 		attacker = "$a's Explosion Ring exploded $v.",
-		hurtself = "$v's blew themself up with a(n) Explosion Ring.",
+		hurtself = "$v blew themself up with an Explosion Ring.",
 		solo = "$v was exploded by an Explosion Ring."
 	}
 }
@@ -227,7 +227,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	killfeedName = "Router RPB",
 	killfeedObituary = {
 		attacker = "$a's Router RPB stung $v.",
-		hurtself = "$v strung themself with a Router RPB.",
+		hurtself = "$v stung themself with a Router RPB.",
 		solo = "$v was stung by a Router RPB."
 	}
 }
