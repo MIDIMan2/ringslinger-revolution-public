@@ -983,11 +983,6 @@ RSR.CancelHurtSelfPoints = function(player, sourcePlayer, damagetype)
 			totalScore = $ + 100
 		end
 	end
-	if (gametyperules & GTR_DEATHPENALTY) then
-		if player.score >= 50 then
-			totalScore = $ - 50
-		end
-	end
 	P_AddPlayerScore(player, -totalScore)
 end
 
