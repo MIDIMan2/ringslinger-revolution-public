@@ -11,7 +11,7 @@ end
 
 --- Returns true if the player has the given powerup.
 ---@param player player_t
----@param powerup integer Powerup to check for (RSR.POWERUP_ constant).
+---@param powerup integer Powerup to check for (RSR.POWERUP_* constant).
 RSR.HasPowerup = function(player, powerup)
 	if not (Valid(player) and player.rsrinfo) then return end
 	if powerup == nil then powerup = 0 end

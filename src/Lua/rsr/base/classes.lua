@@ -13,16 +13,16 @@
 ---@field hurtByMelee tic_t|integer Timer for damage taken by player melee.
 ---@field hurtByMap tic_t|integer Timer for damage taken by level geometry.
 ---@field attackKnockback boolean Whether the player was hurt while attempting to melee another player.
----@field hitSound integer Plays a hitsound using RSR.HITSOUND_ constants.
----@field deathFlags integer Hack for MobjDeath (uses RSR.DEATH_ constants).
+---@field hitSound integer Plays a hitsound using RSR.HITSOUND_* constants.
+---@field deathFlags integer Hack for MobjDeath (uses RSR.DEATH_* constants).
 ---@field attackerInfo rsrattackerinfo_t[] List of attackers and their damage dealt to the player.
 ---@field knockedByAttacker boolean Whether the player was knocked off of the level or not.
 ---@field forceInflictorType mobjtype_t|nil Type of inflictor when the player has a Force Shield.
 ---@field forceInflictorReflected boolean|nil Whether inflictor was reflected when the player has a Force Shield.
 ---@field weapons boolean[] An array containing weapons in the player's inventory.
 ---@field ammo integer[] An array containing ammo amounts of each type in the player's inventory.
----@field readyWeapon integer The player's current held weapon (Should be an RSR.WEAPON_ constant).
----@field pendingWeapon integer The player's currently pending weapon (Should be an RSR.WEAPON_ constant).
+---@field readyWeapon integer The player's current held weapon (Should be an RSR.WEAPON_* constant).
+---@field pendingWeapon integer The player's currently pending weapon (Should be an RSR.WEAPON_* constant).
 ---@field weaponDelay integer Cooldown for the currently held weapon.
 ---@field weaponDelayOrig integer Initial cooldown for the currently held weapon.
 ---@field powerups rsrpowerup_t[] An array containing powerups in the player's inventory.
@@ -39,7 +39,7 @@
 ---@field scatterFlak mobj_t|nil A reference to the player's last Mass Scrambler ring fired.
 ---@field bounceMega mobj_t|nil A reference to the player's last Goldburster ring fired.
 ---@field waspTime integer|nil Timer for the Homing Ring's altfire.
----@field lastbuttons UINT16 Buttons (BT_ constants) held on the last game tic.
+---@field lastbuttons UINT16 Buttons (BT_* constants) held on the last game tic.
 ---@field lastexiting tic_t Value of player.exiting on the last game tic.
 ---@field lastemeralds UINT16 Value of player.powers[pw_emeralds] on the last game tic.
 ---@field boostNormalspeed boolean Determines if normalspeed should be boosted or not (UNUSED).
@@ -108,12 +108,12 @@
 ---@field damage integer Total damage dealt by the attacker.
 
 ---@class rsrpowerup_t
----@field powerup integer Powerup in the player's inventory (uses POWERUP_ constants).
+---@field powerup integer Powerup in the player's inventory (uses POWERUP_* constants).
 ---@field tics integer Timer for the powerup.
 
 ---@class rsrpowerupinfo_t
 ---@field icon string Icon for the powerup.
----@field power integer Power to set for player_t.powers (uses pw_ constants).
+---@field power integer Power to set for player_t.powers (uses pw_* constants).
 ---@field tics integer Time limit for the powerup.
 
 ---@class rsrstarpostdata_t
