@@ -15,8 +15,8 @@ RSR.AddWeapon("SCATTER", {
 	class = 2,
 	delay = 31,
 	delayspeed = 16,
-	delayalt = 66,
-	delayaltspeed = 35,
+	delayalt = 49,
+	delayaltspeed = 25,
 	emerald = EMERALD2,
 	icon = "RSRSCTRI",
 	name = "Scatter Ring",
@@ -69,8 +69,8 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_SCATTER,
 	seesound = sfx_sctrfr,
-	reactiontime = 11,
-	painchance = 192*FRACUNIT,
+	reactiontime = 12,
+	painchance = 224*FRACUNIT,
 	deathstate = S_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION_XPLDSOUND,
 	deathsound = sfx_none,
 	speed = 45*FRACUNIT,
@@ -169,8 +169,8 @@ A_ScatterFlakCannon = function(actor, var1, var2)
 	local flakSpeed = FixedHypot(FixedHypot(actor.rsrPrevMomX or 0, actor.rsrPrevMomY or 0), actor.rsrPrevMomZ or 0)
 
 	for i = 0, 11 do
-		local flakAngleOffset = FixedAngle(P_RandomRange(10, -10)*FRACUNIT/2) -- Random horizontal spread between 10 and -10 degrees
-		local flakPitchOffset = FixedAngle(P_RandomRange(7, -7)*FRACUNIT/2) -- Random vertical spread between 7 and -7 degrees
+		local flakAngleOffset = FixedAngle(P_RandomRange(13, -13)*FRACUNIT/4) -- Random horizontal spread between 6.5 and -6.5 degrees
+		local flakPitchOffset = FixedAngle(P_RandomRange(11, -11)*FRACUNIT/4) -- Random vertical spread between 5.5 and -5.5 degrees
 		local flakShot = P_SpawnMobjFromMobj(actor, 0, 0, actor.info.height/2, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 		if Valid(flakShot) then
 			if actor.rsrOrigScale then flakShot.scale = actor.rsrOrigScale end
