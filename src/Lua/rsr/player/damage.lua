@@ -10,6 +10,7 @@ RSR.HITSOUND_BREAK = 3
 RSR.HITSOUND_INVIN = 4
 RSR.HITSOUND_ASSIST = 5
 RSR.HITSOUND_KILL = 6
+RSR.HITSOUND_NOQUAKEMASK = 8 -- This must always be a power of 2 value
 
 RSR.HITSOUND_TO_SFX = {
 	[RSR.HITSOUND_HIT] = sfx_rsrhit,
@@ -37,6 +38,7 @@ RSR.MINOR_COOLDOWN = TICRATE/2
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 
+	-- TODO: Rewrite this to use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
 	if mo.z + mo.momz <= mo.floorz or mo.z + mo.height + mo.momz >= mo.ceilingz then
 		mo.momz = -$
 	end
@@ -157,11 +159,10 @@ RSR.PlayerDamageTick = function(player)
 	if rsrinfo.hurtByMap > 0 then rsrinfo.hurtByMap = max(0, $-1) end
 	if rsrinfo.attackKnockback then rsrinfo.attackKnockback = false end
 	if rsrinfo.hitSound then
-		if RSR.HITSOUND_TO_SFX[rsrinfo.hitSound] then
-			if rsrinfo.hurtByMap then
-				S_StartSound(nil, RSR.HITSOUND_TO_SFX[rsrinfo.hitSound], player)
-				S_StartSound(nil, sfx_rsrquk, player)
-			end
+		if RSR.HITSOUND_TO_SFX[rsrinfo.hitSound & ~RSR.HITSOUND_NOQUAKEMASK] then
+			S_StartSound(nil, RSR.HITSOUND_TO_SFX[rsrinfo.hitSound & ~RSR.HITSOUND_NOQUAKEMASK], player)
+			-- Don't let the Quake III-esque hitsound play if the NOQUAKEMASK flag is used
+			if not (rsrinfo.hitSound & RSR.HITSOUND_NOQUAKEMASK) then S_StartSound(nil, sfx_rsrquk, player) end
 		end
 		rsrinfo.hitSound = 0
 	end
@@ -778,7 +779,7 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 			if not Valid(inflictor.player) then -- Only works for projectiles, not melee or terrain
 				S_StartSound(target, sfx_rsrpng)
 				if Valid(source) and Valid(source.player) and source.player.rsrinfo then
-					source.player.rsrinfo.hitSound = RSR.HITSOUND_INVIN
+					source.player.rsrinfo.hitSound = RSR.HITSOUND_INVIN|RSR.HITSOUND_NOQUAKEMASK
 				end
 				for i = 0, 3 do
 					local spark = P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(target.height, target.scale)/2, MT_UNKNOWN)
@@ -1045,6 +1046,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			if Valid(sourcePlayer) and sourcePlayer.rsrinfo
 			and sourcePlayer ~= player and not RSR.PlayersAreTeammates(player, sourcePlayer) then
 				sourcePlayer.rsrinfo.hitSound = RSR.HITSOUND_KILL
+				if not (Valid(inflictor) and Valid(source)) then sourcePlayer.rsrinfo.hitSound = $|RSR.HITSOUND_NOQUAKEMASK end
 				-- We now make sure to award points to the last attacker even if the player voluntarily jumped off a cliff or something because it turns out you can use that to reverse-killsteal
 				-- Points are already awarded to seekers in H&S if a player dies
 				if not wasHiding and not (Valid(source) and Valid(source.player)) and #rsrinfo.attackerInfo then
@@ -1066,6 +1068,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 
 					if info.player.rsrinfo then
 						info.player.rsrinfo.hitSound = RSR.HITSOUND_ASSIST
+						if not (Valid(inflictor) and Valid(source)) then info.player.rsrinfo.hitSound = $|RSR.HITSOUND_NOQUAKEMASK end
 					end
 					P_AddPlayerScore(info.player, 50)
 				end
