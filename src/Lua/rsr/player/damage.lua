@@ -158,8 +158,10 @@ RSR.PlayerDamageTick = function(player)
 	if rsrinfo.attackKnockback then rsrinfo.attackKnockback = false end
 	if rsrinfo.hitSound then
 		if RSR.HITSOUND_TO_SFX[rsrinfo.hitSound] then
-			S_StartSound(nil, RSR.HITSOUND_TO_SFX[rsrinfo.hitSound], player)
-			S_StartSound(nil, sfx_rsrquk, player)
+			if rsrinfo.hurtByMap then
+				S_StartSound(nil, RSR.HITSOUND_TO_SFX[rsrinfo.hitSound], player)
+				S_StartSound(nil, sfx_rsrquk, player)
+			end
 		end
 		rsrinfo.hitSound = 0
 	end
