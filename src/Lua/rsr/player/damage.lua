@@ -604,8 +604,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	local origEHP = rsrinfo.health + rsrinfo.armor
 
 	-- Multiply damage taken by 1.5x if the player has a flag or is a runner in Tag gametypes
-	if ((gametyperules & GTR_TEAMFLAGS) and player.gotflag)
-	or (G_TagGametype() and not (player.pflags & PF_TAGIT)) then
+	if RSR.PlayerHasPurpleDebuff(player) then
 		damage = FixedMul($, 3*FRACUNIT/2)
 		S_StartSound(nil, ampSound, player)
 	end
@@ -643,7 +642,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	elseif (rsrinfo.health + rsrinfo.armor) <= RSR.CRIT_EHP and (rsrinfo.health + rsrinfo.armor) > 0 and origEHP > RSR.CRIT_EHP then -- Play low health sound when the player falls to low health the first time
 		S_StartSound(nil, criticalSound, player)
 		RSR.SetEHPFlash(player, V_REDMAP, RSR.WARN_COOLDOWN, 2)
-	elseif ((gametyperules & GTR_TEAMFLAGS) and player.gotflag) then
+	elseif RSR.PlayerHasPurpleDebuff(player) then
 		RSR.SetEHPFlash(player, V_PURPLEMAP, RSR.MINOR_COOLDOWN, 2)
 	elseif (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then
 		RSR.SetEHPFlash(player, V_AZUREMAP, RSR.MINOR_COOLDOWN, 2)
@@ -711,7 +710,8 @@ RSR.PlayerSourceShouldDamage = function(player, inflictor, source, damage, damag
 	end
 
 	if Valid(source.player) and RSR.PlayersAreTeammates(player, source.player) then
-		if not ((player == source.player and (damagetype & DMG_CANHURTSELF)) or RSR.CheckFriendlyFire()) then -- If the player is not damaging themselves and friendly fire is not enabled, don't deal damage
+		if (player == source.player and not (damagetype & DMG_CANHURTSELF)) -- If the player is not damaging themselves and friendly fire is disabled, don't deal damage
+		or (player ~= source.player and not RSR.CheckFriendlyFire()) then
 			return false
 		else -- Otherwise, force damage and (possibly) death
 			return true
@@ -1030,7 +1030,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 
 	-- Only run this code in multiplayer gamemodes
 	if multiplayer or netgame then
-		if G_RingSlingerGametype() then			
+		if G_RingSlingerGametype() then
 			local sourcePlayer = Valid(source) and source.player or nil
 			if #rsrinfo.attackerInfo then
 				sourcePlayer = rsrinfo.attackerInfo[1].player
