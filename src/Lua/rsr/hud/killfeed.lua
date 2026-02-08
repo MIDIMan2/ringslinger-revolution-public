@@ -341,6 +341,12 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		end
 	end
 
+	-- Show distance for longshots
+	if Valid(attacker) and Valid(victim) and (FixedHypot(FixedHypot(victim.x - attacker.x, victim.y - attacker.y), victim.z - attacker.z)/(64*FRACUNIT) >= 8) then
+		local fancyDist = FixedHypot(FixedHypot(target.x - inflictor.x, target.y - inflictor.y), target.z - inflictor.z)/(64*FRACUNIT)
+		obituary = $.." ( "+fancyDist+"m)"
+	end
+
 	RSR.KillfeedPrint(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary)
 end
 
