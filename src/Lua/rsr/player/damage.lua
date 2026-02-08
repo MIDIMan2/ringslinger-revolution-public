@@ -678,7 +678,8 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 	if not Valid(player) then return end
 	damagetype = $ or 0
 
-	if player.rsrinfo.health > 0 then
+	if player.rsrinfo.health > 0
+	and not (G_TagGametype() and (gametyperules & GTR_HIDEFROZEN) and not (player.pflags & PF_TAGIT)) then
 		return false
 	else
 		-- Force death if the player's health is 0
@@ -986,6 +987,107 @@ RSR.CancelHurtSelfPoints = function(player, sourcePlayer, damagetype)
 	P_AddPlayerScore(player, -totalScore)
 end
 
+--- Lua reimplementation of P_CheckSurvivors, since it's not exposed to Lua.
+RSR.TagCheckSurvivors = function()
+	local survivors = 0
+	local taggers = 0
+	local spectators = 0
+	local numPlayers = 0
+	local survivorArray = {}
+
+	for player in players.iterate do
+		if not Valid(player) then continue end
+		if player.spectator then
+			spectators = $+1
+		elseif (player.pflags & PF_TAGIT) and player.quittime < 30*TICRATE then
+			taggers = $+1
+		elseif not (player.pflags & PF_GAMETYPEOVER) and player.quittime < 30*TICRATE then
+			table.insert(survivorArray, #player)
+			survivors = $+1
+		end
+		numPlayers = $+1
+	end
+
+	if numPlayers <= 0 then return end -- Don't go any further if no players were found.
+
+	if not taggers then --If there are no taggers, pick a survivor at random to be it.
+		--Exception for hide and seek. If a round has started and the IR player leaves, end the round.
+		if (gametyperules & GTR_HIDEFROZEN) and leveltime >= (CV_FindVar("hidetime").value * TICRATE) then
+			print("The IT player has left the game.")
+			if server then COM_BufInsertText(server, "exitlevel") end
+			return
+		end
+
+		if survivors then
+			local newTagger = survivorArray[P_RandomKey(survivors) + 1]
+
+			print(players[newTagger].name.." is now IT!") -- Tell every
+			players[newTagger].pflags = $|PF_TAGIT
+
+			survivors = $-1 --Get rid of the guy we just made IT.
+
+			--Yeah, we have an eligible tagger, but we may not have anybody for him to tag!
+			--If there is only one guy waiting on the game to fill or spectators to enter the game, don't bother.
+			if not survivors and (numPlayers - spectators) > 1 then
+				print("All players have been tagged!")
+				if server then COM_BufInsertText(server, "exitlevel") end
+			end
+
+			return
+		end
+
+		--If we reach this point, no player can replace the one that was IT.
+		--Unless it is one player waiting on a game, end the round.
+		if (numPlayers - spectators) > 1 then
+			print("There are no players able to become IT.")
+			if server then COM_BufInsertText(server, "exitlevel") end
+		end
+
+		return
+	end
+
+	--If there are taggers, but no survivors, end the round.
+	--Except when the tagger is by himself and the rest of the game are spectators.
+	if not survivors and (numPlayers - spectators) > 1 then
+		print("All players have been tagged!")
+		if server then COM_BufInsertText(server, "exitlevel") end
+	end
+end
+
+--- Lua implementation of the Tag gametype "suicide cases" code in P_KillMobj, but only for DMG_CANHURTSELF.
+---@param player player_t
+---@param source mobj_t
+---@param damagetype integer
+RSR.PlayerDeathTag = function(player, source, damagetype)
+	if not G_TagGametype() then return end -- Only run in Tag gametypes
+	if not (Valid(player) and Valid(source) and Valid(source.player) and damagetype) then return end
+	if (player.pflags & PF_TAGIT) or player.spectator then return end -- Only run if the player is a hider and not a spectator
+	if not (player == source.player and (damagetype & DMG_CANHURTSELF)) then return end -- Only run if the player didn't hurt themself
+
+	-- if you accidentally die before you run out of time to hide, ignore it.
+	-- allow them to try again, rather than sitting the whole thing out.
+	if leveltime >= CV_FindVar("hidetime").value * TICRATE then
+		if not (gametyperules & GTR_HIDEFROZEN) then -- suiciding in survivor makes you IT.
+			player.pflags = $|PF_TAGIT
+			print(player.name.." is now IT!") -- Tell everyone who is it!
+			RSR.TagCheckSurvivors()
+		else
+			if not (player.pflags & PF_GAMETYPEOVER) then
+				--otherwise, increment the tagger's score.
+				--in hide and seek, suiciding players are counted as found.
+				for player2 in players.iterate do
+					if not (Valid(player2) and (player2.pflags & PF_TAGIT)) then continue end
+					P_AddPlayerScore(player2, 100)
+				end
+
+				player.pflags = $|PF_GAMETYPEOVER
+				print(player.name.." was found!")
+				RSR.TagCheckSurvivors()
+			end
+		end
+	end
+end
+
 --- MobjDeath hook code for players.
 ---@param target mobj_t Object that dies.
 ---@param inflictor mobj_t Object that caused the target's death.
@@ -1106,9 +1208,10 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 
 		RSR.PlayerDropItems(player)
 	end
-
+	
 	-- Clear the player's "starpost data" if the map's level header forces players to lose their inventory on death
 	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrloseinvondeath then rsrinfo.starpostData = {} end
+	RSR.PlayerDeathTag(player, source, damagetype)
 end
 
 --- Helper function for getting the damage value of a meleeing player.

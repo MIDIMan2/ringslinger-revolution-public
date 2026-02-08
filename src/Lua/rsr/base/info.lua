@@ -107,6 +107,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	killfeedName = "Mass Scrambler bomblet",
 	killfeedObituary = {
 		attacker = "$a's $rMass Scrambler bomblets scrambled $v.",
+		hurtself = "$v got scrambled by their own Mass Scrambler bomblets.",
 		solo = "$v was scrambled by $rMass Scrambler bomblets."
 	}
 }
@@ -166,6 +167,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_GRENADE] = {
 	killfeedName = "Grenade Ring",
 	killfeedObituary = {
 		attacker = "$a's $rGrenade Ring fragged $v.",
+		hurtself = "$v fragged themself with a Grenade Ring.",
 		solo = "$v was fragged by a $rGrenade Ring."
 	}
 }
@@ -178,6 +180,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB] = {
 	killfeedName = "Stickybomb",
 	killfeedObituary = {
 		attacker = "$v tripped over $a's $rStickybomb.",
+		hurtself = "$v forgot they placed a Stickybomb there.",
 		solo = "$v stepped on a $rStickybomb."
 	}
 }
