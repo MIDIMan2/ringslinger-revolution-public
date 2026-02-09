@@ -344,7 +344,7 @@ RSR.PlayerMobjFuse = function(mo)
 				explosion2.scale = $ * 2
 			end
 			if P_RandomRange(1,100) == 58 then
-				S_StartSound(mo, sfx_asplode)
+				S_StartSound(mo, sfx_asplod)
 			else
 				S_StartSound(mo, sfx_cvxpld)
 			end
@@ -359,9 +359,9 @@ RSR.PlayerMobjFuse = function(mo)
 			end
 		else -- One in one hundred deaths go flying for no reason.
 			if P_RandomRange(1,100) == 69 then
-				player.mo.momx = $ * 4
-				player.mo.momy = $ * 4
-				player.mo.momz = $ * 4
+				mo.momx = $ * 4
+				mo.momy = $ * 4
+				mo.momz = $ * 4
 			end
 		end
 	end

@@ -78,7 +78,7 @@ freeslot(
 	"sfx_wvstrt",
 	"sfx_wvdone",
 	"sfx_wvpass",
-	"sfx_asplode",
+	"sfx_asplod",
 	"sfx_binted"
 )
 
@@ -405,5 +405,5 @@ sfxinfo[sfx_wvdone].caption = "Wave complete!"
 sfxinfo[sfx_wvpass].caption = "Stage complete!"
 
 -- Secrets
-sfxinfo[sfx_asplode].caption = "YOUR HEAD A SPLODE"
+sfxinfo[sfx_asplod].caption = "YOUR HEAD A SPLODE"
 sfxinfo[sfx_binted].caption = "Bogos binted?"
