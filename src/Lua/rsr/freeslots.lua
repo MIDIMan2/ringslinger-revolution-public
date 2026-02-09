@@ -74,9 +74,12 @@ freeslot(
 	"sfx_rsrlhp", -- Created by orbitalviolet
 	"sfx_rsrgfd", -- Created by orbitalviolet
 	"sfx_rsrquk", -- Created by orbitalviolet
+	"sfx_cowmgl",
 	"sfx_wvstrt",
 	"sfx_wvdone",
-	"sfx_wvpass"
+	"sfx_wvpass",
+	"sfx_asplode",
+	"sfx_binted"
 )
 
 -- Cybrak 2016
@@ -381,10 +384,11 @@ sfxinfo[sfx_rsrast].caption = "Assisted kill!"
 sfxinfo[sfx_rsrkil].caption = "Scored kill!"
 sfxinfo[sfx_rsrcth].caption = "Critical heal!"
 sfxinfo[sfx_rsrlhp].caption = "You're low on HP..!"
-sfxinfo[sfx_rsrgfd].caption = "Flag damage amplifier..."
+sfxinfo[sfx_rsrgfd].caption = "Damage vulnerability..."
 sfxinfo[sfx_rsrgfd].singular = true
 sfxinfo[sfx_rsrquk].caption = "Scored hit"
 sfxinfo[sfx_rsrquk].singular = true
+sfxinfo[sfx_cowmgl].caption = "Disintegration"
 
 -- Spawners
 sfxinfo[sfx_rsrsp1].caption = "Player spawned"
@@ -399,3 +403,7 @@ sfxinfo[sfx_rsralk].caption = "Attraction Shot incoming!"
 sfxinfo[sfx_wvstrt].caption = "Wave start..."
 sfxinfo[sfx_wvdone].caption = "Wave complete!"
 sfxinfo[sfx_wvpass].caption = "Stage complete!"
+
+-- Secrets
+sfxinfo[sfx_asplode].caption = "YOUR HEAD A SPLODE"
+sfxinfo[sfx_binted].caption = "Bogos binted?"
