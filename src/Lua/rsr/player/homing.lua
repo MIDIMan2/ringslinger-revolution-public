@@ -30,7 +30,10 @@ RSR.PlayerLookForEnemies = function(player, maxDist, searchEnemies, searchSpecta
 		if enemy == pmo then return end
 
 		if Valid(enemy.player) then
-			if RSR.PlayersAreTeammates(player, enemy.player) then return end -- Is a teammate
+			if RSR.PlayersAreTeammates(player, enemy.player) and not RSR.CheckFriendlyFire() then return end -- Is a teammate
+			if RSR.PlayerHasPurpleDebuff(player) then -- Has the purple debuff (has flag in CTF, or is a hider in Tag gametypes)
+				if not (RSR.CV_LaserTag.value and not (gametyperules & GTR_HIDEFROZEN))  then return end -- LaserTag is disabled in Tag
+			end
 
 			if not enemy.player.rsrinfo then return end -- Not in RSR mode
 			if enemy.player.rsrinfo.hurtByMelee then return end -- Has melee cooldown

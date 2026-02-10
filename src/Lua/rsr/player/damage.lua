@@ -25,10 +25,11 @@ RSR.DEATH_REMOVEDEATHMASK = 1
 RSR.DEATH_MAKESPECTATOR = 2
 RSR.DEATH_SWITCHEDTEAMS = 4
 RSR.DEATH_GOTBURNT = 8
-RSR.DEATH_FLIPSPRITEROLL = 16
-RSR.DEATH_USEDKILLCMD = 32
-RSR.DEATH_USEDEXPLODECMD = 64
-RSR.DEATH_USEDDISINTEGRATECMD = 128
+RSR.DEATH_GOTTAGGED = 16
+RSR.DEATH_FLIPSPRITEROLL = 32
+RSR.DEATH_USEDKILLCMD = 64
+RSR.DEATH_USEDEXPLODECMD = 128
+RSR.DEATH_USEDDISINTEGRATECMD = 256
 
 RSR.DEATHCAM_SPEED_MAX = 96*FRACUNIT
 
@@ -684,7 +685,6 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 	else
 		-- Force death if the player's health is 0
 		if not (damagetype & DMG_DEATHMASK) then
--- 			player.rsrinfo.removeDeathMask = true
 			player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK
 		end
 		-- This is an ugly hack to get around SRB2 not tagging the hider if Amy's hearts are the inflictor
@@ -692,6 +692,9 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 			player.rsrinfo.forceInflictorType = MT_LHRT
 			player.rsrinfo.forceInflictorReflected = inflictor.rsrForceReflected
 			inflictor = source
+		end
+		if G_TagGametype() and not (player.pflags & PF_TAGIT) and Valid(source) and Valid(source.player) and (source.player.pflags & PF_TAGIT) then
+			player.rsrinfo.deathFlags = $|RSR.DEATH_GOTTAGGED
 		end
 		P_DamageMobj(player.mo, inflictor, source, damage, damagetype|DMG_DEATHMASK)
 		return true
@@ -1150,6 +1153,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	
 	-- Clear the player's "starpost data" if the map's level header forces players to lose their inventory on death
 	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrloseinvondeath then rsrinfo.starpostData = {} end
+	if rsrinfo.deathFlags & RSR.DEATH_GOTTAGGED then P_AddPlayerScore(source.player, -100) end -- Take away points from the seeker since killing a hider already awards them points
 	RSR.PlayerDeathTag(player, source, damagetype)
 end
 
