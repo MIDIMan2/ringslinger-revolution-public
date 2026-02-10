@@ -747,7 +747,7 @@ end
 ---@param inflictor mobj_t Inflictor of the damage.
 ---@param source mobj_t Source of the damage.
 ---@param damage integer Amount of damage dealt to the target.
----@param damagetype integer Type of damage inflicted onto the target (DMG_ constants).
+---@param damagetype integer Type of damage inflicted onto the target (DMG_* constants).
 RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
@@ -1034,7 +1034,7 @@ end
 ---@param target mobj_t Object that dies.
 ---@param inflictor mobj_t Object that caused the target's death.
 ---@param source mobj_t Object that indirectly caused the target's death (usually related to the inflictor, but can be nil).
----@param damagetype integer Type of damage inflicted on the target (DMG_ constants).
+---@param damagetype integer Type of damage inflicted on the target (DMG_* constants).
 RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
