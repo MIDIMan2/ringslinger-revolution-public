@@ -866,17 +866,23 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 	return false
 end
 
---- TeamSwitch hook code for when the player switches to the "spectator" team (or the Opposing Force™).
+--- TeamSwitch hook code for when the player switches to the "spectator" team (or the Opposing Force™), or joining a Tag game from being a spectator.
 ---@param player player_t
 ---@param team integer
-RSR.TeamSwitch = function(player, team)
+RSR.TeamSwitch = function(player, team, fromspectators)
+	if not RSR.GamemodeActive() then return end
 	if not (Valid(player) and player.rsrinfo) then return end
 	if team == 0 then
 		player.rsrinfo.deathFlags = $|RSR.DEATH_MAKESPECTATOR
-		return
-	end
-	if player.ctfteam and team ~= player.ctfteam then
+	elseif player.ctfteam and team ~= player.ctfteam then
 		player.rsrinfo.deathFlags = $|RSR.DEATH_SWITCHEDTEAMS
+	end
+	if team == 3 and fromspectators then -- The secret "3" option made up for Tag gametypes??? (who knows)
+		if (gametyperules & (GTR_TAG|GTR_HIDEFROZEN)) then
+			if (leveltime > (CV_FindVar("hidetime").value * TICRATE)) then return end -- Let P_SpectatorJoinGame handle players joining after hidetime
+			player.spectator = false -- Do this before it gets set to false in the source code, so we don't mess up our implementation
+			RSR.TagCheckSurvivors()
+		end
 	end
 end
 
@@ -985,73 +991,6 @@ RSR.CancelHurtSelfPoints = function(player, sourcePlayer, damagetype)
 		end
 	end
 	P_AddPlayerScore(player, -totalScore)
-end
-
---- Lua reimplementation of P_CheckSurvivors, since it's not exposed to Lua.
-RSR.TagCheckSurvivors = function()
-	local survivors = 0
-	local taggers = 0
-	local spectators = 0
-	local numPlayers = 0
-	local survivorArray = {}
-
-	for player in players.iterate do
-		if not Valid(player) then continue end
-		if player.spectator then
-			spectators = $+1
-		elseif (player.pflags & PF_TAGIT) and player.quittime < 30*TICRATE then
-			taggers = $+1
-		elseif not (player.pflags & PF_GAMETYPEOVER) and player.quittime < 30*TICRATE then
-			table.insert(survivorArray, #player)
-			survivors = $+1
-		end
-		numPlayers = $+1
-	end
-
-	if numPlayers <= 0 then return end -- Don't go any further if no players were found.
-
-	if not taggers then --If there are no taggers, pick a survivor at random to be it.
-		--Exception for hide and seek. If a round has started and the IR player leaves, end the round.
-		if (gametyperules & GTR_HIDEFROZEN) and leveltime >= (CV_FindVar("hidetime").value * TICRATE) then
-			print("The IT player has left the game.")
-			if server then COM_BufInsertText(server, "exitlevel") end
-			return
-		end
-
-		if survivors then
-			local newTagger = survivorArray[P_RandomKey(survivors) + 1]
-
-			print(players[newTagger].name.." is now IT!") -- Tell every
-			players[newTagger].pflags = $|PF_TAGIT
-
-			survivors = $-1 --Get rid of the guy we just made IT.
-
-			--Yeah, we have an eligible tagger, but we may not have anybody for him to tag!
-			--If there is only one guy waiting on the game to fill or spectators to enter the game, don't bother.
-			if not survivors and (numPlayers - spectators) > 1 then
-				print("All players have been tagged!")
-				if server then COM_BufInsertText(server, "exitlevel") end
-			end
-
-			return
-		end
-
-		--If we reach this point, no player can replace the one that was IT.
-		--Unless it is one player waiting on a game, end the round.
-		if (numPlayers - spectators) > 1 then
-			print("There are no players able to become IT.")
-			if server then COM_BufInsertText(server, "exitlevel") end
-		end
-
-		return
-	end
-
-	--If there are taggers, but no survivors, end the round.
-	--Except when the tagger is by himself and the rest of the game are spectators.
-	if not survivors and (numPlayers - spectators) > 1 then
-		print("All players have been tagged!")
-		if server then COM_BufInsertText(server, "exitlevel") end
-	end
 end
 
 --- Lua implementation of the Tag gametype "suicide cases" code in P_KillMobj, but only for DMG_CANHURTSELF.

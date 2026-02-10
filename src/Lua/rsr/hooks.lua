@@ -15,6 +15,7 @@ addHook("MapLoad", function(_)
 	RSR.ConvertItemsMapLoad()
 	RSR.EmeraldsMapLoad()
 	RSR.WavesMapLoad()
+	RSR.TagMapLoad()
 end)
 
 addHook("ThinkFrame", function()

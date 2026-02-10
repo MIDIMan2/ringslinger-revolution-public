@@ -166,10 +166,13 @@ end
 ---@param highlight boolean|nil
 ---@param skincolor skincolornum_t|nil
 ---@param obituary string|nil Default is "$v died.".
-RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary)
+---@param distance fixed_t|nil Distance between the victim and their attacker. Default is 0.
+RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary, distance)
 	if not victimName then return end -- We can't display a message if there is no victim!
 	inflictorPatch = $ or "RSREGGM" -- Always show Eggman for unknown causes of death
 	obituary = $ or "$v died." -- Default message
+	distance = ($ or 0)/(56*FRACUNIT)
+	if distance >= 10 then obituary = $.." ("..distance.."m)" end
 
 	-- Alternative killfeed so players can see what they did in the logs
 	local newString = string.gsub(obituary, "(%$%w?)", {
@@ -186,6 +189,7 @@ RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflec
 		attacker = attackerName,
 		highlight = highlight,
 		skincolor = skincolor,
+		distance = distance,
 		tics = RSR.KILLFEED_TICS
 	})
 end
@@ -342,12 +346,12 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	end
 
 	-- Show distance for longshots
+	local dist = 0
 	if Valid(attacker) and Valid(attacker.mo) and Valid(victim) and Valid(victim.mo) then
-		local fancyDist = FixedHypot(FixedHypot(victim.mo.x - attacker.mo.x, victim.mo.y - attacker.mo.y), victim.mo.z - attacker.mo.z)/(56*FRACUNIT)
-		if fancyDist >= 10 then obituary = $.."("+fancyDist+"m)" end
+		dist = FixedHypot(FixedHypot(victim.mo.x - attacker.mo.x, victim.mo.y - attacker.mo.y), victim.mo.z - attacker.mo.z)
 	end
 
-	RSR.KillfeedPrint(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary)
+	RSR.KillfeedPrint(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary, dist)
 end
 
 --- Draws the killfeed to the HUD.
@@ -394,10 +398,15 @@ RSR.HUDKillfeed = function(v)
 		local bgWidth = v.stringWidth(info.victim, 0, "thin") + patchWidth + 2
 		if info.infReflected then bgWidth = $ + patchWidth + 2 end
 		if info.attacker then bgWidth = $ + v.stringWidth(info.attacker, 0, "thin") + 2 end
+		if (info.distance or 0) >= 10 then bgWidth = $ + v.stringWidth("("..info.distance.."m)", 0, "thin") + 2 end
 		local bgX = x - bgWidth
 
 		v.drawFill(bgX - 1, y - 1, bgWidth + 2, 18, bgColor|flagsHalfTrans)
 
+		if (info.distance or 0) >= 10 then -- Show the distance if it's greater than 10
+			v.drawString(x, y + patchHeight/4, "("..info.distance.."m)", flags|V_ALLOWLOWERCASE, "thin-right")
+			x = $ - v.stringWidth("("..info.distance.."m)", 0, "thin") - 2
+		end
 		v.drawString(x, y + patchHeight/4, info.victim, flags|V_ALLOWLOWERCASE, "thin-right") -- Show the victim
 		x = $ - v.stringWidth(info.victim, 0, "thin") - patchWidth - 2
 		v.draw(x, y, inflictorPatch, flags, colormap) -- Show the inflictor: Player, projectile, or otherwise
@@ -408,13 +417,6 @@ RSR.HUDKillfeed = function(v)
 		if info.attacker then -- Show the attacker, if there was one
 			x = $ - 2
 			v.drawString(x, y + patchHeight/4, info.attacker, flags|V_ALLOWLOWERCASE, "thin-right")
-		end
-		if Valid(attacker) and Valid(attacker.mo) and Valid(victim) and Valid(victim.mo) then
-			local fancyDist = FixedHypot(FixedHypot(victim.mo.x - attacker.mo.x, victim.mo.y - attacker.mo.y), victim.mo.z - attacker.mo.z)/(56*FRACUNIT)
-			if fancyDist >= 10 then
-				x = $ - v.StringWidth(info.attacker, 0, "thin") - patchWidth - 2
-				v.drawString(x, y + patchHeight/4, "("+fancyDist+"m)", flags|V_ALLOWLOWERCASE, "thin-right")
-			end
 		end
 	end
 end
