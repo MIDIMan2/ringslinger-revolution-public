@@ -409,6 +409,13 @@ RSR.HUDKillfeed = function(v)
 			x = $ - 2
 			v.drawString(x, y + patchHeight/4, info.attacker, flags|V_ALLOWLOWERCASE, "thin-right")
 		end
+		if Valid(attacker) and Valid(attacker.mo) and Valid(victim) and Valid(victim.mo) then
+			local fancyDist = FixedHypot(FixedHypot(victim.mo.x - attacker.mo.x, victim.mo.y - attacker.mo.y), victim.mo.z - attacker.mo.z)/(56*FRACUNIT)
+			if fancyDist >= 10 then
+				x = $ - v.StringWidth(info.attacker, 0, "thin") - patchWidth - 2
+				v.drawString(x, y + patchHeight/4, "("+fancyDist+"m)", flags|V_ALLOWLOWERCASE, "thin-right")
+			end
+		end
 	end
 end
 
