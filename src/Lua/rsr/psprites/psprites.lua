@@ -102,7 +102,7 @@ end
 
 --- Gets a psprite from the player using an ID.
 ---@param player player_t
----@param id integer ID of the psprite (PSPR_ constant).
+---@param id integer ID of the psprite (PSPR_* constant).
 PSprites.GetPSprite = function(player, id)
 	if not (Valid(player) and player.psprites) then return end
 	return player.psprites[id]

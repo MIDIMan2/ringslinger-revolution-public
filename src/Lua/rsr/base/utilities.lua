@@ -173,7 +173,7 @@ end
 ---@param slope angle_t|nil Pitch of the spawned missile.
 ---@param reflected mobj_t|nil If set to an Object, this makes the spawned missile act as a reflected version using this Object's properties.
 ---@param speed fixed_t|integer|nil Sets the speed of the missile (default is missileType's Speed property).
----@param sound integer|nil Determines what sound to use for the spawned missile (uses sfx_ constants).
+---@param sound integer|nil Determines what sound to use for the spawned missile (uses sfx_* constants).
 RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, speed, sound)
 	if not Valid(source) then return end
 	missileType = $ or MT_JETTBULLET
