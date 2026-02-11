@@ -7,11 +7,12 @@ RSR.ATTRACT_TIMER = 87
 --- Version of P_LookForEnemies that also looks for players.
 ---@param player player_t
 ---@param maxDist fixed_t|nil Maximum distance to search for enemies (Default is RING_DIST).
----@param searchEnemies boolean|nil
----@param searchSpectators boolean|nil
----@param canHomeUpwards boolean|nil
+---@param searchEnemies boolean|nil If true, search for non-player enemies too.
+---@param searchSpectators boolean|nil If true, search for spectators (used for rsr_ghostbusters).
+---@param canHomeUpwards boolean|nil If true, search for enemies above the player too.
+---@param homingThok boolean|nil Player is using a homing thok.
 ---@return mobj_t|nil
-RSR.PlayerLookForEnemies = function(player, maxDist, searchEnemies, searchSpectators, canHomeUpwards)
+RSR.PlayerLookForEnemies = function(player, maxDist, searchEnemies, searchSpectators, canHomeUpwards, homingThok)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
 	local closestMo
@@ -31,8 +32,8 @@ RSR.PlayerLookForEnemies = function(player, maxDist, searchEnemies, searchSpecta
 
 		if Valid(enemy.player) then
 			if RSR.PlayersAreTeammates(player, enemy.player) and not RSR.CheckFriendlyFire() then return end -- Is a teammate
-			if RSR.PlayerHasPurpleDebuff(player) then -- Has the purple debuff (has flag in CTF, or is a hider in Tag gametypes)
-				if not (RSR.CV_LaserTag.value and not (gametyperules & GTR_HIDEFROZEN))  then return end -- LaserTag is disabled in Tag
+			if homingThok and RSR.PlayerHasPurpleDebuff(player) then -- Is attempting to use homing thok and has the purple debuff (has flag in CTF, or is a hider in Tag gametypes)
+				if not (RSR.CV_LaserTag.value and not (gametyperules & GTR_HIDEFROZEN)) then return end -- LaserTag is disabled in Tag, or the player is using their homingThok
 			end
 
 			if not enemy.player.rsrinfo then return end -- Not in RSR mode
@@ -159,7 +160,7 @@ RSR.PlayerLockOnThink = function(player)
 
 	if player.charability == CA_HOMINGTHOK and not (player.homing or player.rsrinfo.homing) and (player.pflags & PF_JUMPED)
 	and (not (player.pflags & PF_THOKKED) or (player.charflags & SF_MULTIABILITY)) then
-		lockOnThok = RSR.PlayerLookForEnemies(player, nil, nil, RSR.CV_Ghostbusters.value and true or false)
+		lockOnThok = RSR.PlayerLookForEnemies(player, nil, nil, RSR.CV_Ghostbusters.value and true or false, nil, true)
 		if Valid(lockOnThok) and P_IsLocalPlayer(player) then
 			visual = P_SpawnMobj(lockOnThok.x, lockOnThok.y, lockOnThok.z, MT_LOCKON)
 			if Valid(visual) then
