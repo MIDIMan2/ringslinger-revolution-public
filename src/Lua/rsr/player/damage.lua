@@ -35,6 +35,8 @@ RSR.DEATHCAM_SPEED_MAX = 96*FRACUNIT
 RSR.WARN_COOLDOWN = TICRATE
 RSR.MINOR_COOLDOWN = TICRATE/2
 
+RSR.ATTACKER_TIMER_MAX = 10*TICRATE
+
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 
@@ -74,7 +76,7 @@ mobjinfo[MT_RSR_DAMAGE_SPLATTER] = {
 
 states[S_RSR_DAMAGE_SPLATTER] =	{SPR_THOK,	A|FF_TRANS50,	64,	nil,	0,	0,	S_NULL}
 
---- Spawns a bucnh of splatter particles from the Object. Higher damage means more and bigger particles.
+--- Spawns a bunch of splatter particles from the Object. Higher damage means more and bigger particles.
 ---@param target mobj_t
 ---@param damage integer
 RSR.SpawnDamageSplatter = function(target, damage)
@@ -136,7 +138,7 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.hitSound = 0
 	rsrinfo.deathFlags = 0
 	rsrinfo.attackerInfo = {}
-	rsrinfo.knockedByAttacker = false -- TODO: Maybe remove this since it's not being used for assists anymore???
+	rsrinfo.attackerTimer = 0
 
 	rsrinfo.critCooldown = 0
 
@@ -166,6 +168,7 @@ RSR.PlayerDamageTick = function(player)
 		end
 		rsrinfo.hitSound = 0
 	end
+	if rsrinfo.attackerTimer > 0 then rsrinfo.attackerTimer = max(0, $-1) end
 	-- Remove invalid players from attackerInfo
 	local i = 1
 	while i <= #rsrinfo.attackerInfo do
@@ -177,14 +180,9 @@ RSR.PlayerDamageTick = function(player)
 		end
 		i = $+1
 	end
-	if rsrinfo.knockedByAttacker then
-		if Valid(player.mo) and P_IsObjectOnGround(player.mo) and FixedHypot(player.rmomx, player.rmomy) < 20*player.mo.scale then
-			rsrinfo.knockedByAttacker = false
-		end
-	end
 end
 
---- Adds an attacker to the player's table of attackers
+--- Adds an attacker to the player's table of attackers.
 ---@param player player_t
 ---@param attacker player_t
 ---@param damage integer
@@ -204,11 +202,35 @@ RSR.PlayerAddAttacker = function(player, attacker, damage)
 		end
 	end
 
-	player.rsrinfo.knockedByAttacker = true
+	-- Reset the timer, and add the attacker to the player's attackerInfo table
+	player.rsrinfo.attackerTimer = RSR.ATTACKER_TIMER_MAX
 	table.insert(player.rsrinfo.attackerInfo, 1, {
 		player = attacker,
 		damage = prevDamage + damage
 	})
+end
+
+--- Reduces the damage each attacker dealt in the player's attackerInfo table, given the amount healed.
+---@param player player_t
+---@param healed integer
+RSR.PlayerReduceAttackerInfoDamage = function(player, healed)
+	if not (Valid(player) and player.rsrinfo and (healed or 0) > 0) then return end
+	if not (player.rsrinfo.attackerInfo and #player.rsrinfo.attackerInfo) then return end
+
+	healed = $ / #player.rsrinfo.attackerInfo
+	if healed < 1 then healed = 1 end
+
+	local i = 1
+	while i <= #player.rsrinfo.attackerInfo do
+		local info = player.rsrinfo.attackerInfo[i]
+		if not info then i = $+1; continue end
+		info.damage = max(0, $ - healed)
+		if not info.damage then -- Remove the attacker if their damage output no longer matters
+			table.remove(player.rsrinfo.attackerInfo, i)
+			continue
+		end
+		i = $+1
+	end
 end
 
 --- Helper function for getting the damage value of a given inflictor.
@@ -1006,6 +1028,10 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	-- Only run this code in multiplayer gamemodes
 	if multiplayer or netgame then
 		if G_RingSlingerGametype() then
+			-- Clear attackerInfo if the player died to level geometry and their attackerTimer is 0
+			if not rsrinfo.attackerTimer and not (Valid(inflictor) or Valid(source)) then
+				rsrinfo.attackerInfo = {}
+			end
 			local sourcePlayer = Valid(source) and source.player or nil
 			if #rsrinfo.attackerInfo then
 				sourcePlayer = rsrinfo.attackerInfo[1].player
@@ -1021,7 +1047,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			end
 			RSR.KillfeedAdd(player, inflictor, sourcePlayer, damagetype)
 			-- rsrinfo.deathFlags = 0 -- TODO: Make sure this doesn't cause any anomalies when not cleared out
-			-- Reset forceInflictorType and forceInflictorReflected so they don't linger around
+			-- Clear forceInflictorType and forceInflictorReflected so they don't linger around
 			rsrinfo.forceInflictorType = nil
 			rsrinfo.forceInflictorReflected = nil
 
