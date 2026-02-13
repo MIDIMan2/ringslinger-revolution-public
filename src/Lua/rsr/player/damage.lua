@@ -1299,11 +1299,6 @@ RSR.GetPlayerMeleeDamage = function(player)
 		and RSR.SHIELD_INFO[shield] and RSR.SHIELD_INFO[shield].meleedamage then
 			meleeBaseDamage = RSR.SHIELD_INFO[shield].meleedamage
 		end
-
-		if ((shield2 ~= SH_ATTRACT and (player2.pflags & PF_SHIELDABILITY)) or (shield2 == SH_ATTRACT and player2.rsrinfo.homing))
-		and RSR.SHIELD_INFO[shield2] and RSR.SHIELD_INFO[shield2].meleedamage then
-			meleeBaseDamage2 = RSR.SHIELD_INFO[shield2].meleedamage
-		end
 	end
 
 	-- Invincibility, Super, or FistsForGuns: x3 damage
