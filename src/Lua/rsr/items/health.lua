@@ -31,7 +31,7 @@ RSR.GiveHealth = function(player, health, isBonus, lowMod)
 	if isBonus or RSR.CV_LimitBreak.value then maxHealth = RSR.MAX_HEALTH_BONUS end -- Allow healing past max if using Megasphere or LimitBreak
 
 	-- Only do crit healing if we don't have the flag!
-	if lowMod and not player.gotflag then
+	if lowMod and not RSR.PlayerHasPurpleDebuff(player) then
 		-- If the player is critically low on health, add a flat increase to health yielded from pickups
 		if (player.rsrinfo.health + player.rsrinfo.armor <= RSR.CRIT_EHP) and (player.rsrinfo.critCooldown < 1) then
 			health = $ + 8
@@ -44,7 +44,9 @@ RSR.GiveHealth = function(player, health, isBonus, lowMod)
 		end
 	end
 
+	local prevHealth = player.rsrinfo.health
 	player.rsrinfo.health = min($ + health, maxHealth)
+	RSR.PlayerReduceAttackerInfoDamage(player, player.rsrinfo.health - prevHealth)
 	return true
 end
 
@@ -77,7 +79,7 @@ RSR.GiveArmor = function(player, armor, isBonus, lowMod)
 	if isBonus or RSR.CV_LimitBreak.value then maxArmor = RSR.MAX_ARMOR_BONUS end -- Allow healing past max if using Megasphere or LimitBreak
 
 	-- Only do crit healing if we don't have the flag!
-	if lowMod and not player.gotflag then
+	if lowMod and not RSR.PlayerHasPurpleDebuff(player) then
 		-- If the player is critically low on health, add a flat increase to armor yielded from pickups
 		if (player.rsrinfo.health + player.rsrinfo.armor <= RSR.CRIT_EHP) and (player.rsrinfo.critCooldown < 1) then
 			armor = $ + 8
@@ -90,7 +92,9 @@ RSR.GiveArmor = function(player, armor, isBonus, lowMod)
 		end
 	end
 
+	local prevArmor = armor
 	player.rsrinfo.armor = min($ + armor, maxArmor)
+	RSR.PlayerReduceAttackerInfoDamage(player, player.rsrinfo.health - prevArmor)
 	return true
 end
 

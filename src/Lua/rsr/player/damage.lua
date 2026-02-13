@@ -10,6 +10,7 @@ RSR.HITSOUND_BREAK = 3
 RSR.HITSOUND_INVIN = 4
 RSR.HITSOUND_ASSIST = 5
 RSR.HITSOUND_KILL = 6
+RSR.HITSOUND_NOQUAKEMASK = 8 -- This must always be a power of 2 value
 
 RSR.HITSOUND_TO_SFX = {
 	[RSR.HITSOUND_HIT] = sfx_rsrhit,
@@ -24,19 +25,23 @@ RSR.DEATH_REMOVEDEATHMASK = 1
 RSR.DEATH_MAKESPECTATOR = 2
 RSR.DEATH_SWITCHEDTEAMS = 4
 RSR.DEATH_GOTBURNT = 8
-RSR.DEATH_FLIPSPRITEROLL = 16
-RSR.DEATH_USEDKILLCMD = 32
-RSR.DEATH_USEDEXPLODECMD = 64
-RSR.DEATH_USEDDISINTEGRATECMD = 128
+RSR.DEATH_GOTTAGGED = 16
+RSR.DEATH_FLIPSPRITEROLL = 32
+RSR.DEATH_USEDKILLCMD = 64
+RSR.DEATH_USEDEXPLODECMD = 128
+RSR.DEATH_USEDDISINTEGRATECMD = 256
 
 RSR.DEATHCAM_SPEED_MAX = 96*FRACUNIT
 
 RSR.WARN_COOLDOWN = TICRATE
 RSR.MINOR_COOLDOWN = TICRATE/2
 
+RSR.ATTACKER_TIMER_MAX = 10*TICRATE
+
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 
+	-- TODO: Rewrite this to use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
 	if mo.z + mo.momz <= mo.floorz or mo.z + mo.height + mo.momz >= mo.ceilingz then
 		mo.momz = -$
 	end
@@ -72,7 +77,7 @@ mobjinfo[MT_RSR_DAMAGE_SPLATTER] = {
 
 states[S_RSR_DAMAGE_SPLATTER] =	{SPR_THOK,	A|FF_TRANS50,	64,	nil,	0,	0,	S_NULL}
 
---- Spawns a bucnh of splatter particles from the Object. Higher damage means more and bigger particles.
+--- Spawns a bunch of splatter particles from the Object. Higher damage means more and bigger particles.
 ---@param target mobj_t
 ---@param damage integer
 RSR.SpawnDamageSplatter = function(target, damage)
@@ -134,7 +139,7 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.hitSound = 0
 	rsrinfo.deathFlags = 0
 	rsrinfo.attackerInfo = {}
-	rsrinfo.knockedByAttacker = false -- TODO: Maybe remove this since it's not being used for assists anymore???
+	rsrinfo.attackerTimer = 0
 
 	rsrinfo.critCooldown = 0
 
@@ -157,12 +162,14 @@ RSR.PlayerDamageTick = function(player)
 	if rsrinfo.hurtByMap > 0 then rsrinfo.hurtByMap = max(0, $-1) end
 	if rsrinfo.attackKnockback then rsrinfo.attackKnockback = false end
 	if rsrinfo.hitSound then
-		if RSR.HITSOUND_TO_SFX[rsrinfo.hitSound] then
-			S_StartSound(nil, RSR.HITSOUND_TO_SFX[rsrinfo.hitSound], player)
-			S_StartSound(nil, sfx_rsrquk, player)
+		if RSR.HITSOUND_TO_SFX[rsrinfo.hitSound & ~RSR.HITSOUND_NOQUAKEMASK] then
+			S_StartSound(nil, RSR.HITSOUND_TO_SFX[rsrinfo.hitSound & ~RSR.HITSOUND_NOQUAKEMASK], player)
+			-- Don't let the Quake III-esque hitsound play if the NOQUAKEMASK flag is used
+			if not (rsrinfo.hitSound & RSR.HITSOUND_NOQUAKEMASK) then S_StartSound(nil, sfx_rsrquk, player) end
 		end
 		rsrinfo.hitSound = 0
 	end
+	if rsrinfo.attackerTimer > 0 then rsrinfo.attackerTimer = max(0, $-1) end
 	-- Remove invalid players from attackerInfo
 	local i = 1
 	while i <= #rsrinfo.attackerInfo do
@@ -173,11 +180,6 @@ RSR.PlayerDamageTick = function(player)
 			continue
 		end
 		i = $+1
-	end
-	if rsrinfo.knockedByAttacker then
-		if Valid(player.mo) and P_IsObjectOnGround(player.mo) and FixedHypot(player.rmomx, player.rmomy) < 20*player.mo.scale then
-			rsrinfo.knockedByAttacker = false
-		end
 	end
 end
 
@@ -234,7 +236,7 @@ RSR.PlayerRegenerateTick = function(player)
 	end
 end
 
---- Adds an attacker to the player's table of attackers
+--- Adds an attacker to the player's table of attackers.
 ---@param player player_t
 ---@param attacker player_t
 ---@param damage integer
@@ -254,11 +256,35 @@ RSR.PlayerAddAttacker = function(player, attacker, damage)
 		end
 	end
 
-	player.rsrinfo.knockedByAttacker = true
+	-- Reset the timer, and add the attacker to the player's attackerInfo table
+	player.rsrinfo.attackerTimer = RSR.ATTACKER_TIMER_MAX
 	table.insert(player.rsrinfo.attackerInfo, 1, {
 		player = attacker,
 		damage = prevDamage + damage
 	})
+end
+
+--- Reduces the damage each attacker dealt in the player's attackerInfo table, given the amount healed.
+---@param player player_t
+---@param healed integer
+RSR.PlayerReduceAttackerInfoDamage = function(player, healed)
+	if not (Valid(player) and player.rsrinfo and (healed or 0) > 0) then return end
+	if not (player.rsrinfo.attackerInfo and #player.rsrinfo.attackerInfo) then return end
+
+	healed = $ / #player.rsrinfo.attackerInfo
+	if healed < 1 then healed = 1 end
+
+	local i = 1
+	while i <= #player.rsrinfo.attackerInfo do
+		local info = player.rsrinfo.attackerInfo[i]
+		if not info then i = $+1; continue end
+		info.damage = max(0, $ - healed)
+		if not info.damage then -- Remove the attacker if their damage output no longer matters
+			table.remove(player.rsrinfo.attackerInfo, i)
+			continue
+		end
+		i = $+1
+	end
 end
 
 --- Helper function for getting the damage value of a given inflictor.
@@ -623,20 +649,6 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	local player = target.player
 	if not (Valid(target.player) and target.player.rsrinfo) then return end -- Don't run this code if the target is not a player in RSR
 
-	local hookEvent, hookName = RSR.findEvent("PlayerDamage")
-	if hookEvent then
-		for i, v in ipairs(hookEvent) do
-			if hookEvent.typefor ~= nil then
-				if hookEvent.typefor(player, v.typedef) == false then continue end
-			end
-			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
-			if result then return end
-		end
-	end
-
-	-- Don't run this code if DMG_DEATHMASK is in effect
-	if ((damagetype or 0) & DMG_DEATHMASK) then return end
-
 	local knockbackScale = FRACUNIT
 
 	local hurtByEnemy = false
@@ -654,6 +666,20 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		end
 	end
 
+	local hookEvent, hookName = RSR.findEvent("PlayerDamage")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
+			if result then return end
+		end
+	end
+
+	-- Don't run this code if DMG_DEATHMASK is in effect
+	if ((damagetype or 0) & DMG_DEATHMASK) then return end
+
 	local rsrinfo = player.rsrinfo
 
 	-- Set hurt timers for certain conditions
@@ -669,8 +695,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	local origEHP = rsrinfo.health + rsrinfo.armor
 
 	-- Multiply damage taken by 1.5x if the player has a flag or is a runner in Tag gametypes
-	if ((gametyperules & GTR_TEAMFLAGS) and player.gotflag)
-	or (G_TagGametype() and not (player.pflags & PF_TAGIT)) then
+	if RSR.PlayerHasPurpleDebuff(player) then
 		damage = FixedMul($, 3*FRACUNIT/2)
 		S_StartSound(nil, ampSound, player)
 	end
@@ -708,7 +733,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	elseif (rsrinfo.health + rsrinfo.armor) <= RSR.CRIT_EHP and (rsrinfo.health + rsrinfo.armor) > 0 and origEHP > RSR.CRIT_EHP then -- Play low health sound when the player falls to low health the first time
 		S_StartSound(nil, criticalSound, player)
 		RSR.SetEHPFlash(player, V_REDMAP, RSR.WARN_COOLDOWN, 2)
-	elseif ((gametyperules & GTR_TEAMFLAGS) and player.gotflag) then
+	elseif RSR.PlayerHasPurpleDebuff(player) then
 		RSR.SetEHPFlash(player, V_PURPLEMAP, RSR.MINOR_COOLDOWN, 2)
 	elseif (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then
 		RSR.SetEHPFlash(player, V_AZUREMAP, RSR.MINOR_COOLDOWN, 2)
@@ -744,12 +769,13 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 	if not Valid(player) then return end
 	damagetype = $ or 0
 
-	if player.rsrinfo.health > 0 and not RSR.CV_InstaGib.value then
+	if player.rsrinfo.health > 0
+	and not (G_TagGametype() and (gametyperules & GTR_HIDEFROZEN) and not (player.pflags & PF_TAGIT))
+	and not RSR.CV_InstaGib.value then
 		return false
 	else
 		-- Force death if the player's health is 0
 		if not (damagetype & DMG_DEATHMASK) then
--- 			player.rsrinfo.removeDeathMask = true
 			player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK
 		end
 		-- This is an ugly hack to get around SRB2 not tagging the hider if Amy's hearts are the inflictor
@@ -757,6 +783,9 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 			player.rsrinfo.forceInflictorType = MT_LHRT
 			player.rsrinfo.forceInflictorReflected = inflictor.rsrForceReflected
 			inflictor = source
+		end
+		if G_TagGametype() and not (player.pflags & PF_TAGIT) and Valid(source) and Valid(source.player) and (source.player.pflags & PF_TAGIT) then
+			player.rsrinfo.deathFlags = $|RSR.DEATH_GOTTAGGED
 		end
 		P_DamageMobj(player.mo, inflictor, source, damage, damagetype|DMG_DEATHMASK)
 		return true
@@ -776,7 +805,8 @@ RSR.PlayerSourceShouldDamage = function(player, inflictor, source, damage, damag
 	end
 
 	if Valid(source.player) and RSR.PlayersAreTeammates(player, source.player) then
-		if player == source.player or not RSR.CheckFriendlyFire() then -- If the player is not damaging themselves and friendly fire is not enabled, don't deal damage
+		if (player == source.player and not (damagetype & DMG_CANHURTSELF)) -- If the player is not damaging themselves and friendly fire is disabled, don't deal damage
+		or (player ~= source.player and not RSR.CheckFriendlyFire()) then
 			return false
 		else -- Otherwise, force damage and (possibly) death
 			return true
@@ -808,7 +838,7 @@ end
 ---@param inflictor mobj_t Inflictor of the damage.
 ---@param source mobj_t Source of the damage.
 ---@param damage integer Amount of damage dealt to the target.
----@param damagetype integer Type of damage inflicted onto the target (DMG_ constants).
+---@param damagetype integer Type of damage inflicted onto the target (DMG_* constants).
 RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
@@ -844,7 +874,7 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 			if not Valid(inflictor.player) then -- Only works for projectiles, not melee or terrain
 				S_StartSound(target, sfx_rsrpng)
 				if Valid(source) and Valid(source.player) and source.player.rsrinfo then
-					source.player.rsrinfo.hitSound = RSR.HITSOUND_INVIN
+					source.player.rsrinfo.hitSound = RSR.HITSOUND_INVIN|RSR.HITSOUND_NOQUAKEMASK
 				end
 				for i = 0, 3 do
 					local spark = P_SpawnMobjFromMobj(target, 0, 0, FixedDiv(target.height, target.scale)/2, MT_UNKNOWN)
@@ -930,17 +960,23 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 	return false
 end
 
---- TeamSwitch hook code for when the player switches to the "spectator" team (or the Opposing Force™).
+--- TeamSwitch hook code for when the player switches to the "spectator" team (or the Opposing Force™), or joining a Tag game from being a spectator.
 ---@param player player_t
 ---@param team integer
-RSR.TeamSwitch = function(player, team)
+RSR.TeamSwitch = function(player, team, fromspectators)
+	if not RSR.GamemodeActive() then return end
 	if not (Valid(player) and player.rsrinfo) then return end
 	if team == 0 then
 		player.rsrinfo.deathFlags = $|RSR.DEATH_MAKESPECTATOR
-		return
-	end
-	if player.ctfteam and team ~= player.ctfteam then
+	elseif player.ctfteam and team ~= player.ctfteam then
 		player.rsrinfo.deathFlags = $|RSR.DEATH_SWITCHEDTEAMS
+	end
+	if team == 3 and fromspectators then -- The secret "3" option made up for Tag gametypes??? (who knows)
+		if (gametyperules & (GTR_TAG|GTR_HIDEFROZEN)) then
+			if (leveltime > (CV_FindVar("hidetime").value * TICRATE)) then return end -- Let P_SpectatorJoinGame handle players joining after hidetime
+			player.spectator = false -- Do this before it gets set to false in the source code, so we don't mess up our implementation
+			RSR.TagCheckSurvivors()
+		end
 	end
 end
 
@@ -1026,11 +1062,70 @@ RSR.PlayerReplenishPowerups = function(player)
 	end
 end
 
+-- TODO: Remove this function when 2.2.16 comes out
+
+--- Cancels out the points awarded for hurting yourself when DMG_CANHURTSELF is applied (pre-2.2.16 bug).
+---@param player player_t
+---@param sourcePlayer player_t
+---@param damagetype integer|nil
+RSR.CancelHurtSelfPoints = function(player, sourcePlayer, damagetype)
+	if not (Valid(player) and Valid(sourcePlayer)) then return end
+	damagetype = $ or 0
+	if not (player == sourcePlayer and (damagetype & DMG_CANHURTSELF)) then return end
+
+	local totalScore = 0
+	if (gametyperules & GTR_TEAMFLAGS) and (player.gotflag & (GF_REDFLAG|GF_BLUEFLAG)) then
+		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and source ~= player.mo) then
+			totalScore = $ + 25
+		end
+	end
+	if not player.powers[pw_super] then
+		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and source ~= player.mo) then
+			totalScore = $ + 100
+		end
+	end
+	P_AddPlayerScore(player, -totalScore)
+end
+
+--- Lua implementation of the Tag gametype "suicide cases" code in P_KillMobj, but only for DMG_CANHURTSELF.
+---@param player player_t
+---@param source mobj_t
+---@param damagetype integer
+RSR.PlayerDeathTag = function(player, source, damagetype)
+	if not G_TagGametype() then return end -- Only run in Tag gametypes
+	if not (Valid(player) and Valid(source) and Valid(source.player) and damagetype) then return end
+	if (player.pflags & PF_TAGIT) or player.spectator then return end -- Only run if the player is a hider and not a spectator
+	if not (player == source.player and (damagetype & DMG_CANHURTSELF)) then return end -- Only run if the player didn't hurt themself
+
+	-- if you accidentally die before you run out of time to hide, ignore it.
+	-- allow them to try again, rather than sitting the whole thing out.
+	if leveltime >= CV_FindVar("hidetime").value * TICRATE then
+		if not (gametyperules & GTR_HIDEFROZEN) then -- suiciding in survivor makes you IT.
+			player.pflags = $|PF_TAGIT
+			print(player.name.." is now IT!") -- Tell everyone who is it!
+			RSR.TagCheckSurvivors()
+		else
+			if not (player.pflags & PF_GAMETYPEOVER) then
+				--otherwise, increment the tagger's score.
+				--in hide and seek, suiciding players are counted as found.
+				for player2 in players.iterate do
+					if not (Valid(player2) and (player2.pflags & PF_TAGIT)) then continue end
+					P_AddPlayerScore(player2, 100)
+				end
+
+				player.pflags = $|PF_GAMETYPEOVER
+				print(player.name.." was found!")
+				RSR.TagCheckSurvivors()
+			end
+		end
+	end
+end
+
 --- MobjDeath hook code for players.
 ---@param target mobj_t Object that dies.
 ---@param inflictor mobj_t Object that caused the target's death.
 ---@param source mobj_t Object that indirectly caused the target's death (usually related to the inflictor, but can be nil).
----@param damagetype integer Type of damage inflicted on the target (DMG_ constants).
+---@param damagetype integer Type of damage inflicted on the target (DMG_* constants).
 RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	if not RSR.GamemodeActive() then return end
 	if not Valid(target) then return end
@@ -1071,6 +1166,11 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	-- Only run this code in multiplayer gamemodes
 	if multiplayer or netgame then
 		if G_RingSlingerGametype() then
+			-- Clear attackerInfo if the player died to instant kill level geometry and their attackerTimer is 0
+			if not rsrinfo.attackerTimer
+			and (damagetype == DMG_INSTAKILL or damagetype == DMG_DEATHPIT or damagetype == DMG_CRUSHED or damagetype == DMG_DROWNED or damagetype == DMG_SPACEDROWN) then
+				rsrinfo.attackerInfo = {}
+			end
 			local sourcePlayer = Valid(source) and source.player or nil
 			if #rsrinfo.attackerInfo then
 				sourcePlayer = rsrinfo.attackerInfo[1].player
@@ -1086,7 +1186,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			end
 			RSR.KillfeedAdd(player, inflictor, sourcePlayer, damagetype)
 			-- rsrinfo.deathFlags = 0 -- TODO: Make sure this doesn't cause any anomalies when not cleared out
-			-- Reset forceInflictorType and forceInflictorReflected so they don't linger around
+			-- Clear forceInflictorType and forceInflictorReflected so they don't linger around
 			rsrinfo.forceInflictorType = nil
 			rsrinfo.forceInflictorReflected = nil
 
@@ -1111,6 +1211,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			if Valid(sourcePlayer) and sourcePlayer.rsrinfo
 			and sourcePlayer ~= player and not RSR.PlayersAreTeammates(player, sourcePlayer) then
 				sourcePlayer.rsrinfo.hitSound = RSR.HITSOUND_KILL
+				if not (Valid(inflictor) and Valid(source)) then sourcePlayer.rsrinfo.hitSound = $|RSR.HITSOUND_NOQUAKEMASK end
 				-- We now make sure to award points to the last attacker even if the player voluntarily jumped off a cliff or something because it turns out you can use that to reverse-killsteal
 				-- Points are already awarded to seekers in H&S if a player dies
 				if not wasHiding and not (Valid(source) and Valid(source.player)) and #rsrinfo.attackerInfo then
@@ -1149,10 +1250,13 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 
 					if info.player.rsrinfo then
 						info.player.rsrinfo.hitSound = RSR.HITSOUND_ASSIST
+						if not (Valid(inflictor) and Valid(source)) then info.player.rsrinfo.hitSound = $|RSR.HITSOUND_NOQUAKEMASK end
 					end
 					P_AddPlayerScore(info.player, 50)
 				end
 			end
+
+			RSR.CancelHurtSelfPoints(player, sourcePlayer, damagetype)
 
 			rsrinfo.attackerInfo = {} -- Clear attackerInfo since we've already died
 		end
@@ -1167,6 +1271,8 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 
 	-- Clear the player's "starpost data" if the map's level header forces players to lose their inventory on death
 	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrloseinvondeath then rsrinfo.starpostData = {} end
+	if rsrinfo.deathFlags & RSR.DEATH_GOTTAGGED then P_AddPlayerScore(source.player, -100) end -- Take away points from the seeker since killing a hider already awards them points
+	RSR.PlayerDeathTag(player, source, damagetype)
 end
 
 --- Helper function for getting the damage value of a meleeing player.

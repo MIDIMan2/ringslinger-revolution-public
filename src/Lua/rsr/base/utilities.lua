@@ -173,7 +173,7 @@ end
 ---@param slope angle_t|nil Pitch of the spawned missile.
 ---@param reflected mobj_t|nil If set to an Object, this makes the spawned missile act as a reflected version using this Object's properties.
 ---@param speed fixed_t|integer|nil Sets the speed of the missile (default is missileType's Speed property).
----@param sound integer|nil Determines what sound to use for the spawned missile (uses sfx_ constants).
+---@param sound integer|nil Determines what sound to use for the spawned missile (uses sfx_* constants).
 RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, speed, sound)
 	if not Valid(source) then return end
 	missileType = $ or MT_JETTBULLET
@@ -298,6 +298,15 @@ RSR.PlayersAreTeammates = function(player, player2)
 	if G_TagGametype() and (player.pflags & PF_TAGIT) == (player2.pflags & PF_TAGIT) then return true end
 
 	-- Otherwise, they are NOT teammates
+	return false
+end
+
+--- Returns true if the player given has the "Purple Debuff".
+---@param player player_t
+RSR.PlayerHasPurpleDebuff = function(player)
+	if not Valid(player) then return false end
+	if (gametyperules & GTR_TEAMFLAGS) and player.gotflag then return true end -- Player has a flag in CTF
+	if G_TagGametype() and not (player.pflags & PF_TAGIT) then return true end -- Player is a hider in Tag/H&S
 	return false
 end
 

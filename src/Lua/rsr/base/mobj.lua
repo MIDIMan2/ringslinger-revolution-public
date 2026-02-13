@@ -39,10 +39,8 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 		if not (RSR.MOBJ_INFO[enemy.type] and RSR.MOBJ_INFO[enemy.type].nosplashsightcheck) and not P_CheckSight(bomb, enemy) then return end
 		local source = bomb.target
 		local damagetype = 0
-		if enemy == bomb.target then source = nil end
-		-- TODO: Uncomment this when 2.2.16 comes out and fixes being able to score points from hurting yourself
-		-- (This is not an exaggeration, you can literally give yourself points by hurting yourself in Match with DMG_CANHURTSELF)
-		-- if enemy == bomb.target then damagetype = $|DMG_CANHURTSELF end
+		-- if enemy == bomb.target then source = nil end
+		if enemy == bomb.target then damagetype = $|DMG_CANHURTSELF end
 
 		local distXY = FixedHypot(enemy.x - bomb.x, enemy.y - bomb.y)
 		local distZ = (enemy.z + enemy.height/2) - (bomb.z + bomb.height/2)

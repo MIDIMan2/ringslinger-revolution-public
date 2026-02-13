@@ -18,7 +18,7 @@ RSR.GetWeaponClass = function(classNum)
 end
 
 --- Gets "next" weapon in the player's inventory based on the offset.
----@param weapon integer The player's current weapon (RSR.WEAPON_ constant).
+---@param weapon integer The player's current weapon (RSR.WEAPON_* constant).
 ---@param offset integer|nil Offset from the current weapon.
 RSR.GetNextOrPrevWeapon = function(weapon, offset)
 	if weapon == nil then return end
@@ -118,7 +118,8 @@ RSR.PlayerWeaponChoiceTick = function(player)
 					local foundWeapon = false
 
 					while tempSlot > 0 do
-						if rsrinfo.weapons[tempWeapon] and RSR.CheckAmmo(player, RSR.WEAPON_INFO[tempWeapon].ammotype) then
+						if rsrinfo.weapons[tempWeapon] and RSR.CheckAmmo(player, RSR.WEAPON_INFO[tempWeapon].ammotype)
+						and rsrinfo.pendingWeapon ~= tempWeapon then
 							foundWeapon = true
 							break
 						end

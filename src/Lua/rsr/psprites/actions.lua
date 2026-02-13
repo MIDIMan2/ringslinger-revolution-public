@@ -27,7 +27,7 @@ end
 
 --- Draws the given weapon for the player.
 ---@param player player_t
----@param weapon integer|nil Weapon to draw (RSR.WEAPON_ constant).
+---@param weapon integer|nil Weapon to draw (RSR.WEAPON_* constant).
 ---@param force boolean|nil Forces the player to draw the weapon, even if they can't.
 RSR.DrawWeapon = function(player, weapon, force)
 	if not (Valid(player) and player.rsrinfo) then return end
@@ -108,7 +108,7 @@ end
 
 local pspractions = PSprites.ACTIONS
 
---- Plays a sound from the player. Argument 1 is the sound to play (sfx_ constant).
+--- Plays a sound from the player. Argument 1 is the sound to play (sfx_* constant).
 ---@param player player_t
 pspractions.A_StartSound = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end

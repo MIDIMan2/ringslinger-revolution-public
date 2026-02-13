@@ -82,7 +82,7 @@ RSR.AddWeapon("NONE", {
 })
 
 --- Returns the ammo info for the given weapon.
----@param weapon integer Weapon type to get ammo info for (WEAPON_ constant)
+---@param weapon integer Weapon type to get ammo info for (WEAPON_* constant).
 ---@return rsrammoinfo_t|nil
 RSR.GetAmmoInfoFromWeapon = function(weapon)
 	if not weapon then return end
@@ -92,10 +92,33 @@ RSR.GetAmmoInfoFromWeapon = function(weapon)
 	return RSR.AMMO_INFO[ammoType]
 end
 
+--- Returns the amount of ammo for the given weapon.
+---@param weapon integer Weapon type to get ammo amount for (WEAPON_* constant).
+---@param pickup mobj_t|nil Weapon pickup to get ammo amount for.
+---@return integer
+RSR.GetAmmoAmountFromWeapon = function(weapon, pickup)
+	if not (weapon and RSR.WEAPON_INFO[weapon]) then return 0 end -- Weapon type doesn't exist in WEAPON_INFO
+
+	if Valid(pickup) then
+		local giveFullAmmo = pickup.rsrIsPanel or false
+		if not giveFullAmmo and RSR.WEAPON_INFO[weapon].canbepanel == false then
+			giveFullAmmo = true -- If the weapon can't be a panel, give full ammo anyway
+		end
+
+		if pickup.rsrAmmoAmount then -- Used in co-op and match when the player spills their ammo
+			return pickup.rsrAmmoAmount
+		elseif not giveFullAmmo then -- Give half the typical ammo
+			return (RSR.WEAPON_INFO[weapon].ammoamount or 0) / 2
+		end
+	end
+
+	return RSR.WEAPON_INFO[weapon].ammoamount or 0
+end
+
 --- Adds the given amount to the player's ammo pool.
 ---@param player player_t
 ---@param amount integer|nil Amount of ammo to give.
----@param ammoType integer Type of ammo to give (RSR.AMMO_ constant).
+---@param ammoType integer Type of ammo to give (RSR.AMMO_* constant).
 RSR.GiveAmmo = function(player, amount, ammoType)
 	if not (Valid(player) and player.rsrinfo) then return end
 	amount = $ or 0
@@ -114,7 +137,7 @@ end
 --- Takes away the given amount from the player's ammo pool.
 ---@param player player_t
 ---@param amount integer|nil Amount of ammo to take.
----@param ammoType integer Type of ammo to take (RSR.AMMO_ constant).
+---@param ammoType integer Type of ammo to take (RSR.AMMO_* constant).
 ---@param ignoreInfinity boolean|nil If true, ammo will be taken away even if the player has the infinity powerup.
 RSR.TakeAmmo = function(player, amount, ammoType, ignoreInfinity)
 	if not (Valid(player) and player.rsrinfo) then return end
@@ -137,14 +160,18 @@ end
 
 --- Checks if the player can use their weapon rings.
 ---@param player player_t
-RSR.CanUseWeapons = function(player)
+---@param skipSkinCheck boolean|nil Skips the if statement checking for noweapons in the player skin's SKIN_INFO. Useful for custom characters.
+RSR.CanUseWeapons = function(player, skipSkinCheck)
 	if not Valid(player) then return false end
 
-	-- Don't let non-IT players use weapons unless rsr_lasertag is true
-	if G_TagGametype() and not (player.pflags & PF_TAGIT) and not RSR.CV_LaserTag.value then return false end
+	-- Don't let hiders use weapons unless rsr_lasertag is true
+	if G_TagGametype() and not (player.pflags & PF_TAGIT)
+	and not (RSR.CV_LaserTag.value and not (gametyperules & GTR_HIDEFROZEN)) then return false end
 
-	-- Don't let skins with their own weapon system use RSR weapons
-	if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].noweapons then return false end
+	-- Don't let skins with their own weapon system use RSR weapons, unless the check is skipped
+	if not skipSkinCheck then
+		if RSR.SKIN_INFO[skins[player.skin].name] and RSR.SKIN_INFO[skins[player.skin].name].noweapons then return false end
+	end
 
 	return true
 end
@@ -190,7 +217,7 @@ end
 
 --- Gives a weapon to the player.
 ---@param player player_t
----@param weapon integer Weapon to give the player (RSR.WEAPON_ constant).
+---@param weapon integer Weapon to give the player (RSR.WEAPON_* constant).
 ---@param newAmount integer|nil If set to a number, this gives the player that amount of ammo for the given weapon.
 RSR.GiveWeapon = function(player, weapon, newAmount)
 	if not (Valid(player) and player.rsrinfo) then return end
@@ -390,18 +417,7 @@ RSR.TouchWeaponDefault = function(special, toucher, weaponType)
 	local ammoType = RSR.WEAPON_INFO[weaponType].ammotype
 	if ammoInfo and ammoInfo.maxamount and rsrinfo.ammo[ammoType] >= ammoInfo.maxamount then return true end
 
-	local isPanel = special.rsrIsPanel or false
-	if not isPanel and RSR.WEAPON_INFO[weaponType].canbepanel == false then
-		isPanel = true
-	end
-
-	local ammoAmount = nil
-	if special.rsrAmmoAmount then -- Used in co-op and match when the player spills their ammo
-		ammoAmount = special.rsrAmmoAmount
-	elseif not isPanel then -- If the pickup is not a panel, give half the typical ammo
-		ammoAmount = (RSR.WEAPON_INFO[weaponType].ammoamount or 0) / 2
-	end
-	RSR.GiveWeapon(player, weaponType, ammoAmount)
+	RSR.GiveWeapon(player, weaponType, RSR.GetAmmoAmountFromWeapon(weaponType, special))
 
 	-- Don't remove the pickup if it's marked to not despawn in a co-op map.
 	if coopMode then
