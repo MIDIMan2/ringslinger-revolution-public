@@ -29,7 +29,7 @@ RSR.CV_Ghostbusters = CV_RegisterVar({
 -- Lets non-IT players use weapons in Tag
 RSR.CV_LaserTag = CV_RegisterVar({
 	name = "rsr_lasertag",
-	defaultvalue = "False",
+	defaultvalue = "True",
 	flags = CV_NETVAR|CV_SHOWMODIF,
 	PossibleValue = CV_TrueFalse
 })
