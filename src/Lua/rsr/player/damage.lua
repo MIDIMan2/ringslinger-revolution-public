@@ -1028,8 +1028,8 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	-- Only run this code in multiplayer gamemodes
 	if multiplayer or netgame then
 		if G_RingSlingerGametype() then
-			-- Clear attackerInfo if the player died to level geometry and their attackerTimer is 0
-			if not rsrinfo.attackerTimer and not (Valid(inflictor) or Valid(source)) then
+			-- Clear attackerInfo if the player died to instant kill level geometry and their attackerTimer is 0
+			if not rsrinfo.attackerTimer and (damagetype == DMG_INSTAKLL or DMG_DEATHPIT) then
 				rsrinfo.attackerInfo = {}
 			end
 			local sourcePlayer = Valid(source) and source.player or nil
