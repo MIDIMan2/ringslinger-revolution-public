@@ -345,9 +345,9 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		end
 	end
 
-	-- Show distance for longshots
+	-- Show distance for longshots, but only if there is a valid inflictor
 	local dist = 0
-	if Valid(attacker) and Valid(attacker.mo) and Valid(victim) and Valid(victim.mo) then
+	if Valid(inflictor) and Valid(attacker) and Valid(attacker.mo) and Valid(victim) and Valid(victim.mo) then
 		dist = FixedHypot(FixedHypot(victim.mo.x - attacker.mo.x, victim.mo.y - attacker.mo.y), victim.mo.z - attacker.mo.z)
 	end
 
