@@ -83,7 +83,7 @@ freeslot(
 	"sfx_wvdone",
 	"sfx_wvpass",
 	"sfx_asplod", -- From Homestar Runner
-	"sfx_binted" -- From... who knows, actually
+	"sfx_binted" -- From Landy's "bogos binted" dub (https://www.youtube.com/watch?v=kurAJvAHB6I)
 )
 
 -- Cybrak 2016

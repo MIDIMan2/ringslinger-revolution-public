@@ -77,15 +77,18 @@ end
 ---@param thiscam camera_t
 RSR.HUDPSprites = function(v, player, thiscam)
 	if not RSR.GamemodeActive() then return end
-	if RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_NONE then return end
 	if not (v and Valid(player) and Valid(player.mo) and player.rsrinfo and thiscam) then return end
 	if not (not thiscam.chase and player.psprites) then return end
+
+	local viewmodelSetting = RSR.CV_Viewmodel.value
+	if splitscreen and player == secondarydisplayplayer then viewmodelSetting = RSR.CV_Viewmodel2.value end
+	if viewmodelSetting == RSR.CVVIEWMODEL_NONE then return end
 
 	local scale = FixedDiv(v.height(), 200)
 	local xOffset = (v.width()*FRACUNIT - 320*scale)/2
 	local yOffset = 32*scale
 	local vFlags = V_NOSCALESTART|V_NOSCALEPATCH|V_SNAPTOBOTTOM|V_PERPLAYER
-	-- if RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_LEFT then vFlags = $|V_FLIP end -- TODO: V_FLIP doesn't work in v.drawCropped yet, working on an MR to fix that
+	-- if viewmodelSetting == RSR.CVVIEWMODEL_LEFT then vFlags = $|V_FLIP end -- TODO: V_FLIP doesn't work in v.drawCropped yet, working on an MR to fix that
 
 	for _, pspr in ipairs(player.psprites) do
 		if not pspr then continue end
@@ -103,7 +106,7 @@ RSR.HUDPSprites = function(v, player, thiscam)
 
 		local hasOrientSprite = false
 		if pspr.sprite and pspr.frame then
-			local frame = RSR.GetPSPriteViewmodelFrame(pspr.sprite, pspr.frame, RSR.CV_Viewmodel.value)
+			local frame = RSR.GetPSPriteViewmodelFrame(pspr.sprite, pspr.frame, viewmodelSetting)
 			if frame ~= pspr.frame then hasOrientSprite = true end
 			sprite = pspr.sprite..frame
 		end
@@ -133,10 +136,10 @@ RSR.HUDPSprites = function(v, player, thiscam)
 		local colormap = v.getColormap(skin, color, transmap)
 
 		if not hasOrientSprite then
-			if RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_LEFT then
+			if viewmodelSetting == RSR.CVVIEWMODEL_LEFT then
 				-- x = 320*FRACUNIT - $ -- TODO: Use this when my MR fixing V_FLIP for drawCropped gets merged
 				x = (patch.leftoffset)*FRACUNIT - $
-			elseif RSR.CV_Viewmodel.value == RSR.CVVIEWMODEL_CENTER then
+			elseif viewmodelSetting == RSR.CVVIEWMODEL_CENTER then
 				x = $ - 113*FRACUNIT
 			end
 		end
