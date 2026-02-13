@@ -114,6 +114,7 @@ RSR.ConvertItemsMapLoad = function()
 		if not Valid(mo) then continue end
 		if not RSR.RSMOBJ_TO_RSRMOBJ[mo.type] then continue end
 		local moInfo = RSR.RSMOBJ_TO_RSRMOBJ[mo.type]
+		local homingStack = []
 
 		-- TODO: Rewrite this to use a custom UDMF field for 2.2.16
 		if (mo.info.flags & MF_MONITOR) and (mo.flags2 & (MF2_STRONGBOX|MF2_AMBUSH)) and moInfo.ignorerandommonitor then
@@ -122,6 +123,13 @@ RSR.ConvertItemsMapLoad = function()
 
 		local origDamage = mo.info.damage
 		if type(moInfo.motype) == "table" and Valid(mo.spawnpoint) then
+			if moInfo.motype == MT_RAILRING then
+				table.insert(homingStack, 1, {
+				spawnpoint = mo.spawnpoint,
+				radius = mo.radius,
+				height = mo.height
+				})
+			end
 			mo.type = moInfo.motype[(#mo.spawnpoint % #moInfo.motype) + 1]
 		else
 			mo.type = moInfo.motype
@@ -167,6 +175,15 @@ RSR.ConvertItemsMapLoad = function()
 		end
 		if moInfo.floatoffset then mo.rsrFloatOffset = FixedAngle(P_RandomKey(360)*FRACUNIT) end
 		mo.shadowscale = 2*FRACUNIT/3
+	end
+
+	if type(homingStack) == "table" then
+		if homingStack[0] and Valid(mo) then
+			homingStack[0].type = MT_RSR_PICKUP_RAIL
+			mo.spawnpoint = homingStack[0].spawnpoint
+			mo.radius = homingStack[0].radius
+			mo.height = homingStack[0].height
+		end
 	end
 end
 
