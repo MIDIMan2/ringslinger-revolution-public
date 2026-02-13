@@ -100,10 +100,10 @@ RSR.HUDTime = function(v, player)
 		elseif mapheaderinfo[gamemap].countdown then
 			local maxtime = 0
 			tics = mapheaderinfo[gamemap].countdown * TICRATE
-			for player in players.iterate() do
-				if not Valid(player) then continue end
-				if player.starposttime > maxtime then
-					maxtime = player.starposttime
+			for player2 in players.iterate() do
+				if not Valid(player2) then continue end
+				if player2.starposttime > maxtime then
+					maxtime = player2.starposttime
 				end
 				tics = $-maxtime
 			end

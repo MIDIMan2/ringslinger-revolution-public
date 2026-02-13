@@ -12,6 +12,7 @@ freeslot(
 	"sfx_rrchrg",
 	"sfx_rrchab", -- Created by orbitalviolet
 	"sfx_rsrcmp", -- Created by orbitalviolet
+	"sfx_rsrcdt", -- Created by orbitalviolet
 	"sfx_csftcp", -- Created by orbitalviolet
 	"sfx_chloop", -- Created by orbitalviolet
 	"sfx_autofr", -- Created by orbitalviolet
@@ -53,6 +54,9 @@ freeslot(
 	"sfx_railec", -- Created by orbitalviolet
 	"sfx_railms",
 	"sfx_mchina", -- From Team Fortress 2
+	"sfx_bfrlnc", -- Created by orbitalviolet
+	"sfx_bfrxpd", -- Created by orbitalviolet
+	"sfx_bframb", -- Created by orbitalviolet
 	"sfx_rsrhit",
 	"sfx_rsrarm", -- Created by orbitalviolet
 	"sfx_rsrhrt",
@@ -74,9 +78,12 @@ freeslot(
 	"sfx_rsrlhp", -- Created by orbitalviolet
 	"sfx_rsrgfd", -- Created by orbitalviolet
 	"sfx_rsrquk", -- Created by orbitalviolet
+	"sfx_cowmgl",
 	"sfx_wvstrt",
 	"sfx_wvdone",
-	"sfx_wvpass"
+	"sfx_wvpass",
+	"sfx_asplod", -- From Homestar Runner
+	"sfx_binted" -- From Landy's "bogos binted" dub (https://www.youtube.com/watch?v=kurAJvAHB6I)
 )
 
 -- Cybrak 2016
@@ -313,6 +320,7 @@ sfxinfo[sfx_redal4].caption = "Charged Ring max"
 sfxinfo[sfx_redal4].flags = SF_X2AWAYSOUND -- Make a max-charged shot heard from further away
 sfxinfo[sfx_rrchrg].caption = "Charging Red Ring..."
 sfxinfo[sfx_rsrcmp].caption = "Charged Ring impacting"
+sfxinfo[sfx_rsrcdt].caption = "Charged Ring impacting"
 sfxinfo[sfx_rrchab].caption = "Charged Ring travelling"
 sfxinfo[sfx_rrchab].flags = SF_X2AWAYSOUND -- Make a max-charged shot heard from further away
 sfxinfo[sfx_csftcp].caption = "Red Ring charged!"
@@ -360,6 +368,12 @@ sfxinfo[sfx_railht].flags = SF_X2AWAYSOUND -- Make the Rail Ring terrain impact 
 sfxinfo[sfx_railec].caption = "Rail echoing..."
 sfxinfo[sfx_railms].caption = "Rail near-miss..."
 sfxinfo[sfx_mchina].caption = "Rail polykill!"
+sfxinfo[sfx_bfrlnc].caption = "BFR firing!"
+sfxinfo[sfx_bfrlnc].flags = SF_X4AWAYSOUND -- Make the Bright Fluorescent Ring shot heard from further away
+sfxinfo[sfx_bfrxpd].caption = "BFR explosion..!"
+sfxinfo[sfx_bfrxpd].flags = SF_X8AWAYSOUND -- Make the Bright Fluorescent Ring blast heard from further away
+sfxinfo[sfx_bframb].caption = "BFR travelling..."
+sfxinfo[sfx_bframb].flags = SF_X2AWAYSOUND -- Make the Bright Fluorescent Ring ambient heard from further away
 
 -- Damage
 sfxinfo[sfx_rsrhit].caption = "Scored full hit!"
@@ -381,10 +395,11 @@ sfxinfo[sfx_rsrast].caption = "Assisted kill!"
 sfxinfo[sfx_rsrkil].caption = "Scored kill!"
 sfxinfo[sfx_rsrcth].caption = "Critical heal!"
 sfxinfo[sfx_rsrlhp].caption = "You're low on HP..!"
-sfxinfo[sfx_rsrgfd].caption = "Flag damage amplifier..."
+sfxinfo[sfx_rsrgfd].caption = "Damage vulnerability..."
 sfxinfo[sfx_rsrgfd].singular = true
 sfxinfo[sfx_rsrquk].caption = "Scored hit"
 sfxinfo[sfx_rsrquk].singular = true
+sfxinfo[sfx_cowmgl].caption = "Disintegration"
 
 -- Spawners
 sfxinfo[sfx_rsrsp1].caption = "Player spawned"
@@ -399,3 +414,7 @@ sfxinfo[sfx_rsralk].caption = "Attraction Shot incoming!"
 sfxinfo[sfx_wvstrt].caption = "Wave start..."
 sfxinfo[sfx_wvdone].caption = "Wave complete!"
 sfxinfo[sfx_wvpass].caption = "Stage complete!"
+
+-- Secrets
+sfxinfo[sfx_asplod].caption = "YOUR HEAD A SPLODE"
+sfxinfo[sfx_binted].caption = "Bogos binted?"

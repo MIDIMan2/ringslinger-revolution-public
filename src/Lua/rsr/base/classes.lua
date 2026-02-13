@@ -163,6 +163,7 @@
 ---@field attacker string Name of the attacker.
 ---@field highlight boolean If true, this killfeed entry's background will be white instead of black.
 ---@field skincolor skincolornum_t Skin color of the attacker, if they exist.
+---@field distance integer Distance between the victim and their attacker in meters (56*FRACUNIT per meter).
 ---@field tics tic_t Timer for the killfeed entry to stay on screen.
 
 -- --------------------------------

@@ -164,8 +164,9 @@ end
 RSR.CanUseWeapons = function(player, skipSkinCheck)
 	if not Valid(player) then return false end
 
-	-- Don't let non-IT players use weapons unless rsr_lasertag is true
-	if G_TagGametype() and not (player.pflags & PF_TAGIT) and not RSR.CV_LaserTag.value then return false end
+	-- Don't let hiders use weapons unless rsr_lasertag is true
+	if G_TagGametype() and not (player.pflags & PF_TAGIT)
+	and not (RSR.CV_LaserTag.value and not (gametyperules & GTR_HIDEFROZEN)) then return false end
 
 	-- Don't let skins with their own weapon system use RSR weapons, unless the check is skipped
 	if not skipSkinCheck then

@@ -128,7 +128,7 @@ local function R_World2Screen3FPS(v, player, cam, point, reverse)
 	end
 
 	// Set results relative to top left!
-	result.x = FixedMul(-tan(da), fg)
+	result.x = FixedMul(tan(da), fg)
 	result.y = FixedMul((tan(viewpointAiming) - FixedDiv((point.z - viewz), 1 + FixedMul(cos(da), h))), fg)
 
 	result.angle = da
@@ -143,8 +143,9 @@ local function R_World2Screen3FPS(v, player, cam, point, reverse)
 	end
 
 	// Flipped screen?
-	if player.pflags & PF_FLIPCAM then
-		result.x = -$
+	if player.realmo and player.realmo.valid and (player.realmo.eflags & MFE_VERTICALFLIP)
+	and (not cam.chase or player.pflags & PF_FLIPCAM) then
+		result.y = -$
 	end
 
 	// Center results.

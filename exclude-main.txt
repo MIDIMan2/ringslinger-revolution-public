@@ -7,3 +7,6 @@ DOCUMENTATION.txt
 CREDIT_MP.txt
 MUSICDEF_MP.txt
 TEXTURES.rrz
+*.dbs
+*.backup*
+*.bak

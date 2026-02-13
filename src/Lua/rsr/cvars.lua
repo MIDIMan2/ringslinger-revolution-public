@@ -19,6 +19,19 @@ RSR.CV_Viewmodel = CV_RegisterVar({
 })
 
 -- Lets homing rings target and kill spectators
+RSR.CV_Viewmodel2 = CV_RegisterVar({
+	name = "rsr_viewmodel2",
+	defaultvalue = "Right",
+	flags = CV_SAVE,
+	PossibleValue = {
+		Off = RSR.CVVIEWMODEL_NONE,
+		Right = RSR.CVVIEWMODEL_RIGHT,
+		Left = RSR.CVVIEWMODEL_LEFT,
+		Center = RSR.CVVIEWMODEL_CENTER
+	}
+})
+
+-- Lets homing rings target and kill spectators
 RSR.CV_Ghostbusters = CV_RegisterVar({
 	name = "rsr_ghostbusters",
 	defaultvalue = "False",
@@ -29,7 +42,7 @@ RSR.CV_Ghostbusters = CV_RegisterVar({
 -- Lets non-IT players use weapons in Tag
 RSR.CV_LaserTag = CV_RegisterVar({
 	name = "rsr_lasertag",
-	defaultvalue = "False",
+	defaultvalue = "True",
 	flags = CV_NETVAR|CV_SHOWMODIF,
 	PossibleValue = CV_TrueFalse
 })

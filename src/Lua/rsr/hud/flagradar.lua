@@ -9,6 +9,7 @@ RSR.HUDCTFFlagRadar = function(v, player, thiscam)
 	if not (gametyperules & GTR_TEAMFLAGS) then return end -- Only run in CTF maps
 	if not Valid(player) and Valid(player.realmo) then return end
 
+	-- Display an indicator if the player has a flag
 	if player.gotflag then
 		local flagIconPatch = "RSRRFLAG"
 		if player.gotflag == GF_BLUEFLAG then flagIconPatch = "RSRBFLAG" end

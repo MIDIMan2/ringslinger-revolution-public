@@ -25,10 +25,11 @@ RSR.DEATH_REMOVEDEATHMASK = 1
 RSR.DEATH_MAKESPECTATOR = 2
 RSR.DEATH_SWITCHEDTEAMS = 4
 RSR.DEATH_GOTBURNT = 8
-RSR.DEATH_FLIPSPRITEROLL = 16
-RSR.DEATH_USEDKILLCMD = 32
-RSR.DEATH_USEDEXPLODECMD = 64
-RSR.DEATH_USEDDISINTEGRATECMD = 128
+RSR.DEATH_GOTTAGGED = 16
+RSR.DEATH_FLIPSPRITEROLL = 32
+RSR.DEATH_USEDKILLCMD = 64
+RSR.DEATH_USEDEXPLODECMD = 128
+RSR.DEATH_USEDDISINTEGRATECMD = 256
 
 RSR.DEATHCAM_SPEED_MAX = 96*FRACUNIT
 
@@ -626,8 +627,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	local origEHP = rsrinfo.health + rsrinfo.armor
 
 	-- Multiply damage taken by 1.5x if the player has a flag or is a runner in Tag gametypes
-	if ((gametyperules & GTR_TEAMFLAGS) and player.gotflag)
-	or (G_TagGametype() and not (player.pflags & PF_TAGIT)) then
+	if RSR.PlayerHasPurpleDebuff(player) then
 		damage = FixedMul($, 3*FRACUNIT/2)
 		S_StartSound(nil, ampSound, player)
 	end
@@ -665,7 +665,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	elseif (rsrinfo.health + rsrinfo.armor) <= RSR.CRIT_EHP and (rsrinfo.health + rsrinfo.armor) > 0 and origEHP > RSR.CRIT_EHP then -- Play low health sound when the player falls to low health the first time
 		S_StartSound(nil, criticalSound, player)
 		RSR.SetEHPFlash(player, V_REDMAP, RSR.WARN_COOLDOWN, 2)
-	elseif ((gametyperules & GTR_TEAMFLAGS) and player.gotflag) then
+	elseif RSR.PlayerHasPurpleDebuff(player) then
 		RSR.SetEHPFlash(player, V_PURPLEMAP, RSR.MINOR_COOLDOWN, 2)
 	elseif (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then
 		RSR.SetEHPFlash(player, V_AZUREMAP, RSR.MINOR_COOLDOWN, 2)
@@ -701,12 +701,12 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 	if not Valid(player) then return end
 	damagetype = $ or 0
 
-	if player.rsrinfo.health > 0 then
+	if player.rsrinfo.health > 0
+	and not (G_TagGametype() and (gametyperules & GTR_HIDEFROZEN) and not (player.pflags & PF_TAGIT)) then
 		return false
 	else
 		-- Force death if the player's health is 0
 		if not (damagetype & DMG_DEATHMASK) then
--- 			player.rsrinfo.removeDeathMask = true
 			player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK
 		end
 		-- This is an ugly hack to get around SRB2 not tagging the hider if Amy's hearts are the inflictor
@@ -714,6 +714,9 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 			player.rsrinfo.forceInflictorType = MT_LHRT
 			player.rsrinfo.forceInflictorReflected = inflictor.rsrForceReflected
 			inflictor = source
+		end
+		if G_TagGametype() and not (player.pflags & PF_TAGIT) and Valid(source) and Valid(source.player) and (source.player.pflags & PF_TAGIT) then
+			player.rsrinfo.deathFlags = $|RSR.DEATH_GOTTAGGED
 		end
 		P_DamageMobj(player.mo, inflictor, source, damage, damagetype|DMG_DEATHMASK)
 		return true
@@ -733,7 +736,8 @@ RSR.PlayerSourceShouldDamage = function(player, inflictor, source, damage, damag
 	end
 
 	if Valid(source.player) and RSR.PlayersAreTeammates(player, source.player) then
-		if player == source.player or not RSR.CheckFriendlyFire() then -- If the player is not damaging themselves and friendly fire is not enabled, don't deal damage
+		if (player == source.player and not (damagetype & DMG_CANHURTSELF)) -- If the player is not damaging themselves and friendly fire is disabled, don't deal damage
+		or (player ~= source.player and not RSR.CheckFriendlyFire()) then
 			return false
 		else -- Otherwise, force damage and (possibly) death
 			return true
@@ -887,17 +891,23 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 	return false
 end
 
---- TeamSwitch hook code for when the player switches to the "spectator" team (or the Opposing Force™).
+--- TeamSwitch hook code for when the player switches to the "spectator" team (or the Opposing Force™), or joining a Tag game from being a spectator.
 ---@param player player_t
 ---@param team integer
-RSR.TeamSwitch = function(player, team)
+RSR.TeamSwitch = function(player, team, fromspectators)
+	if not RSR.GamemodeActive() then return end
 	if not (Valid(player) and player.rsrinfo) then return end
 	if team == 0 then
 		player.rsrinfo.deathFlags = $|RSR.DEATH_MAKESPECTATOR
-		return
-	end
-	if player.ctfteam and team ~= player.ctfteam then
+	elseif player.ctfteam and team ~= player.ctfteam then
 		player.rsrinfo.deathFlags = $|RSR.DEATH_SWITCHEDTEAMS
+	end
+	if team == 3 and fromspectators then -- The secret "3" option made up for Tag gametypes??? (who knows)
+		if (gametyperules & (GTR_TAG|GTR_HIDEFROZEN)) then
+			if (leveltime > (CV_FindVar("hidetime").value * TICRATE)) then return end -- Let P_SpectatorJoinGame handle players joining after hidetime
+			player.spectator = false -- Do this before it gets set to false in the source code, so we don't mess up our implementation
+			RSR.TagCheckSurvivors()
+		end
 	end
 end
 
@@ -980,6 +990,65 @@ RSR.PlayerReplenishPowerups = function(player)
 	if RSR.HasPowerup(player, RSR.POWERUP_INFINITY) then
 		RSR.GivePowerup(player, RSR.POWERUP_INFINITY, 10*TICRATE)
 		RSR.BonusFade(player) -- Give the player an indicator that they just got more infinity time
+	end
+end
+
+-- TODO: Remove this function when 2.2.16 comes out
+
+--- Cancels out the points awarded for hurting yourself when DMG_CANHURTSELF is applied (pre-2.2.16 bug).
+---@param player player_t
+---@param sourcePlayer player_t
+---@param damagetype integer|nil
+RSR.CancelHurtSelfPoints = function(player, sourcePlayer, damagetype)
+	if not (Valid(player) and Valid(sourcePlayer)) then return end
+	damagetype = $ or 0
+	if not (player == sourcePlayer and (damagetype & DMG_CANHURTSELF)) then return end
+
+	local totalScore = 0
+	if (gametyperules & GTR_TEAMFLAGS) and (player.gotflag & (GF_REDFLAG|GF_BLUEFLAG)) then
+		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and source ~= player.mo) then
+			totalScore = $ + 25
+		end
+	end
+	if not player.powers[pw_super] then
+		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and source ~= player.mo) then
+			totalScore = $ + 100
+		end
+	end
+	P_AddPlayerScore(player, -totalScore)
+end
+
+--- Lua implementation of the Tag gametype "suicide cases" code in P_KillMobj, but only for DMG_CANHURTSELF.
+---@param player player_t
+---@param source mobj_t
+---@param damagetype integer
+RSR.PlayerDeathTag = function(player, source, damagetype)
+	if not G_TagGametype() then return end -- Only run in Tag gametypes
+	if not (Valid(player) and Valid(source) and Valid(source.player) and damagetype) then return end
+	if (player.pflags & PF_TAGIT) or player.spectator then return end -- Only run if the player is a hider and not a spectator
+	if not (player == source.player and (damagetype & DMG_CANHURTSELF)) then return end -- Only run if the player didn't hurt themself
+
+	-- if you accidentally die before you run out of time to hide, ignore it.
+	-- allow them to try again, rather than sitting the whole thing out.
+	if leveltime >= CV_FindVar("hidetime").value * TICRATE then
+		if not (gametyperules & GTR_HIDEFROZEN) then -- suiciding in survivor makes you IT.
+			player.pflags = $|PF_TAGIT
+			print(player.name.." is now IT!") -- Tell everyone who is it!
+			RSR.TagCheckSurvivors()
+		else
+			if not (player.pflags & PF_GAMETYPEOVER) then
+				--otherwise, increment the tagger's score.
+				--in hide and seek, suiciding players are counted as found.
+				for player2 in players.iterate do
+					if not (Valid(player2) and (player2.pflags & PF_TAGIT)) then continue end
+					P_AddPlayerScore(player2, 100)
+				end
+
+				player.pflags = $|PF_GAMETYPEOVER
+				print(player.name.." was found!")
+				RSR.TagCheckSurvivors()
+			end
+		end
 	end
 end
 
@@ -1101,14 +1170,18 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 				end
 			end
 
+			RSR.CancelHurtSelfPoints(player, sourcePlayer, damagetype)
+
 			rsrinfo.attackerInfo = {} -- Clear attackerInfo since we've already died
 		end
 
 		RSR.PlayerDropItems(player)
 	end
-
+	
 	-- Clear the player's "starpost data" if the map's level header forces players to lose their inventory on death
 	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrloseinvondeath then rsrinfo.starpostData = {} end
+	if rsrinfo.deathFlags & RSR.DEATH_GOTTAGGED then P_AddPlayerScore(source.player, -100) end -- Take away points from the seeker since killing a hider already awards them points
+	RSR.PlayerDeathTag(player, source, damagetype)
 end
 
 --- Helper function for getting the damage value of a meleeing player.

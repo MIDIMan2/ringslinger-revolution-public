@@ -29,7 +29,7 @@ RSR.GiveHealth = function(player, health, isBonus, lowMod)
 	if isBonus then maxHealth = RSR.MAX_HEALTH_BONUS end
 
 	-- Only do crit healing if we don't have the flag!
-	if lowMod and not player.gotflag then
+	if lowMod and not RSR.PlayerHasPurpleDebuff(player) then
 		-- If the player is critically low on health, add a flat increase to health yielded from pickups
 		if (player.rsrinfo.health + player.rsrinfo.armor <= RSR.CRIT_EHP) and (player.rsrinfo.critCooldown < 1) then
 			health = $ + 8
@@ -75,7 +75,7 @@ RSR.GiveArmor = function(player, armor, isBonus, lowMod)
 	if isBonus then maxArmor = RSR.MAX_ARMOR_BONUS end
 
 	-- Only do crit healing if we don't have the flag!
-	if lowMod and not player.gotflag then
+	if lowMod and not RSR.PlayerHasPurpleDebuff(player) then
 		-- If the player is critically low on health, add a flat increase to armor yielded from pickups
 		if (player.rsrinfo.health + player.rsrinfo.armor <= RSR.CRIT_EHP) and (player.rsrinfo.critCooldown < 1) then
 			armor = $ + 8
