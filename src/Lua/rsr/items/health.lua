@@ -42,7 +42,9 @@ RSR.GiveHealth = function(player, health, isBonus, lowMod)
 		end
 	end
 
+	local prevHealth = player.rsrinfo.health
 	player.rsrinfo.health = min($ + health, maxHealth)
+	RSR.PlayerReduceAttackerInfoDamage(player, player.rsrinfo.health - prevHealth)
 	return true
 end
 
@@ -86,7 +88,9 @@ RSR.GiveArmor = function(player, armor, isBonus, lowMod)
 		end
 	end
 
+	local prevArmor = armor
 	player.rsrinfo.armor = min($ + armor, maxArmor)
+	RSR.PlayerReduceAttackerInfoDamage(player, player.rsrinfo.health - prevArmor)
 	return true
 end
 

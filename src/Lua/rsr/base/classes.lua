@@ -16,7 +16,7 @@
 ---@field hitSound integer Plays a hitsound using RSR.HITSOUND_* constants.
 ---@field deathFlags integer Hack for MobjDeath (uses RSR.DEATH_* constants).
 ---@field attackerInfo rsrattackerinfo_t[] List of attackers and their damage dealt to the player.
----@field knockedByAttacker boolean Whether the player was knocked off of the level or not.
+---@field attackerTimer tic_t Timer for when the player is attacked by another player.
 ---@field forceInflictorType mobjtype_t|nil Type of inflictor when the player has a Force Shield.
 ---@field forceInflictorReflected boolean|nil Whether inflictor was reflected when the player has a Force Shield.
 ---@field weapons boolean[] An array containing weapons in the player's inventory.

@@ -174,13 +174,15 @@ RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflec
 	distance = ($ or 0)/(56*FRACUNIT)
 	if distance >= 10 then obituary = $.." ("..distance.."m)" end
 
-	-- Alternative killfeed so players can see what they did in the logs
-	local newString = string.gsub(obituary, "(%$%w?)", {
-		["$a"] = attackerName or "The Shredded Cheese Man",
-		["$r"] = infReflected and "reflected " or "",
-		["$v"] = victimName,
-	})
-	print(newString)
+	if CV_FindVar("hazardlog").value then
+		-- Alternative killfeed so players can see what they did in the logs
+		local newString = string.gsub(obituary, "(%$%w?)", {
+			["$a"] = attackerName or "The Shredded Cheese Man",
+			["$r"] = infReflected and "reflected " or "",
+			["$v"] = victimName,
+		})
+		print(newString)
+	end
 
 	table.insert(RSR.KILLFEED_MESSAGES, {
 		victim = victimName,
