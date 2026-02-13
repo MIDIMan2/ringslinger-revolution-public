@@ -12,6 +12,7 @@ freeslot(
 	"sfx_rrchrg",
 	"sfx_rrchab", -- Created by orbitalviolet
 	"sfx_rsrcmp", -- Created by orbitalviolet
+	"sfx_rsrcdt", -- Created by orbitalviolet
 	"sfx_csftcp", -- Created by orbitalviolet
 	"sfx_chloop", -- Created by orbitalviolet
 	"sfx_autofr", -- Created by orbitalviolet
@@ -53,6 +54,9 @@ freeslot(
 	"sfx_railec", -- Created by orbitalviolet
 	"sfx_railms",
 	"sfx_mchina", -- From Team Fortress 2
+	"sfx_bfrlnc", -- Created by orbitalviolet
+	"sfx_bfrxpd", -- Created by orbitalviolet
+	"sfx_bframb", -- Created by orbitalviolet
 	"sfx_rsrhit",
 	"sfx_rsrarm", -- Created by orbitalviolet
 	"sfx_rsrhrt",
@@ -316,6 +320,7 @@ sfxinfo[sfx_redal4].caption = "Charged Ring max"
 sfxinfo[sfx_redal4].flags = SF_X2AWAYSOUND -- Make a max-charged shot heard from further away
 sfxinfo[sfx_rrchrg].caption = "Charging Red Ring..."
 sfxinfo[sfx_rsrcmp].caption = "Charged Ring impacting"
+sfxinfo[sfx_rsrcdt].caption = "Charged Ring impacting"
 sfxinfo[sfx_rrchab].caption = "Charged Ring travelling"
 sfxinfo[sfx_rrchab].flags = SF_X2AWAYSOUND -- Make a max-charged shot heard from further away
 sfxinfo[sfx_csftcp].caption = "Red Ring charged!"
@@ -363,6 +368,12 @@ sfxinfo[sfx_railht].flags = SF_X2AWAYSOUND -- Make the Rail Ring terrain impact 
 sfxinfo[sfx_railec].caption = "Rail echoing..."
 sfxinfo[sfx_railms].caption = "Rail near-miss..."
 sfxinfo[sfx_mchina].caption = "Rail polykill!"
+sfxinfo[sfx_bfrlnc].caption = "BFR firing!"
+sfxinfo[sfx_bfrlnc].flags = SF_X4AWAYSOUND -- Make the Bright Fluorescent Ring shot heard from further away
+sfxinfo[sfx_bfrxpd].caption = "BFR explosion..!"
+sfxinfo[sfx_bfrxpd].flags = SF_X8AWAYSOUND -- Make the Bright Fluorescent Ring blast heard from further away
+sfxinfo[sfx_bframb].caption = "BFR travelling..."
+sfxinfo[sfx_bframb].flags = SF_X2AWAYSOUND -- Make the Bright Fluorescent Ring ambient heard from further away
 
 -- Damage
 sfxinfo[sfx_rsrhit].caption = "Scored full hit!"
