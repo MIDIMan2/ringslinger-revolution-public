@@ -82,8 +82,8 @@ freeslot(
 	"sfx_wvstrt",
 	"sfx_wvdone",
 	"sfx_wvpass",
-	"sfx_asplod",
-	"sfx_binted"
+	"sfx_asplod", -- From Homestar Runner
+	"sfx_binted" -- From... who knows, actually
 )
 
 -- Cybrak 2016
