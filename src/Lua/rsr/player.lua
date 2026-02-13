@@ -343,12 +343,26 @@ RSR.PlayerMobjFuse = function(mo)
 			if Valid(explosion2) then
 				explosion2.scale = $ * 2
 			end
-			S_StartSound(mo, sfx_cvxpld)
+			if P_RandomRange(1,100) == 58 then
+				S_StartSound(mo, sfx_asplod)
+			else
+				S_StartSound(mo, sfx_cvxpld)
+			end
 		elseif (mo.player.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) then
 			for d = 0, 15 do
 				P_SpawnParaloop(mo.x, mo.y, mo.z + mo.height/2, FixedMul(192*FRACUNIT, mo.scale), 16, MT_THUNDERCOIN_SPARK, d * ANGLE_22h, S_THUNDERCOIN_SPARK, true)
 			end
-			S_StartSound(mo, sfx_s3k66)
+			if P_RandomRange(1,100) == 51 then
+				S_StartSound(mo, sfx_binted)
+			else
+				S_StartSound(mo, sfx_cowmgl)
+			end
+		else -- One in one hundred deaths go flying for no reason.
+			if P_RandomRange(1,100) == 69 then
+				mo.momx = $ * 4
+				mo.momy = $ * 4
+				mo.momz = $ * 4
+			end
 		end
 	end
 end

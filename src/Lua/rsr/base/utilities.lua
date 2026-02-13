@@ -301,6 +301,15 @@ RSR.PlayersAreTeammates = function(player, player2)
 	return false
 end
 
+--- Returns true if the player given has the "Purple Debuff".
+---@param player player_t
+RSR.PlayerHasPurpleDebuff = function(player)
+	if not Valid(player) then return false end
+	if (gametyperules & GTR_TEAMFLAGS) and player.gotflag then return true end -- Player has a flag in CTF
+	if G_TagGametype() and not (player.pflags & PF_TAGIT) then return true end -- Player is a hider in Tag/H&S
+	return false
+end
+
 --- Port of P_GetNextEmerald since it's not exposed.
 RSR.GetNextEmerald = function()
 	if gamemap >= sstage_start and gamemap <= sstage_end then return (gamemap - sstage_start) end

@@ -340,7 +340,7 @@ SubTitle = RSR Legacy: Jade Valley
 Music = MP_SUN
 TypeOfLevel = RSRMatch,RSRTag
 NextLevel = P6
-SkyNum = 1
+SkyNum = 2
 SelectHeading = RSR Classic
 
 Level P6
@@ -349,7 +349,7 @@ SubTitle = RSR Legacy: Noxious Factory
 Music = FDEMO3
 TypeOfLevel = RSRMatch,RSRTag
 NextLevel = P7
-SkyNum = 4
+SkyNum = 3
 SelectHeading = RSR Classic
 
 Level P7
@@ -359,7 +359,7 @@ Music = FDEMO6
 TypeOfLevel = RSRMatch,RSRTag
 NextLevel = P8
 Weather = 1
-SkyNum = 10
+SkyNum = 20
 SelectHeading = RSR Classic
 
 Level P8
@@ -404,7 +404,7 @@ SubTitle = RSR Legacy: Celestial Sanctuary
 Music = OLDAGZ
 TypeOfLevel = RSRMatch,RSRTag
 NextLevel = PD
-SkyNum = 40
+SkyNum = 2
 SelectHeading = RSR Classic
 
 Level PD
@@ -552,7 +552,7 @@ SubTitle = RSR Legacy: Lime Forest
 Music = FDEMO1
 TypeOfLevel = RSRCTF
 NextLevel = I4
-SkyNum = 1
+SkyNum = 2
 SelectHeading = RSR Classic
 
 Level I4
@@ -572,5 +572,5 @@ SubTitle = RSR Legacy: Icicle Falls
 Music = OLDICE
 TypeOfLevel = RSRCTF
 NextLevel = I0
-Skynum = 55
+SkyNum = 55
 SelectHeading = RSR Classic
