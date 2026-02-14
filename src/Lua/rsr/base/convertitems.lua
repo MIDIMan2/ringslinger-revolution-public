@@ -93,6 +93,73 @@ RSR.RSMOBJ_TO_RSRMOBJ = {
 	}
 }
 
+--- Sets the given Object's info based on its new type.
+---@param mo mobj_t
+---@param moInfo table
+---@param origDamage integer
+RSR.ConvertItemsSetMobjInfo = function(mo, moInfo, origDamage)
+	if not (Valid(mo) and moInfo) then return end
+	if origDamage == nil then origDamage = 0 end
+
+	-- TODO: Apparently, there's a bug where the blockmap isn't refreshed when mo.radius is set, but only when mo.scale is set
+	-- Set mo.scale here, or wait until 2.2.16 comes out (if it fixes this...)
+	if Valid(mo.spawnpoint) then
+		mo.radius = FixedMul(mo.info.radius, mo.spawnpoint.scale)
+		mo.height = FixedMul(mo.info.height, mo.spawnpoint.scale)
+	else
+		mo.radius = mo.info.radius
+		mo.height = mo.info.height
+	end
+	mo.flags = mo.info.flags
+	if moInfo.ispanel and mo.info.seestate ~= S_NULL then
+		mo.rsrIsPanel = true
+		mo.state = mo.info.seestate
+	else
+		-- Don't set to spawnstate if the object is a strong random monitor
+		if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) and origDamage ~= mo.info.damage then
+			if Valid(mo.rsrStrongBoxIcon) then
+				local sprite, frame = SPR_TVMY, C
+				if mo.info.damage ~= MT_UNKNOWN and mo.info.damage ~= MT_1UP_ICON then
+					sprite = states[mobjinfo[mo.info.damage].spawnstate].sprite
+					frame = (states[mobjinfo[mo.info.damage].spawnstate].frame & FF_FRAMEMASK)
+				end
+				mo.rsrStrongBoxIcon.sprite = sprite
+				mo.rsrStrongBoxIcon.frame = frame
+			end
+		else
+			mo.state = mo.info.spawnstate
+		end
+	end
+	if moInfo.ammo ~= nil then mo.rsrAmmoAmount = moInfo.ammo end
+	if moInfo.zoffset then
+		local zScale = FRACUNIT
+		if Valid(mo.spawnpoint) then zScale = mo.spawnpoint.scale end
+		if Valid(mo.spawnpoint) and (mo.spawnpoint.options & MTF_OBJECTFLIP) then
+			mo.z = $ - FixedMul(moInfo.zoffset, zScale)
+		else
+			mo.z = $ + FixedMul(moInfo.zoffset, zScale)
+		end
+	end
+	if moInfo.floatoffset then mo.rsrFloatOffset = FixedAngle(P_RandomKey(360)*FRACUNIT) end
+	mo.shadowscale = 2*FRACUNIT/3
+end
+
+--- Sets the given Object's type based on the type given.
+---@param mo mobj_t
+---@param moType mobjtype_t|table
+RSR.ConvertItemsSetMobjType = function(mo, moType)
+	if not (Valid(mo) and moType) then return end
+	if type(moType) == "table" then
+		if Valid(mo.spawnpoint) then
+			mo.type = moType[(#mo.spawnpoint % #moType) + 1] -- Choose which type to use based on the mobj's spawnpoint number and the number of entries in the table
+		else
+			mo.type = moType[1] -- Just use the first type in the table
+		end
+	else
+		mo.type = moType
+	end
+end
+
 RSR.ConvertItemsMapLoad = function()
 	if not (RSR.GamemodeActive() and G_RingSlingerGametype()) then return end
 	if RSR.MAP_HAS_RSR_MOBJS then
@@ -110,79 +177,37 @@ RSR.ConvertItemsMapLoad = function()
 		return
 	end
 
+	local altQueue = {}
 	for mo in mobjs.iterate() do
 		if not Valid(mo) then continue end
 		if not RSR.RSMOBJ_TO_RSRMOBJ[mo.type] then continue end
 		local moInfo = RSR.RSMOBJ_TO_RSRMOBJ[mo.type]
-		local homingStack = {}
 
 		-- TODO: Rewrite this to use a custom UDMF field for 2.2.16
 		if (mo.info.flags & MF_MONITOR) and (mo.flags2 & (MF2_STRONGBOX|MF2_AMBUSH)) and moInfo.ignorerandommonitor then
 			continue
 		end
 
+		if moInfo.alttype then -- Track the placement of all Vanilla-Rail pickups for later use.
+			table.insert(altQueue, mo) -- Add later objects to the bottom of the queue! (Note from MIDIMan: I found this to make more sense map-wise than the other way around).
+			continue
+		end
 		local origDamage = mo.info.damage
-		if type(moInfo.motype) == "table" and Valid(mo.spawnpoint) then
-			if moInfo.motype == MT_RAILRING then -- Track the placement of all Vanilla-Rail pickups for later use.
-				table.insert(homingStack, 1, { -- Add later objects to the top of the stack!
-				spawnpoint = mo.spawnpoint,
-				radius = mo.radius,
-				height = mo.height
-				})
-			end
-			mo.type = moInfo.motype[(#mo.spawnpoint % #moInfo.motype) + 1]
-		else
-			mo.type = moInfo.motype
-		end
-		-- TODO: Apparently, there's a bug where the blockmap isn't refreshed when mo.radius is set, but only when mo.scale is set
-		-- Set mo.scale here, or wait until 2.2.16 comes out (if it fixes this...)
-		if Valid(mo.spawnpoint) then
-			mo.radius = FixedMul(mo.info.radius, mo.spawnpoint.scale)
-			mo.height = FixedMul(mo.info.height, mo.spawnpoint.scale)
-		else
-			mo.radius = mo.info.radius
-			mo.height = mo.info.height
-		end
-		mo.flags = mo.info.flags
-		if moInfo.ispanel and mo.info.seestate ~= S_NULL then
-			mo.rsrIsPanel = true
-			mo.state = mo.info.seestate
-		else
-			-- Don't set to spawnstate if the object is a strong random monitor
-			if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) and origDamage ~= mo.info.damage then
-				if Valid(mo.rsrStrongBoxIcon) then
-					local sprite, frame = SPR_TVMY, C
-					if mo.info.damage ~= MT_UNKNOWN and mo.info.damage ~= MT_1UP_ICON then
-						sprite = states[mobjinfo[mo.info.damage].spawnstate].sprite
-						frame = (states[mobjinfo[mo.info.damage].spawnstate].frame & FF_FRAMEMASK)
-					end
-					mo.rsrStrongBoxIcon.sprite = sprite
-					mo.rsrStrongBoxIcon.frame = frame
-				end
-			else
-				mo.state = mo.info.spawnstate
-			end
-		end
-		if moInfo.ammo ~= nil then mo.rsrAmmoAmount = moInfo.ammo end
-		if moInfo.zoffset then
-			local zScale = FRACUNIT
-			if Valid(mo.spawnpoint) then zScale = mo.spawnpoint.scale end
-			if Valid(mo.spawnpoint) and (mo.spawnpoint.options & MTF_OBJECTFLIP) then
-				mo.z = $ - FixedMul(moInfo.zoffset, zScale)
-			else
-				mo.z = $ + FixedMul(moInfo.zoffset, zScale)
-			end
-		end
-		if moInfo.floatoffset then mo.rsrFloatOffset = FixedAngle(P_RandomKey(360)*FRACUNIT) end
-		mo.shadowscale = 2*FRACUNIT/3
+		RSR.ConvertItemsSetMobjType(mo, moInfo.motype)
+		RSR.ConvertItemsSetMobjInfo(mo, moInfo, origDamage)
 	end
 
-	for mo in mobjs.iterate() do -- Find the last object added to the homing stack and convert it to the RSR Rail pickup; this is so that a singular Rail pickup automatically spawns in a semi-natural position in converted vanilla maps.
-		if type(homingStack) == "table" then
-			if not homingStack[mo.spawnpoint] then return
-			elseif homingStack[mo.spawnpoint].key == 1 then
-				homingStack[mo].type = MT_RSR_PICKUP_RAIL
-			end
+	-- Find the last object added to the altfire stack and convert it to the alttype Object type; this is so that a singular Rail pickup automatically spawns in a semi-natural position in converted vanilla maps.
+	for key, mo in ipairs(altQueue) do
+		if not (Valid(mo) and RSR.RSMOBJ_TO_RSRMOBJ[mo.type]) then continue end
+		local moInfo = RSR.RSMOBJ_TO_RSRMOBJ[mo.type]
+		local origDamage = mo.info.damage
+		if key == 1 then
+			RSR.ConvertItemsSetMobjType(mo, moInfo.alttype)
+			RSR.ConvertItemsSetMobjInfo(mo, moInfo, origDamage)
+		else
+			RSR.ConvertItemsSetMobjType(mo, moInfo.motype)
+			RSR.ConvertItemsSetMobjInfo(mo, moInfo, origDamage)
 		end
 	end
 end

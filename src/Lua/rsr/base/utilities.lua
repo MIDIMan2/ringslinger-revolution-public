@@ -339,14 +339,16 @@ end
 
 --- Causes a missile to explode when an enemy comes within a certain radius of it.
 ---@param mo mobj_t
----@param proxRad integer Radius to detonate if enemy walks within.
----@param proxSound integer|nil Determines what sound to use when the missile proximity detonates.
----@param proxState boolean Determines whether or not to use the deathstate or xdeathstate (with hardcoded trickery for Stickybomb).
----@param isStickybomb boolean Determines whether or not to use the special hardcoded Stickybomb behaviour.
----@param stickyStatePrior The state of a sticky explosive when it's stuck to the ground.
----@param stickyStateDet The state a grounded Stickybomb should assume when exploding.
-RSR.ProximityDetonate = function(mo,proxRad,proxSound,proxState,isStickybomb,stickyStatePrior,stickyStateDet)
-	local proxDist = FixedMul(proxRad*FRACUNIT, mo.scale)
+---@param proxDist fixed_t Maximum distance to check for detonation if enemy walks within.
+---@param proxCallback function Callback function to run when the radius check succeeds.
+RSR.ProximityDetonate = function(mo, proxDist, proxCallback)
+	if not Valid(mo) then return end
+	if proxDist == nil then proxDist = 96*FRACUNIT end
+	if mo.rsrOrigScale then
+		proxDist = FixedMul($, mo.rsrOrigScale)
+	else
+		proxDist = FixedMul($, mo.scale)
+	end
 
 	searchBlockmap("objects", function(missile, enemy)
 		if not (Valid(missile) and Valid(enemy)) then return end
@@ -364,18 +366,7 @@ RSR.ProximityDetonate = function(mo,proxRad,proxSound,proxState,isStickybomb,sti
 		-- Make sure the missile can actually see the target before detonating
 		if not P_CheckSight(missile, enemy) then return end
 
-		S_StartSound(missile, proxSound)
-		missile.health = 0
-		missile.fuse = 0
-		if proxState then
-			if isStickybomb and missile.state == stickyStatePrior then
-				missile.state = stickyStateDet
-			else
-				missile.state = missile.info.xdeathstate
-			end
-		else
-			missile.state = missile.info.deathstate
-		end
+		if proxCallback then proxCallback(missile, enemy) end
 		return true -- Stop the blockmap search
 	end, mo, mo.x - proxDist, mo.x + proxDist, mo.y - proxDist, mo.y + proxDist)
 end
