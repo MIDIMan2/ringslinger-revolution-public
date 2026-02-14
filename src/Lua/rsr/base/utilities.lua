@@ -343,7 +343,9 @@ end
 ---@param proxSound integer|nil Determines what sound to use when the missile proximity detonates.
 ---@param proxState boolean Determines whether or not to use the deathstate or xdeathstate (with hardcoded trickery for Stickybomb).
 ---@param isStickybomb boolean Determines whether or not to use the special hardcoded Stickybomb behaviour.
-RSR.ProximityDetonate = function(mo,proxRad,proxSound,proxState,isStickybomb)
+---@param stickyStatePrior The state of a sticky explosive when it's stuck to the ground.
+---@param stickyStateDet The state a grounded Stickybomb should assume when exploding.
+RSR.ProximityDetonate = function(mo,proxRad,proxSound,proxState,isStickybomb,stickyStatePrior,stickyStateDet)
 	local proxDist = FixedMul(proxRad*FRACUNIT, mo.scale)
 
 	searchBlockmap("objects", function(missile, enemy)
@@ -366,8 +368,8 @@ RSR.ProximityDetonate = function(mo,proxRad,proxSound,proxState,isStickybomb)
 		missile.health = 0
 		missile.fuse = 0
 		if proxState then
-			if isStickybomb and missile.state == S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND then
-				missile.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE
+			if isStickybomb and missile.state == stickyStatePrior then
+				missile.state = stickyStateDet
 			else
 				missile.state = missile.info.xdeathstate
 			end

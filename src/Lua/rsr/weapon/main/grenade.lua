@@ -176,7 +176,7 @@ addHook("MobjThinker", function(mo)
 
 	-- Only do the proximity check when stuck to a wall
 	if not (mo.flags & MF_STICKY) then
-		RSR.ProximityDetonate(mo,96,sfx_gratrd,1,1)
+		RSR.ProximityDetonate(mo,96,sfx_gratrd,1,1,S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND,S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE)
 	else
 		RSR.ProjectileTravelSound(mo, 67, sfx_gratab) -- Travelling sound
 		RSR.ProjectileGhostTimer(mo) -- Ghost trail
