@@ -336,3 +336,44 @@ RSR.PlayerHasEmerald = function(player, emerald)
 
 	return (emeralds & emerald)
 end
+
+--- Causes a missile to explode when an enemy comes within a certain radius of it.
+---@param mo mobj_t
+---@param proxRad integer Radius to detonate if enemy walks within.
+---@param proxSound integer|nil Determines what sound to use when the missile proximity detonates.
+---@param proxState boolean Determines whether or not to use the deathstate or xdeathstate (with hardcoded trickery for Stickybomb).
+---@param isStickybomb boolean Determines whether or not to use the special hardcoded Stickybomb behaviour.
+RSR.ProximityDetonate = function(mo,proxRad,proxSound,proxState,isStickybomb)
+	local proxDist = FixedMul(proxRad*FRACUNIT, mo.scale)
+
+	searchBlockmap("objects", function(missile, enemy)
+		if not (Valid(missile) and Valid(enemy)) then return end
+		if enemy == missile then return end -- Don't detonate because you detected yourself
+		if missile.target == enemy then return end -- Don't detonate because you detected your source
+		if not (enemy.flags & MF_SHOOTABLE) or (enemy.flags & MF_MONITOR) then return end -- Monitors can't be blown up with splash damage
+		if RSR.PlayersAreTeammates(missile.target.player, enemy.player) then return end -- Don't detonate because you detected a teammate
+
+		local rsrInfo = RSR.MOBJ_INFO[enemy.type]
+		if rsrInfo and rsrInfo.nothomable then return end -- Don't detonate because you detected a non-homable object (blast executor...)
+
+		local dist = max(0, FixedHypot(FixedHypot(enemy.x - missile.x, enemy.y - missile.y), (enemy.z + enemy.height/2) - (missile.z + missile.height/2)) - enemy.radius)
+		if dist > proxDist then return end
+
+		-- Make sure the missile can actually see the target before detonating
+		if not P_CheckSight(missile, enemy) then return end
+
+		S_StartSound(missile, proxSound)
+		missile.health = 0
+		missile.fuse = 0
+		if proxState then
+			if isStickybomb and missile.state == S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND then
+				missile.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE
+			else
+				missile.state = missile.info.xdeathstate
+			end
+		else
+			missile.state = missile.info.deathstate
+		end
+		return true -- Stop the blockmap search
+	end, mo, mo.x - proxDist, mo.x + proxDist, mo.y - proxDist, mo.y + proxDist)
+end

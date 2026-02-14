@@ -176,34 +176,7 @@ addHook("MobjThinker", function(mo)
 
 	-- Only do the proximity check when stuck to a wall
 	if not (mo.flags & MF_STICKY) then
-		local proxDist = FixedMul(96*FRACUNIT, mo.scale)
-
-		searchBlockmap("objects", function(missile, enemy)
-			if not (Valid(missile) and Valid(enemy)) then return end
-			if enemy == missile then return end -- Don't detonate because you detected yourself
-			if missile.target == enemy then return end -- Don't detonate because you detected your source
-			if not (enemy.flags & MF_SHOOTABLE) or (enemy.flags & MF_MONITOR) then return end -- Monitors can't be blown up with splash damage
-			if RSR.PlayersAreTeammates(missile.target.player, enemy.player) then return end -- Don't detonate because you detected a teammate
-
-			local rsrInfo = RSR.MOBJ_INFO[enemy.type]
-			if rsrInfo and rsrInfo.nothomable then return end -- Don't detonate because you detected a non-homable object (blast executor...)
-
-			local dist = max(0, FixedHypot(FixedHypot(enemy.x - missile.x, enemy.y - missile.y), (enemy.z + enemy.height/2) - (missile.z + missile.height/2)) - enemy.radius)
-			if dist > proxDist then return end
-
-			-- Make sure the grenade ring can actually see the target before detonating
-			if not P_CheckSight(missile, enemy) then return end
-
-			S_StartSound(missile, sfx_gratrd)
-			missile.health = 0
-			missile.fuse = 0
-			if missile.state == S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND then
-				missile.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE
-			else
-				missile.state = missile.info.xdeathstate
-			end
-			return true -- Stop the blockmap search
-		end, mo, mo.x - proxDist, mo.x + proxDist, mo.y - proxDist, mo.y + proxDist)
+		RSR.ProximityDetonate(mo,96,sfx_gratrd,1,1)
 	else
 		RSR.ProjectileTravelSound(mo, 67, sfx_gratab) -- Travelling sound
 		RSR.ProjectileGhostTimer(mo) -- Ghost trail
