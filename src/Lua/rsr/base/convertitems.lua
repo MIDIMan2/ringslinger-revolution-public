@@ -114,7 +114,7 @@ RSR.ConvertItemsMapLoad = function()
 		if not Valid(mo) then continue end
 		if not RSR.RSMOBJ_TO_RSRMOBJ[mo.type] then continue end
 		local moInfo = RSR.RSMOBJ_TO_RSRMOBJ[mo.type]
-		local homingStack = []
+		local homingStack = {}
 
 		-- TODO: Rewrite this to use a custom UDMF field for 2.2.16
 		if (mo.info.flags & MF_MONITOR) and (mo.flags2 & (MF2_STRONGBOX|MF2_AMBUSH)) and moInfo.ignorerandommonitor then
