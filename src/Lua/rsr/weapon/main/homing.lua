@@ -200,14 +200,14 @@ mobjinfo[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_HOMING_BOMB,
 	seesound = sfx_hoatfr,
-	reactiontime = 35,
-	painchance = 128*FRACUNIT,
+	reactiontime = 77,
+	painchance = 256*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
 	speed = 80*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 19,
+	damage = 1,
 	activesound = sfx_hoatab,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
