@@ -227,7 +227,7 @@ addHook("MobjSpawn", function(mo)
 	end
 end, MT_RSR_PROJECTILE_HOMING_BOMB)
 addHook("MobjThinker", function(mo)
-	RSR.ProximityDetonate(mo,128,sfx_None,0,0)
+	RSR.ProximityDetonate(mo, 128, sfx_None, 0, 0, S_NULL, S_NULL)
 
 	return RSR.HomingRingThinker(mo, 1536*FRACUNIT, true)
 end, MT_RSR_PROJECTILE_HOMING_BOMB)
