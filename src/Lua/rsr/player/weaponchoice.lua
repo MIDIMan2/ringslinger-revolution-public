@@ -118,7 +118,8 @@ RSR.PlayerWeaponChoiceTick = function(player)
 					local foundWeapon = false
 
 					while tempSlot > 0 do
-						if rsrinfo.weapons[tempWeapon] and RSR.CheckAmmo(player, RSR.WEAPON_INFO[tempWeapon].ammotype) then
+						if rsrinfo.weapons[tempWeapon] and RSR.CheckAmmo(player, RSR.WEAPON_INFO[tempWeapon].ammotype)
+						and rsrinfo.pendingWeapon ~= tempWeapon then
 							foundWeapon = true
 							break
 						end

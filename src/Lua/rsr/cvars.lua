@@ -49,15 +49,16 @@ RSR.CV_LaserTag = CV_RegisterVar({
 
 --- Checks if the player can use any of the kill commands.
 ---@param player player_t
+---@param skipMessage boolean|nil Skips printing a message to the player's console log.
 ---@return boolean
-RSR.CanUseKillCMD = function(player)
+RSR.CanUseKillCMD = function(player, skipMessage)
 	if not RSR.GamemodeActive() then
-		CONS_Printf(player, "You must be in a Ringslinger Revolution level or gametype to use this.")
+		if not skipMessage then CONS_Printf(player, "You must be in a Ringslinger Revolution level or gametype to use this.") end
 		return false
 	end
 
 	if not (netgame or multiplayer) then
-		CONS_Printf(player, "You can't use this in Single Player! Use \"retry\" instead.")
+		if not skipMessage then CONS_Printf(player, "You can't use this in Single Player! Use \"retry\" instead.") end
 		return false
 	end
 
@@ -69,7 +70,7 @@ RSR.CanUseKillCMD = function(player)
 	if not (Valid(player) and Valid(player.realmo)) then return false end
 
 	if player.playerstate == PST_DEAD then
-		CONS_Printf(player, "You're already dead!")
+		if not skipMessage then CONS_Printf(player, "You're already dead!") end
 		return false
 	end
 
@@ -93,6 +94,23 @@ COM_AddCommand("rsr_disintegrate", function(player, _)
 	if player.rsrinfo then player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK|RSR.DEATH_USEDDISINTEGRATECMD end
 	P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
 end)
+
+COM_AddCommand("rsr_killallplayers", function()
+	for player in players.iterate do
+		if not (Valid(player) and RSR.CanUseKillCMD(player, true)) then continue end
+		if player.rsrinfo then
+			player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK
+			if P_RandomRange(1, 10) == 5 then
+				player.rsrinfo.deathFlags = $|RSR.DEATH_USEDDISINTEGRATECMD
+			elseif P_RandomRange(1, 5) == 2 then
+				player.rsrinfo.deathFlags = $|RSR.DEATH_GOTBURNT|RSR.DEATH_USEDEXPLODECMD
+			else
+				player.rsrinfo.deathFlags = $|RSR.DEATH_USEDKILLCMD
+			end
+		end
+		P_DamageMobj(player.realmo, nil, nil, 1, DMG_INSTAKILL)
+	end
+end, COM_ADMIN)
 
 if not RSR.DEV_MODE then return end
 
