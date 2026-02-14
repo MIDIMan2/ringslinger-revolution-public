@@ -123,8 +123,8 @@ RSR.ConvertItemsMapLoad = function()
 
 		local origDamage = mo.info.damage
 		if type(moInfo.motype) == "table" and Valid(mo.spawnpoint) then
-			if moInfo.motype == MT_RAILRING then
-				table.insert(homingStack, 1, {
+			if moInfo.motype == MT_RAILRING then -- Track the placement of all Vanilla-Rail pickups for later use.
+				table.insert(homingStack, 1, { -- Add later objects to the top of the stack!
 				spawnpoint = mo.spawnpoint,
 				radius = mo.radius,
 				height = mo.height
@@ -177,12 +177,12 @@ RSR.ConvertItemsMapLoad = function()
 		mo.shadowscale = 2*FRACUNIT/3
 	end
 
-	if type(homingStack) == "table" then
-		if homingStack[0] and Valid(mo) then
-			homingStack[0].type = MT_RSR_PICKUP_RAIL
-			mo.spawnpoint = homingStack[0].spawnpoint
-			mo.radius = homingStack[0].radius
-			mo.height = homingStack[0].height
+	for mo in mobjs.iterate() do -- Find the last object added to the homing stack and convert it to the RSR Rail pickup; this is so that a singular Rail pickup automatically spawns in a semi-natural position in converted vanilla maps.
+		if type(homingStack) == "table" then
+			if not homingStack[mo.spawnpoint] then return
+			elseif homingStack[mo.spawnpoint].key == 1 then
+				homingStack[mo].type = MT_RSR_PICKUP_RAIL
+			end
 		end
 	end
 end
