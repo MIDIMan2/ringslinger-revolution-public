@@ -354,3 +354,37 @@ RSR.GetRandomDamage = function(damage)
 
 	return damage
 end
+
+--- Causes a missile to explode when an enemy comes within a certain radius of it.
+---@param mo mobj_t
+---@param proxDist fixed_t Maximum distance to check for detonation if enemy walks within.
+---@param proxCallback function Callback function to run when the radius check succeeds.
+RSR.ProximityDetonate = function(mo, proxDist, proxCallback)
+	if not Valid(mo) then return end
+	if proxDist == nil then proxDist = 96*FRACUNIT end
+	if mo.rsrOrigScale then
+		proxDist = FixedMul($, mo.rsrOrigScale)
+	else
+		proxDist = FixedMul($, mo.scale)
+	end
+
+	searchBlockmap("objects", function(missile, enemy)
+		if not (Valid(missile) and Valid(enemy)) then return end
+		if enemy == missile then return end -- Don't detonate because you detected yourself
+		if missile.target == enemy then return end -- Don't detonate because you detected your source
+		if not (enemy.flags & MF_SHOOTABLE) or (enemy.flags & MF_MONITOR) then return end -- Monitors can't be blown up with splash damage
+		if RSR.PlayersAreTeammates(missile.target.player, enemy.player) then return end -- Don't detonate because you detected a teammate
+
+		local rsrInfo = RSR.MOBJ_INFO[enemy.type]
+		if rsrInfo and rsrInfo.nothomable then return end -- Don't detonate because you detected a non-homable object (blast executor...)
+
+		local dist = max(0, FixedHypot(FixedHypot(enemy.x - missile.x, enemy.y - missile.y), (enemy.z + enemy.height/2) - (missile.z + missile.height/2)) - enemy.radius)
+		if dist > proxDist then return end
+
+		-- Make sure the missile can actually see the target before detonating
+		if not P_CheckSight(missile, enemy) then return end
+
+		if proxCallback then proxCallback(missile, enemy) end
+		return true -- Stop the blockmap search
+	end, mo, mo.x - proxDist, mo.x + proxDist, mo.y - proxDist, mo.y + proxDist)
+end

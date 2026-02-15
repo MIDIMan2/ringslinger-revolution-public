@@ -123,7 +123,8 @@ RSR.REMOVE_SHIELDS = {
 --- Converts an item's object type using the given convertTable.
 ---@param mo mobj_t Object to convert.
 ---@param convertTable table|nil Table to use for converting object types. Default is RSR.RSMOBJ_TO_RSRMOBJ.
-RSR.ConvertMapItem = function(mo, convertTable)
+---@param useAltType boolean|nil If true, use alttype instead of motype, granted it exists.
+RSR.ConvertMapItem = function(mo, convertTable, useAltType)
 	if not Valid(mo) then return end
 	if not convertTable then convertTable = RSR.RSMOBJ_TO_RSRMOBJ end
 	if not convertTable[mo.type] then return end
@@ -137,11 +138,20 @@ RSR.ConvertMapItem = function(mo, convertTable)
 	local origDamage = mo.info.damage
 	-- TODO: Apparently, there's a bug where the blockmap isn't refreshed when mo.radius is set, but only when mo.scale is set
 	-- Set mo.scale here, or wait until 2.2.16 comes out (if it fixes this...)
-	if type(moInfo.motype) == "table" and Valid(mo.spawnpoint) then
-		mo.type = moInfo.motype[(#mo.spawnpoint % #moInfo.motype) + 1]
+	local moType = moInfo.motype
+	if useAltType and moInfo.alttype then moType = moInfo.alttype end
+	if type(moType) == "table" then
+		if Valid(mo.spawnpoint) then
+			mo.type = moType[(#mo.spawnpoint % #moType) + 1] -- Choose which type to use based on the mobj's spawnpoint number and the number of entries in the table
+		else
+			mo.type = moType[1] -- Just use the first type in the table
+		end
 	else
-		mo.type = moInfo.motype
+		mo.type = moType
 	end
+
+	-- TODO: Apparently, there's a bug where the blockmap isn't refreshed when mo.radius is set, but only when mo.scale is set
+	-- Set mo.scale here, or wait until 2.2.16 comes out (if it fixes this...)
 	if Valid(mo.spawnpoint) then
 		mo.radius = FixedMul(mo.info.radius, mo.spawnpoint.scale)
 		mo.height = FixedMul(mo.info.height, mo.spawnpoint.scale)
@@ -200,7 +210,23 @@ RSR.ConvertItemsMapLoad = function()
 		return
 	end
 
-	for mo in mobjs.iterate() do RSR.ConvertMapItem(mo) end
+	local altQueue = {}
+	for mo in mobjs.iterate() do
+		if Valid(mo) and RSR.RSMOBJ_TO_RSRMOBJ[mo.type] and RSR.RSMOBJ_TO_RSRMOBJ[mo.type].alttype then -- Track the placement of all Vanilla-Rail pickups for later use.
+			table.insert(altQueue, mo) -- Add later objects to the bottom of the queue! (Note from MIDIMan: I found this to make more sense map-wise than the other way around).
+			continue
+		end
+		RSR.ConvertMapItem(mo)
+	end
+
+	-- Find the last object added to the altfire stack and convert it to the alttype Object type; this is so that a singular Rail pickup automatically spawns in a semi-natural position in converted vanilla maps.
+	for key, mo in ipairs(altQueue) do
+		if key == 1 then
+			RSR.ConvertMapItem(mo, nil, true)
+		else
+			RSR.ConvertMapItem(mo)
+		end
+	end
 end
 
 -- TODO: Merge this into RSR.ConvertItemsMapLoad, eventually.

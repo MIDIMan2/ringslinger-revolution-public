@@ -171,7 +171,13 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		if player.speed > player.normalspeed then curSpeed = FixedDiv(player.speed, tracer.scale) end -- Go faster if the player is going faster than their normalspeed
 		curSpeed = FixedMul(3*$/4, tracer.scale)
 	end
-	if noPlayerSpeed then RSR.ProjectileTravelSound(mo, 6) end -- Router RPB travelling sound
+	if noPlayerSpeed then
+		RSR.ProjectileTravelSound(mo, 6) -- Router RPB travelling sound
+		RSR.ProximityDetonate(mo, 128*FRACUNIT, function(missile)
+			P_ExplodeMissile(missile)
+		end)
+		if not (mo.flags & MF_MISSILE) then return end -- Don't move further if the RPB has exploded
+	end
 
 	P_InstaThrust(mo, mo.angle, FixedMul(cos(mo.pitch), curSpeed))
 	mo.momz = FixedMul(sin(mo.pitch), curSpeed)
@@ -200,14 +206,14 @@ mobjinfo[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_HOMING_BOMB,
 	seesound = sfx_hoatfr,
-	reactiontime = 35,
-	painchance = 128*FRACUNIT,
+	reactiontime = 77,
+	painchance = 256*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
 	speed = 80*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 19,
+	damage = 1,
 	activesound = sfx_hoatab,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
@@ -227,7 +233,7 @@ addHook("MobjSpawn", function(mo)
 	end
 end, MT_RSR_PROJECTILE_HOMING_BOMB)
 addHook("MobjThinker", function(mo)
-	return RSR.HomingRingThinker(mo, 1536*FRACUNIT, true)
+	RSR.HomingRingThinker(mo, 1536*FRACUNIT, true)
 end, MT_RSR_PROJECTILE_HOMING_BOMB)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_HOMING_BOMB)
 
