@@ -1,11 +1,15 @@
 -- Ringslinger Revolution - Console Variables/Commands
 
+-- --------------------------------
+-- CLIENT CVARS
+-- --------------------------------
+
 RSR.CVVIEWMODEL_NONE = 0
 RSR.CVVIEWMODEL_RIGHT = 1
 RSR.CVVIEWMODEL_LEFT = 2
 RSR.CVVIEWMODEL_CENTER = 3
 
--- Lets homing rings target and kill spectators
+-- Lets the player set their viewmodel's orientation.
 RSR.CV_Viewmodel = CV_RegisterVar({
 	name = "rsr_viewmodel",
 	defaultvalue = "Right",
@@ -18,7 +22,7 @@ RSR.CV_Viewmodel = CV_RegisterVar({
 	}
 })
 
--- Lets homing rings target and kill spectators
+-- Lets the second player set their viewmodel's orientation.
 RSR.CV_Viewmodel2 = CV_RegisterVar({
 	name = "rsr_viewmodel2",
 	defaultvalue = "Right",
@@ -31,7 +35,29 @@ RSR.CV_Viewmodel2 = CV_RegisterVar({
 	}
 })
 
--- Lets homing rings target and kill spectators
+RSR.CVKILLFEED_NONE = 0
+RSR.CVKILLFEED_TEXT = 1
+RSR.CVKILLFEED_ICON = 2
+RSR.CVKILLFEED_BOTH = 3 -- Should be the previous two combined
+
+-- Lets the player set how the killfeed should be displayed.
+RSR.CV_Killfeed = CV_RegisterVar({
+	name = "rsr_killfeed",
+	defaultvalue = "Both",
+	flags = CV_SAVE,
+	PossibleValue = {
+		Off = RSR.CVKILLFEED_NONE,
+		Text = RSR.CVKILLFEED_TEXT,
+		Icon = RSR.CVKILLFEED_ICON,
+		Both = RSR.CVKILLFEED_BOTH
+	}
+})
+
+-- --------------------------------
+-- SERVER CVARS
+-- --------------------------------
+
+-- Lets homing rings target and kill spectators.
 RSR.CV_Ghostbusters = CV_RegisterVar({
 	name = "rsr_ghostbusters",
 	defaultvalue = "False",
@@ -39,13 +65,17 @@ RSR.CV_Ghostbusters = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
--- Lets non-IT players use weapons in Tag
+-- Lets non-IT players use weapons in Tag.
 RSR.CV_LaserTag = CV_RegisterVar({
 	name = "rsr_lasertag",
 	defaultvalue = "True",
 	flags = CV_NETVAR|CV_SHOWMODIF,
 	PossibleValue = CV_TrueFalse
 })
+
+-- --------------------------------
+-- COMMANDS
+-- --------------------------------
 
 --- Checks if the player can use any of the kill commands.
 ---@param player player_t
