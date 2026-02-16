@@ -66,6 +66,10 @@
 ---@field painchance integer|nil Makes the enemy use their painstate in a chance out of 255. Only use for Doom-style enemies. Default is nil.
 ---@field nosplashsightcheck boolean Skips the P_CheckSight when RSR.Explode is used on this Object.
 ---@field nosplashthrust boolean Prevents the Object from being thrusted by RSR.Explode. Always on for bosses and monitors.
+---@field travelsound soundnum_t Sound to play when the projectile is travelling.
+---@field traveltimer tic_t Time between playing the projectile's travelsound.
+---@field alertsound soundnum_t Sound to play when the projectile is following a player.
+---@field alerttimer tic_t Time between playing the projectile's alertsound.
 ---@field killfeedIcon string Graphic to use for the mobj type in the killfeed.
 ---@field killfeedName string Name to use for the mobj type in the killfeed.
 ---@field killfeedObituary rsrobituaryinfo_t Table of death messages to use for the mobj type in the killfeed.
@@ -189,6 +193,7 @@
 ---@field rsrKilled boolean|nil Automatically set to true when the enemy is killed in RSR gamemodes.
 ---@field rsrGhostTimer integer|nil Timer for spawning a ghost from a projectile.
 ---@field rsrSoundTimer integer|nil Timer for playing a projectile's travelling sound.
+---@field rsrAlertTimer integer|nil Timer for playing a projectile's alert sound (when homing onto a player).
 ---@field rsrChargeTravelSound boolean|nil Determines if the Charged Shot should play its travel sound.
 ---@field rsrIsPanel boolean|nil Determines if the weapon pickup is a panel.
 ---@field rsrAmmoAmount integer|nil Custom amount for the ammo pickup.

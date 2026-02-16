@@ -62,7 +62,7 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	RSR.ProjectileTravelSound(mo, 6, sfx_grndab) -- Travelling sound
+	RSR.ProjectileTravelSound(mo) -- Travelling sound
 	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
 
 	if mo.fuse % TICRATE == 0 then
@@ -187,7 +187,7 @@ addHook("MobjThinker", function(mo)
 			end
 		end)
 	else
-		RSR.ProjectileTravelSound(mo, 67, sfx_gratab) -- Travelling sound
+		RSR.ProjectileTravelSound(mo) -- Travelling sound
 		RSR.ProjectileGhostTimer(mo) -- Ghost trail
 	end
 

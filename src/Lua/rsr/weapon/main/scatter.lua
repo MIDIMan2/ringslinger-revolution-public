@@ -77,7 +77,6 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	radius = 22*FRACUNIT,
 	height = 22*FRACUNIT,
 	damage = 1,
-	activesound = sfx_scatab,
 	flags = MF_NOBLOCKMAP|MF_MISSILE
 }
 
@@ -90,7 +89,7 @@ addHook("MobjThinker", function(mo)
 	if not (mo.flags & MF_MISSILE) then return end
 
 	P_SetObjectMomZ(mo, -abs(2*P_GetMobjGravity(mo)), true) -- Artificial gravity for bomblets
-	RSR.ProjectileTravelSound(mo, 6) -- Bomblet sizzling
+	RSR.ProjectileTravelSound(mo) -- Bomblet sizzling
 	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
 end, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
