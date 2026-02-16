@@ -168,13 +168,14 @@ end
 ---@param obituary string|nil Default is "$v died.".
 ---@param distance fixed_t|nil Distance between the victim and their attacker. Default is 0.
 RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary, distance)
+	if RSR.CV_Killfeed.value == RSR.CVKILLFEED_NONE then return end -- Don't display a message if the killfeed is disabled
 	if not victimName then return end -- We can't display a message if there is no victim!
 	inflictorPatch = $ or "RSREGGM" -- Always show Eggman for unknown causes of death
 	obituary = $ or "$v died." -- Default message
 	distance = ($ or 0)/(56*FRACUNIT)
 	if distance >= 10 then obituary = $.." ("..distance.."m)" end
 
-	if CV_FindVar("hazardlog").value then
+	if (RSR.CV_Killfeed.value & RSR.CVKILLFEED_TEXT) then
 		-- Alternative killfeed so players can see what they did in the logs
 		local newString = string.gsub(obituary, "(%$%w?)", {
 			["$a"] = attackerName or "The Shredded Cheese Man",
@@ -184,16 +185,18 @@ RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflec
 		print(newString)
 	end
 
-	table.insert(RSR.KILLFEED_MESSAGES, {
-		victim = victimName,
-		inflictor = inflictorPatch,
-		infReflected = infReflected,
-		attacker = attackerName,
-		highlight = highlight,
-		skincolor = skincolor,
-		distance = distance,
-		tics = RSR.KILLFEED_TICS
-	})
+	if (RSR.CV_Killfeed.value & RSR.CVKILLFEED_ICON) then
+		table.insert(RSR.KILLFEED_MESSAGES, {
+			victim = victimName,
+			inflictor = inflictorPatch,
+			infReflected = infReflected,
+			attacker = attackerName,
+			highlight = highlight,
+			skincolor = skincolor,
+			distance = distance,
+			tics = RSR.KILLFEED_TICS
+		})
+	end
 end
 
 --- Gets the necessary damagetype-related info for killfeed varaibles.
