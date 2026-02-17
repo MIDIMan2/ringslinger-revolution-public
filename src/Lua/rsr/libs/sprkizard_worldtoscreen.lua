@@ -52,7 +52,6 @@ local function R_WorldToScreen2(vis, target)
 	}
 end
 
--- TODO: Replace this with the original function when 2.2.16 comes out
 local function R_World2Screen3FPS(v, player, cam, point, reverse)
 	local BASEVIDWIDTH = BASEVIDWIDTH or 320
 	local BASEVIDHEIGHT = BASEVIDHEIGHT or 200
@@ -71,6 +70,7 @@ local function R_World2Screen3FPS(v, player, cam, point, reverse)
 	local viewangle = cam.angle
 	local viewx, viewy = cam.x, cam.y
 	local viewz = cam.z
+	-- TODO: Remove this if statement when 2.2.16 comes out
 	if not cam.chase and player.realmo and player.realmo.valid then
 		viewangle = player.realmo.angle
 		viewx, viewy = player.realmo.x, player.realmo.y

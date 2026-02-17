@@ -6,7 +6,7 @@
 RSR.WAVE_NUM = 0
 RSR.WAVE_NUM_MAX_DEFAULT = 3
 RSR.WAVE_NUM_MAX = RSR.WAVE_NUM_MAX_DEFAULT
-RSR.WAVE_NUM_HARDLIMIT = 10 -- This can theoretically up to 31, but 10 is a more reasonable number
+RSR.WAVE_NUM_HARDLIMIT = 10 -- This can theoretically go up to 31, but 10 is a more reasonable number
 RSR.WAVE_TIMER_MAX = 5*TICRATE
 RSR.WAVE_TIMER = RSR.WAVE_TIMER_MAX
 RSR.WAVE_SPAWNERS = {}

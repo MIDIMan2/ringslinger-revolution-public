@@ -1116,7 +1116,6 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 				end
 			end
 			RSR.KillfeedAdd(player, inflictor, sourcePlayer, damagetype)
-			-- rsrinfo.deathFlags = 0 -- TODO: Make sure this doesn't cause any anomalies when not cleared out
 			-- Clear forceInflictorType and forceInflictorReflected so they don't linger around
 			rsrinfo.forceInflictorType = nil
 			rsrinfo.forceInflictorReflected = nil

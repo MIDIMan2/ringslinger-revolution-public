@@ -198,7 +198,6 @@ RSR.PlayerDeathTick = function(player)
 		player.mo.rsrPrevMomY = 0
 		player.mo.rsrPrevMomZ = 0
 	end
-	-- TODO: Comment this out if it causes memory issues
 	local horiMom = FixedDiv(FixedHypot(player.mo.momx, player.mo.momy), player.mo.scale)
 	if horiMom > 8*FRACUNIT then
 		if (player.rsrinfo.deathFlags & RSR.DEATH_FLIPSPRITEROLL) then
