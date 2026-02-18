@@ -82,7 +82,7 @@ end, MT_RSR_PROJECTILE_BASIC_CHARGED)
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 
-	if mo.rsrChargeTravelSound then RSR.ProjectileTravelSound(mo, 12, sfx_rrchab) end
+	if mo.rsrChargeTravelSound then RSR.ProjectileTravelSound(mo) end
 	RSR.ProjectileGhostTimer(mo)
 	if (leveltime & 1) then
 		mo.color = SKINCOLOR_SALMON

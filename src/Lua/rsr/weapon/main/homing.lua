@@ -76,8 +76,8 @@ end
 
 --- MobjThinker hook code for the Homing Ring.
 ---@param mo mobj_t
----@param radius fixed_t|nil
----@param noPlayerSpeed boolean|nil
+---@param radius fixed_t|nil Search radius for the Homing Ring. Default is 640.
+---@param noPlayerSpeed boolean|nil If true, always use the projectile's speed instead of the targetted player's normalspeed.
 RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if not Valid(mo) then return end
 	if not (mo.flags & MF_MISSILE) then return end
@@ -87,8 +87,13 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		RSR.ProjectileGhostTimer(mo)
 		if mo.rsrLockOnSound then mo.rsrLockOnSound = nil end
 	else
-		if not noPlayerSpeed then RSR.ProjectileTravelSound(mo, 6) end -- Regular travelling sound
-		RSR.ProjectileGhostTimer(mo, true)
+		if not noPlayerSpeed then RSR.ProjectileTravelSound(mo) end -- Regular travelling sound
+		RSR.ProjectileAlertSound(mo, mo.tracer.player) -- Player alert sound
+		if noPlayerSpeed then -- Make Homing use a special jet flame effect while RPB keeps the smoke
+			RSR.ProjectileGhostTimer(mo, MT_SMOKE)
+		else
+			RSR.ProjectileGhostTimer(mo, MT_SONIC3KBOSSEXPLODE)
+		end
 	end
 
 	local tracer = mo.tracer
@@ -155,6 +160,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 			S_StartSound(mo.tracer, sfx_homiwn, player)
 			mo.rsrLockOnSound = true
 		end
+		if not noPlayerSpeed then RSR.ProjectileAlertSound(mo, mo.tracer.player) end -- Router RPB alert sound
 		angleTurn = FixedAngle(4*FRACUNIT)
 	end
 	local angleTo = R_PointToAngle2(mo.x, mo.y, tracer.x, tracer.y)
@@ -172,7 +178,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		curSpeed = FixedMul(3*$/4, tracer.scale)
 	end
 	if noPlayerSpeed then
-		RSR.ProjectileTravelSound(mo, 6) -- Router RPB travelling sound
+		RSR.ProjectileTravelSound(mo) -- Router RPB travelling sound
 		RSR.ProximityDetonate(mo, 128*FRACUNIT, function(missile)
 			P_ExplodeMissile(missile)
 		end)
@@ -307,7 +313,7 @@ pspractions.A_HomingAttackAlt = function(player, args)
 
 	pspractions.A_LayerOffset(player, args)
 
-	local lockOn = RSR.PlayerLookForEnemies(player, 2048*FRACUNIT, true, RSR.CV_Ghostbusters.value and true or false, true)
+	local lockOn = RSR.PlayerLookForEnemies(player, 6666*FRACUNIT, true, RSR.CV_Ghostbusters.value and true or false, true) --TODO: does 6666*FRACUNIT of range cause problems?
 	if Valid(lockOn) then
 		local visual = P_SpawnMobj(lockOn.x, lockOn.y, lockOn.z, MT_LOCKON)
 		if Valid(visual) then

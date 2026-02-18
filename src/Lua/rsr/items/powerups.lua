@@ -45,11 +45,23 @@ RSR.AddPowerup("INVINCIBILITY", {
 ---@param player player_t
 ---@param powerup integer Powerup to give the player (RSR.POWERUP_* constant).
 ---@param addTics integer|nil Amount of tics to add to the powerup if it exists in the player's powerup table.
-RSR.GivePowerup = function(player, powerup, addTics)
+---@param addPenalty integer|nil Amount of tics to add to the powerup's penalty if it exists in the player's powerup table.
+RSR.GivePowerup = function(player, powerup, addTics, addPenalty)
 	if not (Valid(player) and player.rsrinfo and player.rsrinfo.powerups and powerup) then return end
 
+	local hookEvent, hookName = RSR.findEvent("GetPowerup")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if hookEvent.typefor(player, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, player, powerup, addTics, addPenalty)
+			if result ~= nil then return result end
+		end
+	end
+
 	if not RSR.POWERUP_INFO[powerup] then return end
-	local powerupInfo = RSR.POWERUP_INFO[powerup]
+	local powerupInfo = RSR.POWERUP_INFO[powerup] ---@type rsrpowerupinfo_t
 
 	local powerups = player.rsrinfo.powerups
 	local hasPowerup, key = RSR.HasPowerup(player, powerup)
@@ -58,18 +70,20 @@ RSR.GivePowerup = function(player, powerup, addTics)
 
 	if hasPowerup then
 		if addTics then
-			powerups[key].tics = min($ + addTics, powerupTics)
-			if powerupInfo.power ~= nil then
-				player.powers[powerupInfo.power] = powerups[key].tics
-			end
+			if powerups[key].penalty then addTics = max($ - powerups[key].penalty, 1) end -- Subtract the penalty from addTics
+			powerups[key].tics = min($ + addTics, powerupTics) -- Make sure tics doesn't go above the max defined in POWERUP_INFO
+			if powerupInfo.power ~= nil then player.powers[powerupInfo.power] = powerups[key].tics end -- Also set player.powers if defined in POWERUP_INFO
+			if addPenalty then powerups[key].penalty = min($ + addPenalty, powerupTics) end -- Add penalty tics after subtracting so we don't subtract more than we're supposed to
 			return
 		end
+		if addPenalty then powerups[key].penalty = min($ + addPenalty, powerupTics) end
 		table.remove(powerups, key)
 	end
 
 	table.insert(powerups, {
 		powerup = powerup,
-		tics = powerupTics
+		tics = powerupTics,
+		penalty = 0
 	})
 	if powerupInfo.power ~= nil then
 		player.powers[powerupInfo.power] = powerupTics

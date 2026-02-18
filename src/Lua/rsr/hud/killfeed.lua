@@ -9,7 +9,7 @@ RSR.KILLFEED_TICS = 4*TICRATE
 
 RSR.KILLFEED_DMG_INFO = {
 	[DMG_WATER] = {
-		icon = "RSRELEMI", -- TODO: Replace this with a clearer icon
+		icon = "RSRELEMI",
 		obituaryMobj = {
 			attacker = "$a poisoned $v.",
 			solo = "$v had too much poison to drink."

@@ -77,6 +77,7 @@ A_RingBox = function(actor, var1, var2)
 		return
 	end
 
+	---@type player_t
 	local player = actor.target.player
 	RSR.BonusFade(player)
 	RSR.GiveHealth(player, RSR.MAX_HEALTH) -- TODO: Maybe make this not always give 100 health, since the action is used to give different amounts of rings
@@ -91,6 +92,7 @@ A_GiveShield = function(actor, var1, var2)
 		return
 	end
 
+	---@type player_t
 	local player = actor.target.player
 
 	-- Special case for the Pity Shield
@@ -115,6 +117,7 @@ A_ExtraLife = function(actor, var1, var2)
 		return
 	end
 
+	---@type player_t
 	local player = actor.target.player
 	RSR.BonusFade(player)
 	RSR.GiveHealth(player, RSR.MAX_HEALTH_BONUS, true)
@@ -136,6 +139,7 @@ A_Invincibility = function(actor, var1, var2)
 		return
 	end
 
+	---@type player_t
 	local player = actor.target.player
 	RSR.BonusFade(player)
 	RSR.GivePowerup(player, RSR.POWERUP_INVINCIBILITY)
@@ -150,6 +154,7 @@ A_SuperSneakers = function(actor, var1, var2)
 		return
 	end
 
+	---@type player_t
 	local player = actor.target.player
 	RSR.BonusFade(player)
 	RSR.GivePowerup(player, RSR.POWERUP_SPEED)
