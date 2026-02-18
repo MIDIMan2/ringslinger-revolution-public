@@ -239,7 +239,7 @@ addHook("MobjSpawn", function(mo)
 	end
 end, MT_RSR_PROJECTILE_HOMING_BOMB)
 addHook("MobjThinker", function(mo)
-	RSR.HomingRingThinker(mo, 1384*FRACUNIT, true)
+	RSR.HomingRingThinker(mo, 1536*FRACUNIT, true)
 end, MT_RSR_PROJECTILE_HOMING_BOMB)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_HOMING_BOMB)
 
