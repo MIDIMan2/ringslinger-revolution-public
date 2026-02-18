@@ -971,6 +971,8 @@ RSR.PlayerDropItems = function(player)
 	end
 end
 
+--- Replenishes the player's powerups.
+---@param player player_t
 RSR.PlayerReplenishPowerups = function(player)
 	if not Valid(player) then return end
 
@@ -981,14 +983,14 @@ RSR.PlayerReplenishPowerups = function(player)
 
 	-- Give the player a time boost if they have invincibility
 	if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) then
-		RSR.GivePowerup(player, RSR.POWERUP_INVINCIBILITY, min(10-player.rsrinfo.invRefillTicks,1)*TICRATE)
+		RSR.GivePowerup(player, RSR.POWERUP_INVINCIBILITY, max(10 - player.rsrinfo.invRefillTicks, 1)*TICRATE)
 		player.rsrinfo.invRefillTicks = $ + 2
 		RSR.BonusFade(player) -- Give the player an indicator that they got more invincibility time
 	end
 
 	-- Give the player a time boost if they have infinity
 	if RSR.HasPowerup(player, RSR.POWERUP_INFINITY) then
-		RSR.GivePowerup(player, RSR.POWERUP_INFINITY, min(10-player.rsrinfo.infRefillTicks,1)*TICRATE)
+		RSR.GivePowerup(player, RSR.POWERUP_INFINITY, max(10 - player.rsrinfo.infRefillTicks, 1)*TICRATE)
 		player.rsrinfo.infRefillTicks = $ + 2
 		RSR.BonusFade(player) -- Give the player an indicator that they just got more infinity time
 	end
@@ -1006,13 +1008,13 @@ RSR.CancelHurtSelfPoints = function(player, sourcePlayer, damagetype)
 	if not (player == sourcePlayer and (damagetype & DMG_CANHURTSELF)) then return end
 
 	local totalScore = 0
-	if (gametyperules & GTR_TEAMFLAGS) and (player.gotflag & (GF_REDFLAG|GF_BLUEFLAG)) then
-		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and source ~= player.mo) then
+	if (gametyperules & GTR_TEAMFLAGS) and (player.rsrinfo.lastflag & (GF_REDFLAG|GF_BLUEFLAG)) then -- player.gotflag gets reset before the MobjDeath hook, so check lastflag instead
+		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and sourcePlayer ~= player) then
 			totalScore = $ + 25
 		end
 	end
 	if not player.powers[pw_super] then
-		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and source ~= player.mo) then
+		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and sourcePlayer ~= player) then
 			totalScore = $ + 100
 		end
 	end
@@ -1170,7 +1172,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 				end
 			end
 
-			RSR.CancelHurtSelfPoints(player, sourcePlayer, damagetype)
+			RSR.CancelHurtSelfPoints(player, source.player, damagetype)
 
 			rsrinfo.attackerInfo = {} -- Clear attackerInfo since we've already died
 		end

@@ -39,9 +39,12 @@
 ---@field scatterFlak mobj_t|nil A reference to the player's last Mass Scrambler ring fired.
 ---@field bounceMega mobj_t|nil A reference to the player's last Goldburster ring fired.
 ---@field waspTime integer|nil Timer for the Homing Ring's altfire.
+---@field invRefillTicks integer Determines how many seconds to subtract from the time bonus for Invincibility when killing a player.
+---@field infRefillTicks integer Determines how many seconds to subtract from the time bonus for Infinity when killing a player.
 ---@field lastbuttons UINT16 Buttons (BT_* constants) held on the last game tic.
 ---@field lastexiting tic_t Value of player.exiting on the last game tic.
 ---@field lastemeralds UINT16 Value of player.powers[pw_emeralds] on the last game tic.
+---@field lastflag UINT16 Value of player.gotflag on the last game tic (TEMPORARY).
 ---@field boostNormalspeed boolean Determines if normalspeed should be boosted or not (UNUSED).
 ---@field useZoom boolean Determines if the weapon zoom should be active or not.
 ---@field fovZoom integer Timer for the weapon zoom (max is 14).

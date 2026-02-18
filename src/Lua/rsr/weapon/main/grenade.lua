@@ -63,7 +63,7 @@ addHook("MobjThinker", function(mo)
 	if not (mo.flags & MF_MISSILE) then return end
 
 	RSR.ProjectileTravelSound(mo) -- Travelling sound
-	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
+	RSR.ProjectileGhostTimer(mo, MT_SMOKE) -- Smoke particles
 
 	if mo.fuse % TICRATE == 0 then
 		S_StartSound(mo, mo.info.attacksound)

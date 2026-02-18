@@ -131,7 +131,7 @@ end
 ---@param var1 integer Determines the explosion FX type. 0 is for the normal paraloop-based explosion; 1 is for the low-CPU paraloop-based explosion; 2 is for the Mass Scrambler's bomblets.
 A_RSRRingExplode = function(mo, var1, var2)
 	if not Valid(mo) then return end
-	S_StopSound(mo) -- Attempt to stop all sounds (travel sounds included)
+	S_StopSound(mo) -- Attempt to stop all sounds (travel and alert sounds included)
 
 	local sparkleState = S_NULL
 	local iterCount = 0

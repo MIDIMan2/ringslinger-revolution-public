@@ -76,8 +76,8 @@ end
 
 --- MobjThinker hook code for the Homing Ring.
 ---@param mo mobj_t
----@param radius fixed_t|nil
----@param noPlayerSpeed boolean|nil
+---@param radius fixed_t|nil Search radius for the Homing Ring. Default is 640.
+---@param noPlayerSpeed boolean|nil If true, always use the projectile's speed instead of the targetted player's normalspeed.
 RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if not Valid(mo) then return end
 	if not (mo.flags & MF_MISSILE) then return end
@@ -90,9 +90,9 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		if not noPlayerSpeed then RSR.ProjectileTravelSound(mo) end -- Regular travelling sound
 		RSR.ProjectileAlertSound(mo, mo.tracer.player) -- Player alert sound
 		if noPlayerSpeed then -- Make Homing use a special jet flame effect while RPB keeps the smoke
-			RSR.ProjectileGhostTimer(mo, true)
+			RSR.ProjectileGhostTimer(mo, MT_SMOKE)
 		else
-			RSR.ProjectileGhostTimer(mo, true, MT_SONIC3KBOSSEXPLODE)
+			RSR.ProjectileGhostTimer(mo, MT_SONIC3KBOSSEXPLODE)
 		end
 	end
 

@@ -90,7 +90,7 @@ addHook("MobjThinker", function(mo)
 
 	P_SetObjectMomZ(mo, -abs(2*P_GetMobjGravity(mo)), true) -- Artificial gravity for bomblets
 	RSR.ProjectileTravelSound(mo) -- Bomblet sizzling
-	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
+	RSR.ProjectileGhostTimer(mo, MT_SMOKE) -- Smoke particles
 end, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 

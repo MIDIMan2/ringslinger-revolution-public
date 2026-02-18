@@ -314,26 +314,20 @@ end
 
 --- Spawns ghost mobjs from the given projectile.
 ---@param mo mobj_t The projectile.
----@param doSmoke boolean|nil Spawns smoke instead of ghosts around the projectile if set to true.
-RSR.ProjectileGhostTimer = function(mo, doSmoke, smokeState)
+---@param smokeType mobj_t|nil Determines what Object type to spawn instead of spawning a ghost.
+RSR.ProjectileGhostTimer = function(mo, smokeType)
 	if not Valid(mo) then return end
 	if not ((mo.flags & MF_MISSILE) and mo.health > 0) then return end
 
-	mo.localSmoke = MT_NULL
 	mo.rsrGhostTimer = $-1
 	if mo.rsrGhostTimer < 1 then
-		if smokeState then
-			mo.localSmoke = smokeState
-		else
-			mo.localSmoke = MT_SMOKE
-		end
-		if doSmoke then
+		if smokeType then
 			P_SpawnMobjFromMobj(
 				mo,
 				RSR.RandomFixedRange(-mo.info.radius, mo.info.radius),
 				RSR.RandomFixedRange(-mo.info.radius, mo.info.radius),
 				RSR.RandomFixedRange(0, mo.info.height),
-				mo.localSmoke
+				smokeType
 			)
 		else
 			P_SpawnGhostMobj(mo)

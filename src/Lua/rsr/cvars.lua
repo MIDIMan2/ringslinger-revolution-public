@@ -166,13 +166,20 @@ RSR.COM_GetHealth = function(player, arg)
 	RSR.GiveArmor(player, 200, true)
 end
 
+RSR.COM_GetPowerups = function(player, arg)
+	if not (Valid(player) and player.rsrinfo) then return end
+	for i = 1, RSR.POWERUP_MAX do RSR.GivePowerup(player, i) end
+end
+
 COM_AddCommand("rsr_getemeralds", RSR.COM_GetEmeralds)
 COM_AddCommand("rsr_getweapons", RSR.COM_GetWeapons)
 COM_AddCommand("rsr_gethealth", RSR.COM_GetHealth)
+COM_AddCommand("rsr_getpowerups", RSR.COM_GetPowerups)
 COM_AddCommand("rsr_geteverything", function(player, arg)
 	RSR.COM_GetEmeralds(player, arg)
 	RSR.COM_GetWeapons(player, arg)
 	RSR.COM_GetHealth(player, arg)
+	RSR.COM_GetPowerups(player, arg)
 end)
 
 COM_AddCommand("rsr_killallenemies", function(player, arg)

@@ -59,6 +59,7 @@ RSR.PlayerInit = function(player)
 	rsrinfo.lastbuttons = player.lastbuttons
 	rsrinfo.lastexiting = player.exiting
 	rsrinfo.lastemeralds = player.powers[pw_emeralds]
+	rsrinfo.lastflag = player.gotflag
 
 	RSR.PlayerHealthInit(player)
 	RSR.PlayerWeaponsInit(player)
@@ -86,7 +87,7 @@ RSR.PlayerInit = function(player)
 	rsrinfo.bounceMega = nil -- Used for the Bounce Ring's altfire; See weapon/bounce.lua for more information
 	rsrinfo.waspTime = RSR.HOMING_WASP_MAX -- Used for the Homing Ring's altfire; See weapon/homing.lua for more information
 	rsrinfo.invRefillTicks = 0 -- Used to progressively dampen the Invincibility time bonuses on killstreaks
-	rsrinfo.infRefillTicks = 0 -- Used to progressively dampen the Invincibility time bonuses on killstreaks
+	rsrinfo.infRefillTicks = 0 -- Used to progressively dampen the Infinity time bonuses on killstreaks
 
 	rsrinfo.useZoom = false
 	rsrinfo.fovZoom = 0
@@ -302,11 +303,10 @@ RSR.PlayerThink = function(player)
 
 	RSR.PlayerStarpostDataTick(player)
 
-	player.rsrinfo.lastshield = player.powers[pw_shield] & SH_NOSTACK
-	player.rsrinfo.lastsneakers = player.powers[pw_sneakers]
 	player.rsrinfo.lastbuttons = player.cmd.buttons
 	player.rsrinfo.lastexiting = player.exiting
 	player.rsrinfo.lastemeralds = player.powers[pw_emeralds]
+	player.rsrinfo.lastflag = player.gotflag -- TODO: Remove this variable when 2.2.16 comes out
 
 	if player.playerstate == PST_LIVE then
 		player.mo.rsrPrevMomX = player.mo.momx

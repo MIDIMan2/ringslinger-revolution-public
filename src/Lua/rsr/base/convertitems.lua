@@ -162,7 +162,6 @@ end
 
 RSR.ConvertItemsMapLoad = function()
 	if not (RSR.GamemodeActive() and G_RingSlingerGametype()) then return end
-	if RSR.GAMETYPE_INFO[gametype] == "Capture The Flag" then return end -- This automatic script can't be properly balanced for CTF autogens
 	if RSR.MAP_HAS_RSR_MOBJS then
 		for mo in mobjs.iterate() do
 			if not Valid(mo) then continue end
@@ -189,7 +188,8 @@ RSR.ConvertItemsMapLoad = function()
 			continue
 		end
 
-		if moInfo.alttype then -- Track the placement of all Vanilla-Rail pickups for later use.
+		-- Track the placement of all Vanilla-Rail pickups for later use.
+		if not (gametyperules & GTR_TEAMFLAGS) and moInfo.alttype then -- This automatic script can't be properly balanced for CTF autogens
 			table.insert(altQueue, mo) -- Add later objects to the bottom of the queue! (Note from MIDIMan: I found this to make more sense map-wise than the other way around).
 			continue
 		end
