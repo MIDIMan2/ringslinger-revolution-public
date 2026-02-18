@@ -46,7 +46,6 @@ mobjinfo[MT_RSR_PROJECTILE_BOMB] = {
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
 	damage = 4,
-	activesound = sfx_bombab,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
@@ -89,8 +88,8 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	RSR.ProjectileTravelSound(mo, 6) -- Travelling sound
-	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
+	RSR.ProjectileTravelSound(mo) -- Travelling sound
+	RSR.ProjectileGhostTimer(mo, MT_SMOKE) -- Smoke particles
 end, MT_RSR_PROJECTILE_BOMB)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOMB)
 
@@ -104,7 +103,7 @@ addHook("MobjThinker", function(mo)
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	RSR.ProjectileGhostTimer(mo, true) -- Smoke particles
+	RSR.ProjectileGhostTimer(mo, MT_SMOKE) -- Smoke particles
 end, MT_RSR_PROJECTILE_BOMB_MISSILEFORM)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOMB_MISSILEFORM)
 

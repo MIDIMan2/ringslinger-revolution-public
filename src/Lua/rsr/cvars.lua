@@ -1,5 +1,62 @@
 -- Ringslinger Revolution - Console Variables/Commands
 
+-- --------------------------------
+-- CLIENT CVARS
+-- --------------------------------
+
+RSR.CVVIEWMODEL_NONE = 0
+RSR.CVVIEWMODEL_RIGHT = 1
+RSR.CVVIEWMODEL_LEFT = 2
+RSR.CVVIEWMODEL_CENTER = 3
+
+-- Lets the player set their viewmodel's orientation.
+RSR.CV_Viewmodel = CV_RegisterVar({
+	name = "rsr_viewmodel",
+	defaultvalue = "Right",
+	flags = CV_SAVE,
+	PossibleValue = {
+		Off = RSR.CVVIEWMODEL_NONE,
+		Right = RSR.CVVIEWMODEL_RIGHT,
+		Left = RSR.CVVIEWMODEL_LEFT,
+		Center = RSR.CVVIEWMODEL_CENTER
+	}
+})
+
+-- Lets the second player set their viewmodel's orientation.
+RSR.CV_Viewmodel2 = CV_RegisterVar({
+	name = "rsr_viewmodel2",
+	defaultvalue = "Right",
+	flags = CV_SAVE,
+	PossibleValue = {
+		Off = RSR.CVVIEWMODEL_NONE,
+		Right = RSR.CVVIEWMODEL_RIGHT,
+		Left = RSR.CVVIEWMODEL_LEFT,
+		Center = RSR.CVVIEWMODEL_CENTER
+	}
+})
+
+RSR.CVKILLFEED_NONE = 0
+RSR.CVKILLFEED_TEXT = 1
+RSR.CVKILLFEED_ICON = 2
+RSR.CVKILLFEED_BOTH = 3 -- Should be the previous two combined
+
+-- Lets the player set how the killfeed should be displayed.
+RSR.CV_Killfeed = CV_RegisterVar({
+	name = "rsr_killfeed",
+	defaultvalue = "Both",
+	flags = CV_SAVE,
+	PossibleValue = {
+		Off = RSR.CVKILLFEED_NONE,
+		Text = RSR.CVKILLFEED_TEXT,
+		Icon = RSR.CVKILLFEED_ICON,
+		Both = RSR.CVKILLFEED_BOTH
+	}
+})
+
+-- --------------------------------
+-- SERVER CVARS
+-- --------------------------------
+
 RSR.CVRANDMG_PARTIAL = 1
 RSR.CVRANDMG_DOOM = 2
 
@@ -15,38 +72,7 @@ RSR.CV_RandomDamage = CV_RegisterVar({
 	}
 })
 
-RSR.CVVIEWMODEL_NONE = 0
-RSR.CVVIEWMODEL_RIGHT = 1
-RSR.CVVIEWMODEL_LEFT = 2
-RSR.CVVIEWMODEL_CENTER = 3
-
--- Lets the player choose the position of their "viewmodel"
-RSR.CV_Viewmodel = CV_RegisterVar({
-	name = "rsr_viewmodel",
-	defaultvalue = "Right",
-	flags = CV_SAVE,
-	PossibleValue = {
-		Off = RSR.CVVIEWMODEL_NONE,
-		Right = RSR.CVVIEWMODEL_RIGHT,
-		Left = RSR.CVVIEWMODEL_LEFT,
-		Center = RSR.CVVIEWMODEL_CENTER
-	}
-})
-
--- Lets homing rings target and kill spectators
-RSR.CV_Viewmodel2 = CV_RegisterVar({
-	name = "rsr_viewmodel2",
-	defaultvalue = "Right",
-	flags = CV_SAVE,
-	PossibleValue = {
-		Off = RSR.CVVIEWMODEL_NONE,
-		Right = RSR.CVVIEWMODEL_RIGHT,
-		Left = RSR.CVVIEWMODEL_LEFT,
-		Center = RSR.CVVIEWMODEL_CENTER
-	}
-})
-
--- Lets homing rings target and kill spectators
+-- Lets homing rings target and kill spectators.
 RSR.CV_Ghostbusters = CV_RegisterVar({
 	name = "rsr_ghostbusters",
 	defaultvalue = "False",
@@ -54,7 +80,7 @@ RSR.CV_Ghostbusters = CV_RegisterVar({
 	PossibleValue = CV_TrueFalse
 })
 
--- Lets non-IT players use weapons in Tag
+-- Lets non-IT players use weapons in Tag.
 RSR.CV_LaserTag = CV_RegisterVar({
 	name = "rsr_lasertag",
 	defaultvalue = "True",
@@ -249,6 +275,9 @@ RSR.CV_TitleCard = CV_RegisterVar({
 		Alternating = RSR.CVREGEN_ALTERNATING
 	}
 })
+-- --------------------------------
+-- COMMANDS
+-- --------------------------------
 
 --- Checks if the player can use any of the kill commands.
 ---@param player player_t
@@ -339,13 +368,20 @@ RSR.COM_GetHealth = function(player, arg)
 	RSR.GiveArmor(player, 200, true)
 end
 
+RSR.COM_GetPowerups = function(player, arg)
+	if not (Valid(player) and player.rsrinfo) then return end
+	for i = 1, RSR.POWERUP_MAX do RSR.GivePowerup(player, i) end
+end
+
 COM_AddCommand("rsr_getemeralds", RSR.COM_GetEmeralds)
 COM_AddCommand("rsr_getweapons", RSR.COM_GetWeapons)
 COM_AddCommand("rsr_gethealth", RSR.COM_GetHealth)
+COM_AddCommand("rsr_getpowerups", RSR.COM_GetPowerups)
 COM_AddCommand("rsr_geteverything", function(player, arg)
 	RSR.COM_GetEmeralds(player, arg)
 	RSR.COM_GetWeapons(player, arg)
 	RSR.COM_GetHealth(player, arg)
+	RSR.COM_GetPowerups(player, arg)
 end)
 
 COM_AddCommand("rsr_killallenemies", function(player, arg)

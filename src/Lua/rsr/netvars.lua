@@ -2,7 +2,6 @@
 
 addHook("NetVars", function(network)
 	RSR.ENEMY_THINKERS = network($)
-	-- PSprites.STATES = network($) -- TODO: Removing this may not actually cause netsync issues at all...
 	RSR.CURRENT_BOSS = network($)
 	RSR.WAVE_NUM = network($)
 	RSR.WAVE_TIMER = network($)

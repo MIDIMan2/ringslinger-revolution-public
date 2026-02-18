@@ -224,6 +224,7 @@ RSR.EnemyTouchSpecial = function(special, toucher)
 		end
 	end
 
+	---@type player_t
 	local player = toucher.player
 	if not Valid(player) then return end
 

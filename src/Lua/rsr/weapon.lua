@@ -300,6 +300,7 @@ RSR.ProjectileSpawn = function(mo)
 	mo.rsrProjectile = true
 	mo.rsrGhostTimer = 4
 	mo.rsrSoundTimer = 1
+	mo.rsrAlertTimer = 1
 end
 
 --- MobjMoveCollide hook code for projectiles.
@@ -352,20 +353,20 @@ end
 
 --- Spawns ghost mobjs from the given projectile.
 ---@param mo mobj_t The projectile.
----@param doSmoke boolean|nil Spawns smoke instead of ghosts around the projectile if set to true.
-RSR.ProjectileGhostTimer = function(mo, doSmoke)
+---@param smokeType mobj_t|nil Determines what Object type to spawn instead of spawning a ghost.
+RSR.ProjectileGhostTimer = function(mo, smokeType)
 	if not Valid(mo) then return end
 	if not ((mo.flags & MF_MISSILE) and mo.health > 0) then return end
 
 	mo.rsrGhostTimer = $-1
 	if mo.rsrGhostTimer < 1 then
-		if doSmoke then
+		if smokeType then
 			P_SpawnMobjFromMobj(
 				mo,
 				RSR.RandomFixedRange(-mo.info.radius, mo.info.radius),
 				RSR.RandomFixedRange(-mo.info.radius, mo.info.radius),
 				RSR.RandomFixedRange(0, mo.info.height),
-				MT_SMOKE
+				smokeType
 			)
 		else
 			P_SpawnGhostMobj(mo)
@@ -376,17 +377,42 @@ end
 
 --- Makes the projectile emit a sound as it travels.
 ---@param mo mobj_t The projectile.
----@param repeatTime integer Tics between repeats of the sound effect.
----@param sound soundnum_t|nil The sound to play as the projectile travels. Default is the projectile type's activesound.
+---@param repeatTime integer|nil Tics between repeats of the sound effect. Default is 6 if there is no traveltimer defined in MOBJ_INFO.
+---@param sound soundnum_t|nil The sound to play as the projectile travels. Default is sfx_alarm if there is not travelsound defined in .
 RSR.ProjectileTravelSound = function(mo, repeatTime, sound)
 	if not Valid(mo) then return end
-	if not repeatTime then return end -- Shouldn't be nil or 0
-	if not sound then sound = mo.info.activesound end
+	if RSR.MOBJ_INFO[mo.type] then
+		if not sound and RSR.MOBJ_INFO[mo.type].travelsound then sound = RSR.MOBJ_INFO[mo.type].travelsound end
+		if not repeatTime and RSR.MOBJ_INFO[mo.type].traveltimer then repeatTime = RSR.MOBJ_INFO[mo.type].traveltimer end
+	end
+	if not sound then sound = sfx_bombab end
+	if not repeatTime then repeatTime = 6 end
 
 	mo.rsrSoundTimer = $-1
 	if mo.rsrSoundTimer < 1 then
 		S_StartSound(mo, sound)
 		mo.rsrSoundTimer = repeatTime
+	end
+end
+
+--- Makes the projectile emit a sound as it follows a player.
+---@param mo mobj_t The projectile.
+---@param player player_t Player that the projectile is targetting.
+---@param repeatTime integer|nil Tics between repeats of the sound effect. Default is 6 if there is no alerttimer defined in MOBJ_INFO.
+---@param sound soundnum_t|nil The sound to play as the projectile travels. Default is sfx_alarm if there is no alertsound defined in MOBJ_INFO.
+RSR.ProjectileAlertSound = function(mo, player, repeatTime, sound)
+	if not (Valid(mo) and Valid(player)) then return end
+	if RSR.MOBJ_INFO[mo.type] then
+		if not sound and RSR.MOBJ_INFO[mo.type].alertsound then sound = RSR.MOBJ_INFO[mo.type].alertsound end
+		if not repeatTime and RSR.MOBJ_INFO[mo.type].alerttimer then repeatTime = RSR.MOBJ_INFO[mo.type].alerttimer end
+	end
+	if not sound then sound = sfx_alarm end
+	if not repeatTime then repeatTime = 35 end
+
+	mo.rsrAlertTimer = $-1
+	if mo.rsrAlertTimer < 1 then
+		S_StartSound(mo, sound, player)
+		mo.rsrAlertTimer = repeatTime
 	end
 end
 

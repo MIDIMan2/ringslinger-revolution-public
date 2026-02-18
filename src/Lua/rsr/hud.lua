@@ -147,7 +147,7 @@ RSR.HUDScope = function(v, player, thiscam)
 		-- 		y = player.realmo.y + 1024*FixedMul(sin(player.realmo.angle), cos(player.cmd.aiming<<16)),
 		-- 		z = player.viewz + 1024*sin(player.cmd.aiming<<16)
 		-- 	})
-		-- 	arrowX = 160 - (160 - result.x/FRACUNIT)
+		-- 	arrowX = result.x/FRACUNIT
 		-- 	arrowY = result.y/FRACUNIT
 		-- end
 

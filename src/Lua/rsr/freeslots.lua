@@ -41,12 +41,14 @@ freeslot(
 	"sfx_homiab", -- Created by orbitalviolet
 	"sfx_homitg",
 	"sfx_homiwn", -- Created by orbitalviolet
+	"sfx_homict", -- Created by orbitalviolet
 	"sfx_hoatsk",
 	"sfx_hoatfr",
 	"sfx_hoatab", -- Created by orbitalviolet
 	"sfx_hoattg", -- Created by orbitalviolet
 	"sfx_hoatpt",
 	"sfx_hoatno",
+	"sfx_hoatct", -- Created by orbitalviolet
 	"sfx_scope", -- Created by orbitalviolet
 	"sfx_epocs", -- Created by orbitalviolet
 	"sfx_railgn", -- Created by orbitalviolet
@@ -336,10 +338,10 @@ sfxinfo[sfx_autofr].caption = "Automatic fired"
 sfxinfo[sfx_atatfr].caption = "Automatic: Spray&Pray"
 sfxinfo[sfx_sctrfr].caption = "Scatter fired"
 sfxinfo[sfx_scatfr].caption = "Scatter: Mass Scrambler"
-sfxinfo[sfx_scatxp].caption = "Mass Scrambler airbursting"
-sfxinfo[sfx_scatx1].caption = "Mass Scrambler bomblet explosion"
-sfxinfo[sfx_scatx2].caption = "Mass Scrambler bomblet explosion"
-sfxinfo[sfx_scatab].caption = "Mass Scrambler bomblets travelling"
+sfxinfo[sfx_scatxp].caption = "Scrambler airbursting"
+sfxinfo[sfx_scatx1].caption = "Scrambler bomblet explosion"
+sfxinfo[sfx_scatx2].caption = "Scrambler bomblet explosion"
+sfxinfo[sfx_scatab].caption = "Scrambler bomblets travelling"
 sfxinfo[sfx_bombfr].caption = "Explosion fired"
 sfxinfo[sfx_bombab].caption = "Explosion travelling"
 sfxinfo[sfx_boatfr].caption = "Explosion: Self-Propel"
@@ -360,12 +362,14 @@ sfxinfo[sfx_homifr].caption = "Homing fired"
 sfxinfo[sfx_homitg].caption = "Homing lock-on"
 sfxinfo[sfx_homiab].caption = "Homing locked-on and seeking"
 sfxinfo[sfx_homiwn].caption = "Homing incoming!"
+sfxinfo[sfx_homict].caption = "Homing on your tail!"
 sfxinfo[sfx_hoatfr].caption = "Homing: Router RPB"
-sfxinfo[sfx_hoatab].caption = "Router RPB travelling"
+sfxinfo[sfx_hoatab].caption = "RPB travelling"
 sfxinfo[sfx_hoatsk].caption = "Router RPB seeking..."
 sfxinfo[sfx_hoattg].caption = "Router RPB incoming!"
-sfxinfo[sfx_hoatpt].caption = "Router RPB ready"
+sfxinfo[sfx_hoatpt].caption = "RPB ready"
 sfxinfo[sfx_hoatno].caption = "No targets..."
+sfxinfo[sfx_hoatct].caption = "RPB on your tail!"
 sfxinfo[sfx_scope].caption = "Scoping"
 sfxinfo[sfx_epocs].caption = "Unscoping"
 sfxinfo[sfx_railgn].caption = "Rail fired!"

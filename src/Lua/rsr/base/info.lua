@@ -60,7 +60,7 @@ RSR.MOBJ_INFO[MT_BLACKEGGMAN] = {health = 6250, damage = 20}
 RSR.MOBJ_INFO[MT_CYBRAKDEMON] = {health = 5500, damage = 30}
 RSR.MOBJ_INFO[MT_CYBRAK2016] = {health = 4500, damage = 40}
 
--- Ringslinger Projectiles (TODO: Finish the obituaries)
+-- Ringslinger Projectiles
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BASIC] = {
 	knockback = 3*FRACUNIT,
 	killfeedIcon = "RSRBASCI",
@@ -72,6 +72,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BASIC] = {
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BASIC_CHARGED] = {
 	knockback = 6*FRACUNIT,
+	travelsound = sfx_rrchab,
+	traveltimer = 12,
 	killfeedIcon = "RSRBSALI",
 	killfeedName = "Charged Shot",
 	killfeedObituary = {
@@ -103,6 +105,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	explosive = true,
 	sparklestate = S_RSR_NIGHTSPARKLE_SCRAMBLER,
 	thrustdamage = 3, -- Roughly 1/6th of 20
+	travelsound = sfx_scatab,
+	traveltimer = 6,
 	killfeedIcon = "RSRSCALI",
 	killfeedName = "Mass Scrambler bomblet",
 	killfeedObituary = {
@@ -163,6 +167,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_GRENADE] = {
 	dontreflect = true,
 	explosive = true,
 	sparklestate = S_RSR_NIGHTSPARKLE_GRENADE,
+	travelsound = sfx_grndab,
+	traveltimer = 6,
 	killfeedIcon = "RSRGRNDI",
 	killfeedName = "Grenade Ring",
 	killfeedObituary = {
@@ -176,6 +182,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB] = {
 	dontreflect = true,
 	explosive = true,
 	sparklestate = S_RSR_NIGHTSPARKLE_GRENADE,
+	travelsound = sfx_gratab,
+	traveltimer = 67,
 	killfeedIcon = "RSRGRALI",
 	killfeedName = "Stickybomb",
 	killfeedObituary = {
@@ -189,6 +197,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOMB] = {
 	dontreflect = true,
 	explosive = true,
 	sparklestate = S_RSR_NIGHTSPARKLE_BOMB,
+	travelsound = sfx_bombab,
+	traveltimer = 6,
 	killfeedIcon = "RSRBOMBI",
 	killfeedName = "Explosion Ring",
 	killfeedObituary = {
@@ -214,6 +224,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOMB_MISSILEFORM] = {
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_HOMING] = {
 	knockback = 1*FRACUNIT,
+	alertsound = sfx_homict,
+	alerttimer = 31,
 	killfeedIcon = "RSRHOMGI",
 	killfeedName = "Homing Ring",
 	killfeedObituary = {
@@ -226,6 +238,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	dontreflect = true,
 	explosive = true,
 	sparklestate = S_RSR_NIGHTSPARKLE_WASP,
+	alertsound = sfx_hoatct,
+	alerttimer = 695, -- That's a big number.
 	killfeedIcon = "RSRHMALI",
 	killfeedName = "Router RPB",
 	killfeedObituary = {

@@ -151,6 +151,7 @@ RSR.ReflectMissile = function(source, oldMissile, newMissile)
 	newMissile.rsrProjectile = oldMissile.rsrProjectile
 	newMissile.rsrDamage = oldMissile.rsrDamage
 	newMissile.rsrRealDamage = oldMissile.rsrRealDamage
+	newMissile.rsrOrigScale = oldMissile.rsrOrigScale
 
 	-- Fixes a bug where the killfeed uses the placeholder Eggman icon
 	-- if a player with a Force Shield was killed

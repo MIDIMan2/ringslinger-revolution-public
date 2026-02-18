@@ -59,6 +59,7 @@ RSR.PlayerInit = function(player)
 	rsrinfo.lastbuttons = player.lastbuttons
 	rsrinfo.lastexiting = player.exiting
 	rsrinfo.lastemeralds = player.powers[pw_emeralds]
+	rsrinfo.lastflag = player.gotflag
 
 	-- Player is permanently fast if GottaGoFast is enabled
 	if RSR.CV_GottaGoFast.value then
@@ -204,7 +205,6 @@ RSR.PlayerDeathTick = function(player)
 		player.mo.rsrPrevMomY = 0
 		player.mo.rsrPrevMomZ = 0
 	end
-	-- TODO: Comment this out if it causes memory issues
 	local horiMom = FixedDiv(FixedHypot(player.mo.momx, player.mo.momy), player.mo.scale)
 	if horiMom > 8*FRACUNIT then
 		if (player.rsrinfo.deathFlags & RSR.DEATH_FLIPSPRITEROLL) then
@@ -322,11 +322,10 @@ RSR.PlayerThink = function(player)
 
 	RSR.PlayerStarpostDataTick(player)
 
-	player.rsrinfo.lastshield = player.powers[pw_shield] & SH_NOSTACK
-	player.rsrinfo.lastsneakers = player.powers[pw_sneakers]
 	player.rsrinfo.lastbuttons = player.cmd.buttons
 	player.rsrinfo.lastexiting = player.exiting
 	player.rsrinfo.lastemeralds = player.powers[pw_emeralds]
+	player.rsrinfo.lastflag = player.gotflag -- TODO: Remove this variable when 2.2.16 comes out
 
 	if player.playerstate == PST_LIVE then
 		player.mo.rsrPrevMomX = player.mo.momx

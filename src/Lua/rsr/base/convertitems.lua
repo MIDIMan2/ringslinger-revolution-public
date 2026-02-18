@@ -212,7 +212,8 @@ RSR.ConvertItemsMapLoad = function()
 
 	local altQueue = {}
 	for mo in mobjs.iterate() do
-		if Valid(mo) and RSR.RSMOBJ_TO_RSRMOBJ[mo.type] and RSR.RSMOBJ_TO_RSRMOBJ[mo.type].alttype then -- Track the placement of all Vanilla-Rail pickups for later use.
+		if not (gametyperules & GTR_TEAMFLAGS) -- This automatic script can't be properly balanced for CTF autogens
+		and Valid(mo) and RSR.RSMOBJ_TO_RSRMOBJ[mo.type] and RSR.RSMOBJ_TO_RSRMOBJ[mo.type].alttype then -- Track the placement of all Vanilla-Rail pickups for later use.
 			table.insert(altQueue, mo) -- Add later objects to the bottom of the queue! (Note from MIDIMan: I found this to make more sense map-wise than the other way around).
 			continue
 		end
