@@ -48,6 +48,11 @@ RSR.PlayerPowerupsTick = function(player)
 
 		if power.tics < 1 then
 			table.remove(powerups, key)
+			if power == RSR.POWERUP_INFINITY then
+				player.rsrinfo.infRefillTicks = 0
+			elseif power == RSR.POWERUP_INVINCIBILITY then
+				player.rsrinfo.invRefillTicks = 0
+			end
 			continue
 		end
 

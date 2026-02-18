@@ -979,16 +979,17 @@ RSR.PlayerReplenishPowerups = function(player)
 		RSR.BonusFade(player) -- Give the player an indicator that they just got hype
 	end
 
-	-- TODO: Give the time boost for only one of these powerups???
 	-- Give the player a time boost if they have invincibility
 	if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) then
-		RSR.GivePowerup(player, RSR.POWERUP_INVINCIBILITY, 10*TICRATE)
+		RSR.GivePowerup(player, RSR.POWERUP_INVINCIBILITY, min(10-player.rsrinfo.invRefillTicks,1)*TICRATE)
+		player.rsrinfo.invRefillTicks = $ + 2
 		RSR.BonusFade(player) -- Give the player an indicator that they got more invincibility time
 	end
 
 	-- Give the player a time boost if they have infinity
 	if RSR.HasPowerup(player, RSR.POWERUP_INFINITY) then
-		RSR.GivePowerup(player, RSR.POWERUP_INFINITY, 10*TICRATE)
+		RSR.GivePowerup(player, RSR.POWERUP_INFINITY, min(10-player.rsrinfo.infRefillTicks,1)*TICRATE)
+		player.rsrinfo.infRefillTicks = $ + 2
 		RSR.BonusFade(player) -- Give the player an indicator that they just got more infinity time
 	end
 end

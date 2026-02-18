@@ -89,7 +89,11 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	else
 		if not noPlayerSpeed then RSR.ProjectileTravelSound(mo) end -- Regular travelling sound
 		RSR.ProjectileAlertSound(mo, mo.tracer.player) -- Player alert sound
-		RSR.ProjectileGhostTimer(mo, true, MT_FIREBALLTRAIL)
+		if noPlayerSpeed then -- Make Homing use a special jet flame effect while RPB keeps the smoke
+			RSR.ProjectileGhostTimer(mo, true)
+		else
+			RSR.ProjectileGhostTimer(mo, true, MT_SONIC3KBOSSEXPLODE)
+		end
 	end
 
 	local tracer = mo.tracer
@@ -235,7 +239,7 @@ addHook("MobjSpawn", function(mo)
 	end
 end, MT_RSR_PROJECTILE_HOMING_BOMB)
 addHook("MobjThinker", function(mo)
-	RSR.HomingRingThinker(mo, 4096*FRACUNIT, true)
+	RSR.HomingRingThinker(mo, 6666*FRACUNIT, true) -- TODO: does this much range cause any performance issues?
 end, MT_RSR_PROJECTILE_HOMING_BOMB)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_HOMING_BOMB)
 
