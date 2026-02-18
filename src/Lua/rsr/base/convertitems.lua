@@ -162,6 +162,7 @@ end
 
 RSR.ConvertItemsMapLoad = function()
 	if not (RSR.GamemodeActive() and G_RingSlingerGametype()) then return end
+	if RSR.GAMETYPE_INFO[gametype] == "Capture The Flag" then return end -- This automatic script can't be properly balanced for CTF autogens
 	if RSR.MAP_HAS_RSR_MOBJS then
 		for mo in mobjs.iterate() do
 			if not Valid(mo) then continue end

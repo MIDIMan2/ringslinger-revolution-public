@@ -89,7 +89,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	else
 		if not noPlayerSpeed then RSR.ProjectileTravelSound(mo) end -- Regular travelling sound
 		RSR.ProjectileAlertSound(mo, mo.tracer.player) -- Player alert sound
-		RSR.ProjectileGhostTimer(mo, true)
+		RSR.ProjectileGhostTimer(mo, true, MT_FIREBALLTRAIL)
 	end
 
 	local tracer = mo.tracer
@@ -235,7 +235,7 @@ addHook("MobjSpawn", function(mo)
 	end
 end, MT_RSR_PROJECTILE_HOMING_BOMB)
 addHook("MobjThinker", function(mo)
-	RSR.HomingRingThinker(mo, 2184*FRACUNIT, true)
+	RSR.HomingRingThinker(mo, 4096*FRACUNIT, true)
 end, MT_RSR_PROJECTILE_HOMING_BOMB)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_HOMING_BOMB)
 
