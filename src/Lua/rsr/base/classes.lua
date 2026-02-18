@@ -39,8 +39,6 @@
 ---@field scatterFlak mobj_t|nil A reference to the player's last Mass Scrambler ring fired.
 ---@field bounceMega mobj_t|nil A reference to the player's last Goldburster ring fired.
 ---@field waspTime integer|nil Timer for the Homing Ring's altfire.
----@field invRefillTicks integer Determines how many seconds to subtract from the time bonus for Invincibility when killing a player.
----@field infRefillTicks integer Determines how many seconds to subtract from the time bonus for Infinity when killing a player.
 ---@field lastbuttons UINT16 Buttons (BT_* constants) held on the last game tic.
 ---@field lastexiting tic_t Value of player.exiting on the last game tic.
 ---@field lastemeralds UINT16 Value of player.powers[pw_emeralds] on the last game tic.
@@ -117,6 +115,7 @@
 ---@class rsrpowerup_t
 ---@field powerup integer Powerup in the player's inventory (uses POWERUP_* constants).
 ---@field tics integer Timer for the powerup.
+---@field penalty tic_t Time in tics to subtract from the time bonus when addTics is used in RSR.GivePowerup.
 
 ---@class rsrpowerupinfo_t
 ---@field icon string Icon for the powerup.

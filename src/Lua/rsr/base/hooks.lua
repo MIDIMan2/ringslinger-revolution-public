@@ -108,6 +108,11 @@ events["GetHype"] = {
     typefor = typefor_skin
 }
 
+events["GetPowerup"] = {
+    handler = handler_snapany;
+    typefor = typefor_skin
+}
+
 -- Player Behavior
 
 events["PlayerKnockback"] = {
