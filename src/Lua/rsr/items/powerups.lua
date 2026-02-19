@@ -88,6 +88,9 @@ RSR.GivePowerup = function(player, powerup, addTics, addPenalty)
 	if powerupInfo.power ~= nil then
 		player.powers[powerupInfo.power] = powerupTics
 	end
+	if player.powers[powerupInfo.power] == pw_invulnerability then
+		P_PlayerFlagBurst(player)
+	end
 end
 
 --- Default function for the "TouchPowerup" hook.

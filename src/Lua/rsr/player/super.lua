@@ -60,3 +60,14 @@ RSR.PlayerSuperTick = function(player)
 	--	player.powers[pw_emeralds] = player.rsrinfo.lastemeralds
 	-- end
 end
+
+RSR.DontInvFlag = function(player, papers)
+	if not (Valid(player) and player.rsrinfo) then return end
+	if not (Valid(papers)) then return end
+	if not RSR.GamemodeActive() then return end
+
+	if player.powers[pw_invulnerability] then return true end
+end
+
+addHook("DontInvFlag", RSR.DontInvFlag, MT_REDFLAG)
+addHook("DontInvFlag", RSR.DontInvFlag, MT_BLUEFLAG)
