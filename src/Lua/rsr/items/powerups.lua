@@ -87,9 +87,7 @@ RSR.GivePowerup = function(player, powerup, addTics, addPenalty)
 	})
 	if powerupInfo.power ~= nil then
 		player.powers[powerupInfo.power] = powerupTics
-	end
-	if player.powers[powerupInfo.power] == pw_invulnerability then
-		P_PlayerFlagBurst(player)
+		if powerupInfo.power == pw_invulnerability then P_PlayerFlagBurst(player) end -- TODO: Consider un-hardcoding this
 	end
 end
 

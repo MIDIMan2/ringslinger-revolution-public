@@ -61,13 +61,16 @@ RSR.PlayerSuperTick = function(player)
 	-- end
 end
 
-RSR.DontInvFlag = function(player, papers)
-	if not (Valid(player) and player.rsrinfo) then return end
-	if not (Valid(papers)) then return end
+--- Prevents flags from being collected by invincible players.
+---@param special mobj_t
+---@param toucher mobj_t
+RSR.FlagTouchSpecial = function(special, toucher)
 	if not RSR.GamemodeActive() then return end
+	if not (Valid(special) and Valid(toucher)) then return end
+	if not Valid(toucher.player) then return end
 
-	if player.powers[pw_invulnerability] then return true end
+	if toucher.player.powers[pw_invulnerability] then return true end
 end
 
-addHook("DontInvFlag", RSR.DontInvFlag, MT_REDFLAG)
-addHook("DontInvFlag", RSR.DontInvFlag, MT_BLUEFLAG)
+addHook("TouchSpecial", RSR.FlagTouchSpecial, MT_REDFLAG)
+addHook("TouchSpecial", RSR.FlagTouchSpecial, MT_BLUEFLAG)
