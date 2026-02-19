@@ -86,6 +86,7 @@ RSR.PlayerInit = function(player)
 	rsrinfo.scatterFlak = nil -- Used for the Scatter Ring's altfire; See weapon/scatter.lua for more information
 	rsrinfo.bounceMega = nil -- Used for the Bounce Ring's altfire; See weapon/bounce.lua for more information
 	rsrinfo.waspTime = RSR.HOMING_WASP_MAX -- Used for the Homing Ring's altfire; See weapon/homing.lua for more information
+	rsrinfo.canFlag = 1 -- Used to prevent players from holding flags where needed
 
 	rsrinfo.useZoom = false
 	rsrinfo.fovZoom = 0

@@ -118,6 +118,11 @@ RSR.ConvertItemsSetMobjInfo = function(mo, moInfo, origDamage)
 		-- Don't set to spawnstate if the object is a strong random monitor
 		if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) and origDamage ~= mo.info.damage then
 			if Valid(mo.rsrStrongBoxIcon) then
+				-- Change the monitor's starting state if it is an SRM
+				if ((mo.info.motype == MT_FORCE_BOX) or (mo.info.motype == MT_PITY_BOX) or (mo.info.motype == MT_RECYCLER_BOX)) then mo.info.motype = MT_1UP_BOX end
+				if ((mo.info.motype == MT_RING_BOX) or (mo.info.motype == MT_WHIRLWIND_BOX) or (mo.info.motype == MT_MIXUP_BOX)) then mo.info.motype = MT_INVULN_ICON end
+				if ((mo.info.motpe == MT_ELEMENTAL_BOX) or (mo.info.motype == MT_FLAMEAURA_BOX)) then mo.info.motype = MT_ATTRACT_BOX end
+				if ((mo.info.motype == MT_BUBBLEWRAP_BOX) or (mo.info.motype == MT_THUNDERCOIN_BOX) or (mo.info.motype == MT_SNEAKERS_BOX)) then mo.info.motype = MT_ARMAGEDDON_BOX end
 				local sprite, frame = SPR_TVMY, C
 				if mo.info.damage ~= MT_UNKNOWN and mo.info.damage ~= MT_1UP_ICON then
 					sprite = states[mobjinfo[mo.info.damage].spawnstate].sprite
