@@ -76,7 +76,7 @@ RSR.PlayerWeaponChoiceTick = function(player)
 			repeat
 				newWeapon = RSR.GetNextOrPrevWeapon($, 1)
 				weaponCount = $+1
-			until (rsrinfo.weapons[newWeapon] and RSR.CheckAmmo(player, RSR.WEAPON_INFO[newWeapon].ammotype)) or weaponCount >= RSR.WEAPON_MAX
+			until (newWeapon ~= rsrinfo.readyWeapon and rsrinfo.weapons[newWeapon] and RSR.CheckAmmo(player, RSR.WEAPON_INFO[newWeapon].ammotype)) or weaponCount >= RSR.WEAPON_MAX
 
 			if weaponCount >= RSR.WEAPON_MAX then
 				newWeapon = nil
@@ -89,7 +89,7 @@ RSR.PlayerWeaponChoiceTick = function(player)
 			repeat
 				newWeapon = RSR.GetNextOrPrevWeapon($, -1)
 				weaponCount = $+1
-			until (rsrinfo.weapons[newWeapon] and RSR.CheckAmmo(player, RSR.WEAPON_INFO[newWeapon].ammotype)) or weaponCount >= RSR.WEAPON_MAX
+			until (newWeapon ~= rsrinfo.readyWeapon and rsrinfo.weapons[newWeapon] and RSR.CheckAmmo(player, RSR.WEAPON_INFO[newWeapon].ammotype)) or weaponCount >= RSR.WEAPON_MAX
 
 			if weaponCount >= RSR.WEAPON_MAX then
 				newWeapon = nil
