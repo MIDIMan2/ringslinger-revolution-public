@@ -60,3 +60,17 @@ RSR.PlayerSuperTick = function(player)
 	--	player.powers[pw_emeralds] = player.rsrinfo.lastemeralds
 	-- end
 end
+
+--- Prevents flags from being collected by invincible players.
+---@param special mobj_t
+---@param toucher mobj_t
+RSR.FlagTouchSpecial = function(special, toucher)
+	if not RSR.GamemodeActive() then return end
+	if not (Valid(special) and Valid(toucher)) then return end
+	if not Valid(toucher.player) then return end
+
+	if toucher.player.powers[pw_invulnerability] then return true end
+end
+
+addHook("TouchSpecial", RSR.FlagTouchSpecial, MT_REDFLAG)
+addHook("TouchSpecial", RSR.FlagTouchSpecial, MT_BLUEFLAG)

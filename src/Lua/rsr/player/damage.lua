@@ -1170,7 +1170,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 				end
 			end
 
-			RSR.CancelHurtSelfPoints(player, source.player, damagetype)
+			if Valid(source) then RSR.CancelHurtSelfPoints(player, source.player, damagetype) end
 
 			rsrinfo.attackerInfo = {} -- Clear attackerInfo since we've already died
 		end
