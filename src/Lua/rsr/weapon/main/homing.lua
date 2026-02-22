@@ -89,11 +89,10 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	else
 		if not noPlayerSpeed then RSR.ProjectileTravelSound(mo) end -- Regular travelling sound
 		RSR.ProjectileAlertSound(mo, mo.tracer.player) -- Player alert sound
-		if noPlayerSpeed then -- Make Homing use a special jet flame effect while RPB keeps the smoke
+		if noPlayerSpeed then -- Make Homing not have smoke
 			RSR.ProjectileGhostTimer(mo, MT_SMOKE)
-		else
-			RSR.ProjectileGhostTimer(mo, MT_SONIC3KBOSSEXPLODE)
 		end
+		RSR.ProjectileGhostTimer(mo, MT_SONIC3KBOSSEXPLODE)
 	end
 
 	local tracer = mo.tracer
