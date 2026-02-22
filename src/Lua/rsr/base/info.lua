@@ -116,7 +116,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 	}
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_AUTO] = {
-	knockback = 1*FRACUNIT,
+	knockback = 1*FRACUNIT/4,
 	killfeedIcon = "RSRAUTOI",
 	killfeedName = "Automatic Ring",
 	killfeedObituary = {
@@ -125,7 +125,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_AUTO] = {
 	}
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_AUTO_SNP] = {
-	knockback = 1*FRACUNIT/2,
+	knockback = 1*FRACUNIT/4,
 	killfeedIcon = "RSRAUALI",
 	killfeedName = "Spray&Pray",
 	killfeedObituary = {
@@ -223,9 +223,10 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_BOMB_MISSILEFORM] = {
 	}
 }
 RSR.MOBJ_INFO[MT_RSR_PROJECTILE_HOMING] = {
-	knockback = 1*FRACUNIT,
+	knockback = 1*FRACUNIT/4,
 	alertsound = sfx_homict,
 	alerttimer = 31,
+	travelsound = sfx_homiab,
 	killfeedIcon = "RSRHOMGI",
 	killfeedName = "Homing Ring",
 	killfeedObituary = {
@@ -239,6 +240,7 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	explosive = true,
 	sparklestate = S_RSR_NIGHTSPARKLE_WASP,
 	alertsound = sfx_hoatct,
+	travelsound = sfx_hoatab,
 	alerttimer = 695, -- That's a big number.
 	killfeedIcon = "RSRHMALI",
 	killfeedName = "Router RPB",

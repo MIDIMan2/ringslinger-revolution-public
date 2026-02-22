@@ -179,7 +179,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	end
 	if noPlayerSpeed then
 		RSR.ProjectileTravelSound(mo) -- Router RPB travelling sound
-		RSR.ProximityDetonate(mo, 128*FRACUNIT, function(missile)
+		RSR.ProximityDetonate(mo, 96*FRACUNIT, function(missile)
 			P_ExplodeMissile(missile)
 		end)
 		if not (mo.flags & MF_MISSILE) then return end -- Don't move further if the RPB has exploded
@@ -212,11 +212,11 @@ mobjinfo[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_HOMING_BOMB,
 	seesound = sfx_hoatfr,
-	reactiontime = 77,
-	painchance = 256*FRACUNIT,
+	reactiontime = 66,
+	painchance = 192*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
-	speed = 80*FRACUNIT,
+	speed = 75*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
 	damage = 1,

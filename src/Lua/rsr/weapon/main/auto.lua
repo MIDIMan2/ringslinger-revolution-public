@@ -43,7 +43,7 @@ mobjinfo[MT_RSR_PROJECTILE_AUTO] = {
 	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 11,
+	damage = 9,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
@@ -64,7 +64,7 @@ mobjinfo[MT_RSR_PROJECTILE_AUTO_SNP] = {
 	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 11,
+	damage = 9,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
