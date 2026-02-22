@@ -104,6 +104,11 @@ RSR.CanUseKillCMD = function(player, skipMessage)
 		return false
 	end
 
+	if (player.pflags & PF_TAGIT) and (leveltime < hidetime) then
+		if not skipMessage then CONS_Printf(player, "You can't use this while waiting to seek.") end
+		return false
+	end
+
 	return true
 end
 
