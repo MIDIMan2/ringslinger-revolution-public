@@ -96,7 +96,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	end
 
 	local tracer = mo.tracer
-	if tracer and RSR.PlayersAreTeammates(missile.target.player, tracer) then tracer = nil end -- Stop targeting your tracer if you're on the same team now (can happen in LaserTag when a hider with active heat-seeking weapons is killed)
+	if Valid(tracer) and Valid(mo.target) and RSR.PlayersAreTeammates(mo.target.player, tracer) then tracer = nil end -- Stop targeting your tracer if you're on the same team now (can happen in LaserTag when a hider with active heat-seeking weapons is killed)
 	if not (Valid(tracer) and tracer.health > 0) then
 		if radius == nil then radius = 640*FRACUNIT end
 		radius = FixedMul($, mo.scale)
