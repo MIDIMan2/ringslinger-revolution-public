@@ -8,13 +8,13 @@
 # Please update the version numbers below in case they get changed for RSR updates
 
 MAIN_NAME=ZRSR_RingslingerRevolution
-MAIN_VERSION=2.1-RC2
+MAIN_VERSION=2.1-RC3
 
 TMZ_NAME=RSR_SL_TechnoMadness
-TMZ_VERSION=2.1-RC2
+TMZ_VERSION=2.1-RC3
 
 MP_NAME=RSR_MF_DeathmatchPack
-MP_VERSION=2.1-RC2
+MP_VERSION=2.1-RC3
 
 # Create the "build" directory if it doesn't exist
 # This directory is ignored by the git repo, so don't worry about making changes here
