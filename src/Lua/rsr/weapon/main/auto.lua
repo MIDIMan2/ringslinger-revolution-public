@@ -138,7 +138,7 @@ pspractions.A_AutoAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
-	RSR.TakeAmmoFromReadyWeapon(player, ammoalt)
+	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
 
 	local angle = player.mo.angle
 	local pitch = player.cmd.aiming<<16

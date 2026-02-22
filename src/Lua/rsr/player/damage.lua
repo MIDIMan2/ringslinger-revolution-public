@@ -1104,7 +1104,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 				rsrinfo.attackerInfo = {}
 			end
 			local sourcePlayer = Valid(source) and source.player or nil
-			if #rsrinfo.attackerInfo then
+			if #rsrinfo.attackerInfo and not (player == sourcePlayer) then -- Make sure the player didn't hurt themself
 				sourcePlayer = rsrinfo.attackerInfo[1].player
 			end
 
@@ -1139,26 +1139,31 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 
 			local wasHiding = (G_TagGametype() and (gametyperules & GTR_HIDEFROZEN) and not (player.pflags & PF_GAMETYPEOVER))
 
+			-- Set sourcePlayer even if the player hurt themself
+			if #rsrinfo.attackerInfo then sourcePlayer = rsrinfo.attackerInfo[1].player end
+
 			if Valid(sourcePlayer) and sourcePlayer.rsrinfo
 			and sourcePlayer ~= player and not RSR.PlayersAreTeammates(player, sourcePlayer) then
 				sourcePlayer.rsrinfo.hitSound = RSR.HITSOUND_KILL
 				if not (Valid(inflictor) and Valid(source)) then sourcePlayer.rsrinfo.hitSound = $|RSR.HITSOUND_NOQUAKEMASK end
 				-- We now make sure to award points to the last attacker even if the player voluntarily jumped off a cliff or something because it turns out you can use that to reverse-killsteal
 				-- Points are already awarded to seekers in H&S if a player dies
-				if not wasHiding and not (Valid(source) and Valid(source.player)) and #rsrinfo.attackerInfo then
+				if not wasHiding
+				and (not (Valid(source) and Valid(source.player)) or (Valid(source) and target == source))
+				and #rsrinfo.attackerInfo then
 					P_AddPlayerScore(sourcePlayer, 100)
 				end
 			end
 
 			-- Points are already awarded to seekers in H&S if a player dies
 			if not wasHiding and Valid(sourcePlayer) and #rsrinfo.attackerInfo > 1 then
-				local lastInfo = rsrinfo.attackerInfo[1]
+				local killerInfo = rsrinfo.attackerInfo[1]
 				-- We also prevent reverse-assiststealing??? That was a thing apparently
 				for i = 2, #rsrinfo.attackerInfo do
 					local info = rsrinfo.attackerInfo[i]
 					if not info then continue end -- Make sure the attacker info exists
 					-- Only award score if the attacker dealt more damage than the killer
-					if (info.damage or 0) < (lastInfo.damage or 0) then continue end
+					if (info.damage or 0) < (killerInfo.damage or 0) then continue end
 					-- Don't give score to spectators
 					if not Valid(info.player) or info.player.spectator then continue end
 

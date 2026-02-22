@@ -96,7 +96,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	end
 
 	local tracer = mo.tracer
-	if Valid(tracer.player) and Valid(mo.target) and RSR.PlayersAreTeammates(mo.target.player, tracer.player) then tracer = nil end -- Stop targeting your tracer if you're on the same team now (can happen in LaserTag when a hider with active heat-seeking weapons is killed)
+	if Valid(tracer) and Valid(mo.target) and RSR.PlayersAreTeammates(mo.target.player, tracer.player) then tracer = nil end -- Stop targeting your tracer if you're on the same team now (can happen in LaserTag when a hider with active heat-seeking weapons is killed)
 	if not (Valid(tracer) and tracer.health > 0) then
 		if radius == nil then radius = 640*FRACUNIT end
 		radius = FixedMul($, mo.scale)
@@ -126,18 +126,18 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 				if enemy.player.spectator and not RSR.CV_Ghostbusters.value then return end -- Don't target spectators if rsr_ghostbusters is false
 			end
 
+			-- Ignore monitors unless they're Eggman monitors (for the lulz)
+			if (enemy.flags & MF_MONITOR) and not (enemy.type == MT_EGGMAN_BOX or enemy.type == MT_EGGMAN_GOLDBOX) then return end
+
 			-- Don't target enemies outside the missile's distance search!
 			local dist = FixedHypot(FixedHypot(enemy.x - missile.x, enemy.y - missile.y), enemy.z - missile.z)
 			if dist <= bestDist and RSR.HomingRingAngleCheck(missile, enemy) then
-				if not (enemy.flags & MF_MONITOR and not (enemy == MT_EGGMAN_BOX or enemy == MT_EGGMAN_GOLDBOX)) then
-					bestDist = dist
-					bestTracer = enemy
-				end
+				bestDist = dist
+				bestTracer = enemy
 			end
 
 			if ((enemy.flags & (MF_ENEMY|MF_BOSS)) or Valid(enemy.player))
-			and dist <= bestDistEnemy and RSR.HomingRingAngleCheck(missile, enemy)
-			then
+			and dist <= bestDistEnemy and RSR.HomingRingAngleCheck(missile, enemy) then
 				bestDistEnemy = dist
 				bestTracerEnemy = enemy
 			end
@@ -334,7 +334,7 @@ pspractions.A_HomingAttackAlt = function(player, args)
 		S_StopSoundByID(player.mo, sfx_hoatsk)
 		if Valid(lockOn) and (player.rsrinfo.waspTime < 1) then
 			RSR.SetWeaponDelay(player)
-			RSR.TakeAmmoFromReadyWeapon(player, ammoalt)
+			RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
 			local homing = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING_BOMB, player.mo.angle, player.cmd.aiming<<16)
 			if Valid(homing) then
 				homing.tracer = lockOn
