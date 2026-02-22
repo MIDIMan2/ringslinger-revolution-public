@@ -402,7 +402,7 @@ pspractions.A_GrenadeAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
-	RSR.TakeAmmoFromReadyWeapon(player, 2)
+	RSR.TakeAmmoFromReadyWeapon(player, ammoalt)
 
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then

@@ -12,7 +12,7 @@ RSR.AddAmmo("HOMING", {
 RSR.AddWeapon("HOMING", {
 	ammotype = RSR.AMMO_HOMING,
 	ammoamount = 10,
-	ammoalt = 3,
+	ammoalt = 4,
 	class = 7,
 	delay = 12,
 	delayspeed = 6,
@@ -182,7 +182,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	end
 	if noPlayerSpeed then
 		RSR.ProjectileTravelSound(mo) -- Router RPB travelling sound
-		RSR.ProximityDetonate(mo, 96*FRACUNIT, function(missile)
+		RSR.ProximityDetonate(mo, 128*FRACUNIT, function(missile)
 			P_ExplodeMissile(missile)
 		end)
 		if not (mo.flags & MF_MISSILE) then return end -- Don't move further if the RPB has exploded
@@ -215,8 +215,8 @@ mobjinfo[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_HOMING_BOMB,
 	seesound = sfx_hoatfr,
-	reactiontime = 66,
-	painchance = 192*FRACUNIT,
+	reactiontime = 77,
+	painchance = 256*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
 	speed = 75*FRACUNIT,
@@ -334,7 +334,7 @@ pspractions.A_HomingAttackAlt = function(player, args)
 		S_StopSoundByID(player.mo, sfx_hoatsk)
 		if Valid(lockOn) and (player.rsrinfo.waspTime < 1) then
 			RSR.SetWeaponDelay(player)
-			RSR.TakeAmmoFromReadyWeapon(player, 3)
+			RSR.TakeAmmoFromReadyWeapon(player, ammoalt)
 			local homing = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING_BOMB, player.mo.angle, player.cmd.aiming<<16)
 			if Valid(homing) then
 				homing.tracer = lockOn

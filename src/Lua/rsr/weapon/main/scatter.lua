@@ -366,7 +366,7 @@ pspractions.A_ScatterAttack = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
 	RSR.SetWeaponDelay(player)
-	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.TakeAmmoFromReadyWeapon(player, ammoalt)
 
 	local angle = player.mo.angle
 	local pitch = player.cmd.aiming<<16
