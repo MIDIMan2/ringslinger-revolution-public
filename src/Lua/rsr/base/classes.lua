@@ -211,6 +211,7 @@
 ---@field rsrLockOnSound boolean|nil Prevents the Homing ring lock on sound from playing more than once.
 ---@field rsrRailHitList boolean[] Table of Objects (indices) the rail ring has hit.
 ---@field rsrRailHitCount integer|nil Player hit count for the rail ring.
+---@field rsrRailCantPierce boolean|nil If true, stop the rail ring's piercing.
 ---@field rsrStrongBoxIcon mobj_t|nil Icon to display for the strong random monitor.
 ---@field rsrInfernoFire boolean|nil Used by the player's spindust to check if they have a Flame Shield.
 

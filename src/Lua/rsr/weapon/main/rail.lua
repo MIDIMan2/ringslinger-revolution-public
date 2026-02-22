@@ -213,7 +213,7 @@ RSR.SpawnRailRing = function(mo, angle, pitch, reflected)
 	local hitList = {}
 
 	for i = 1, 256 do
-		if not Valid(rail) then break end
+		if not (Valid(rail) and not rail.rsrRailCantPierce) then break end
 
 		-- This might cause performance issues...
 		searchBlockmap("objects", function(missile, enemy)
