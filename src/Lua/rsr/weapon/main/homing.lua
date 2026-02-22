@@ -96,7 +96,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	end
 
 	local tracer = mo.tracer
-	if Valid(tracer) and Valid(mo.target) and RSR.PlayersAreTeammates(mo.target.player, tracer) then tracer = nil end -- Stop targeting your tracer if you're on the same team now (can happen in LaserTag when a hider with active heat-seeking weapons is killed)
+	if Valid(tracer.player) and Valid(mo.target) and RSR.PlayersAreTeammates(mo.target.player, tracer.player) then tracer = nil end -- Stop targeting your tracer if you're on the same team now (can happen in LaserTag when a hider with active heat-seeking weapons is killed)
 	if not (Valid(tracer) and tracer.health > 0) then
 		if radius == nil then radius = 640*FRACUNIT end
 		radius = FixedMul($, mo.scale)
@@ -129,12 +129,15 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 			-- Don't target enemies outside the missile's distance search!
 			local dist = FixedHypot(FixedHypot(enemy.x - missile.x, enemy.y - missile.y), enemy.z - missile.z)
 			if dist <= bestDist and RSR.HomingRingAngleCheck(missile, enemy) then
-				bestDist = dist
-				bestTracer = enemy
+				if not (enemy.flags & MF_MONITOR and not (enemy == MT_EGGMAN_BOX or enemy == MT_EGGMAN_GOLDBOX)) then
+					bestDist = dist
+					bestTracer = enemy
+				end
 			end
 
 			if ((enemy.flags & (MF_ENEMY|MF_BOSS)) or Valid(enemy.player))
-			and dist <= bestDistEnemy and RSR.HomingRingAngleCheck(missile, enemy) then
+			and dist <= bestDistEnemy and RSR.HomingRingAngleCheck(missile, enemy)
+			then
 				bestDistEnemy = dist
 				bestTracerEnemy = enemy
 			end
