@@ -83,19 +83,20 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if not (mo.flags & MF_MISSILE) then return end
 
 	-- Produce smoke and sizzle if the homing ring is locked onto a target
+	if noPlayerSpeed then -- Make Homing not have smoke
+		RSR.ProjectileGhostTimer(mo, MT_SMOKE)
+	end
 	if not Valid(mo.tracer) then
 		RSR.ProjectileGhostTimer(mo)
 		if mo.rsrLockOnSound then mo.rsrLockOnSound = nil end
 	else
 		if not noPlayerSpeed then RSR.ProjectileTravelSound(mo) end -- Regular travelling sound
 		RSR.ProjectileAlertSound(mo, mo.tracer.player) -- Player alert sound
-		if noPlayerSpeed then -- Make Homing not have smoke
-			RSR.ProjectileGhostTimer(mo, MT_SMOKE)
-		end
 		RSR.ProjectileGhostTimer(mo, MT_SONIC3KBOSSEXPLODE)
 	end
 
 	local tracer = mo.tracer
+	if tracer and RSR.PlayersAreTeammates(missile.target.player, tracer) then tracer = nil end -- Stop targeting your tracer if you're on the same team now (can happen in LaserTag when a hider with active heat-seeking weapons is killed)
 	if not (Valid(tracer) and tracer.health > 0) then
 		if radius == nil then radius = 640*FRACUNIT end
 		radius = FixedMul($, mo.scale)
