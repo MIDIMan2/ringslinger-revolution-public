@@ -718,6 +718,8 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 		if G_TagGametype() and not (player.pflags & PF_TAGIT) and Valid(source) and Valid(source.player) and (source.player.pflags & PF_TAGIT) then
 			player.rsrinfo.deathFlags = $|RSR.DEATH_GOTTAGGED
 		end
+		-- TODO: Running both these lines cause P_KillMobj to run twice
+		-- There is currently a safeguard in place to prevent the PlayerDeath function from running twice, but see if there's a better way
 		P_DamageMobj(player.mo, inflictor, source, damage, damagetype|DMG_DEATHMASK)
 		return true
 	end
@@ -1064,6 +1066,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	---@type player_t
 	local player = target.player
 	if not (Valid(player) and player.rsrinfo) then return end
+	if player.playerstate == PST_DEAD then return end -- Don't run the hook if the player is already dead (would check for health <= 0, but that gets set before the hook apparently)
 
 	local hookEvent, hookName = RSR.findEvent("PlayerDeath")
 	if hookEvent then

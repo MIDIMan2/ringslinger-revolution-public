@@ -205,6 +205,7 @@ RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflec
 	end
 
 	if (RSR.CV_Killfeed.value & RSR.CVKILLFEED_ICON) then
+		if #RSR.KILLFEED_MESSAGES >= 4 then table.remove(RSR.KILLFEED_MESSAGES, 1) end -- Remove the first message in the queue to make room for the new one
 		table.insert(RSR.KILLFEED_MESSAGES, {
 			victim = victimName,
 			inflictor = inflictorPatch,
@@ -258,7 +259,6 @@ end
 ---@param damagetype integer
 RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	if not Valid(victim) then return end
-	if #RSR.KILLFEED_MESSAGES >= 4 then table.remove(RSR.KILLFEED_MESSAGES, 1) end -- Remove the first message in the queue to make room for the new one
 
 	local hookEvent, hookName = RSR.findEvent("KillfeedMsg")
 	if hookEvent then
