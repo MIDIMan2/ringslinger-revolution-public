@@ -908,7 +908,7 @@ RSR.TeamSwitch = function(player, team, fromspectators)
 		if (gametyperules & (GTR_TAG|GTR_HIDEFROZEN)) then
 			if (leveltime > (CV_FindVar("hidetime").value * TICRATE)) then return end -- Let P_SpectatorJoinGame handle players joining after hidetime
 			player.spectator = false -- Do this before it gets set to false in the source code, so we don't mess up our implementation
-			RSR.TagCheckSurvivors()
+			RSR.TagCheckSurvivors(player)
 		end
 	end
 end
