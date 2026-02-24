@@ -83,7 +83,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if not (mo.flags & MF_MISSILE) then return end
 
 	-- Produce smoke and sizzle if the homing ring is locked onto a target
-	if noPlayerSpeed then -- Make Homing not have smoke
+	if noPlayerSpeed then -- Make the Router RPB produce smoke
 		RSR.ProjectileGhostTimer(mo, MT_SMOKE)
 	end
 	if not Valid(mo.tracer) then
@@ -95,9 +95,8 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		RSR.ProjectileGhostTimer(mo, MT_SONIC3KBOSSEXPLODE)
 	end
 
-	local tracer = mo.tracer
-	if Valid(tracer) and Valid(mo.target) and RSR.PlayersAreTeammates(mo.target.player, tracer.player) then tracer = nil end -- Stop targeting your tracer if you're on the same team now (can happen in LaserTag when a hider with active heat-seeking weapons is killed)
-	if not (Valid(tracer) and tracer.health > 0) then
+	if Valid(mo.tracer) and Valid(mo.target) and RSR.PlayersAreTeammates(mo.target.player, mo.tracer.player) then mo.tracer = nil end -- Stop targeting your tracer if you're on the same team now (can happen in LaserTag when a hider with active heat-seeking weapons is killed)
+	if not (Valid(mo.tracer) and mo.tracer.health > 0) then
 		if radius == nil then radius = 640*FRACUNIT end
 		radius = FixedMul($, mo.scale)
 		local xShift = FixedMul(radius/2, cos(mo.angle))
@@ -166,9 +165,9 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		if not noPlayerSpeed then RSR.ProjectileAlertSound(mo, mo.tracer.player) end -- Router RPB alert sound
 		angleTurn = FixedAngle(4*FRACUNIT)
 	end
-	local angleTo = R_PointToAngle2(mo.x, mo.y, tracer.x, tracer.y)
-	local distTo = R_PointToDist2(mo.x, mo.y, tracer.x, tracer.y)
-	local pitchTo = R_PointToAngle2(0, mo.z + mo.height/2, distTo, tracer.z + tracer.height/2)
+	local angleTo = R_PointToAngle2(mo.x, mo.y, mo.tracer.x, mo.tracer.y)
+	local distTo = R_PointToDist2(mo.x, mo.y, mo.tracer.x, mo.tracer.y)
+	local pitchTo = R_PointToAngle2(0, mo.z + mo.height/2, distTo, mo.tracer.z + mo.tracer.height/2)
 
 	mo.angle = RSR.AngleTowardsAngle($, angleTo, angleTurn)
 	mo.pitch = RSR.AngleTowardsAngle($, pitchTo, angleTurn)
@@ -177,8 +176,8 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if not noPlayerSpeed and Valid(player) then -- Try to catch up with players, similar to the Deton
 		curSpeed = player.normalspeed
 		-- TODO: player.speed might cause problems
-		if player.speed > player.normalspeed then curSpeed = FixedDiv(player.speed, tracer.scale) end -- Go faster if the player is going faster than their normalspeed
-		curSpeed = FixedMul(3*$/4, tracer.scale)
+		if player.speed > player.normalspeed then curSpeed = FixedDiv(player.speed, mo.tracer.scale) end -- Go faster if the player is going faster than their normalspeed
+		curSpeed = FixedMul(3*$/4, mo.tracer.scale)
 	end
 	if noPlayerSpeed then
 		RSR.ProjectileTravelSound(mo) -- Router RPB travelling sound
