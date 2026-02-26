@@ -28,6 +28,9 @@ A_RSRStrongBoxThinker = function(actor, var1, var2)
 		if actor.sprite == SPR_TV1P then
 			actor.sprite = SPR_RSMN
 			actor.frame = D
+		else
+			-- actor.sprite = SPR_RSMN
+			actor.frame = E
 		end
 	end
 
@@ -174,6 +177,7 @@ RSR.MonitorFuseThink = function(mo)
 		newmobj.flags2 = mo.flags2
 		if (newmobj.flags2 & MF2_STRONGBOX) then
 			newmobj.state = S_RSR_STRONGBOX
+			newmobj.tics = $+1 -- Just in case the monitor is a 1-up monitor
 		end
 		if Valid(mo.rsrSpawner) then -- Check the item spawners in wave stages
 			newmobj.rsrSpawner = mo.rsrSpawner

@@ -66,6 +66,7 @@ RSR.RSMOBJ_TO_RSRMOBJ = {
 	},
 	[MT_RING_BOX] = {
 		motype = {MT_RSR_HEALTH, MT_RSR_ARMOR},
+		srmtype = MT_INVULN_BOX,
 		zoffset = 24*FRACUNIT,
 		floatoffset = true,
 		ignorerandommonitor = true,
@@ -83,8 +84,45 @@ RSR.RSMOBJ_TO_RSRMOBJ = {
 		zoffset = 24*FRACUNIT,
 		dontremove = true
 	},
+	[MT_PITY_BOX] = {
+		srmtype = MT_1UP_BOX,
+		dontremove = true
+	},
+	[MT_FORCE_BOX] = {
+		srmtype = MT_1UP_BOX,
+		dontremove = true
+	},
+	[MT_RECYCLER_BOX] = {
+		srmtype = MT_1UP_BOX,
+		dontremove = true
+	},
+	[MT_WHIRLWIND_BOX] = {
+		srmtype = MT_INVULN_BOX,
+		dontremove = true
+	},
+	[MT_MIXUP_BOX] = {
+		srmtype = MT_INVULN_BOX,
+		dontremove = true
+	},
 	[MT_ELEMENTAL_BOX] = {
 		motype = MT_BUBBLEWRAP_BOX,
+		srmtype = MT_ATTRACT_BOX,
+		dontremove = true
+	},
+	[MT_FLAMEAURA_BOX] = {
+		srmtype = MT_ATTRACT_BOX,
+		dontremove = true
+	},
+	[MT_BUBBLEWRAP_BOX] = {
+		srmtype = MT_ARMAGEDDON_BOX,
+		dontremove = true
+	},
+	[MT_THUNDERCOIN_BOX] = {
+		srmtype = MT_ARMAGEDDON_BOX,
+		dontremove = true
+	},
+	[MT_SNEAKERS_BOX] = {
+		srmtype = MT_ARMAGEDDON_BOX,
 		dontremove = true
 	},
 	[MT_ELEMENTAL_GOLDBOX] = {
@@ -123,8 +161,8 @@ RSR.REMOVE_SHIELDS = {
 --- Converts an item's object type using the given convertTable.
 ---@param mo mobj_t Object to convert.
 ---@param convertTable table|nil Table to use for converting object types. Default is RSR.RSMOBJ_TO_RSRMOBJ.
----@param useAltType boolean|nil If true, use alttype instead of motype, granted it exists.
-RSR.ConvertMapItem = function(mo, convertTable, useAltType)
+---@param altType string|nil Determines which variable to use for setting the Object type instead of motype, granted it exists.
+RSR.ConvertMapItem = function(mo, convertTable, altType)
 	if not Valid(mo) then return end
 	if not convertTable then convertTable = RSR.RSMOBJ_TO_RSRMOBJ end
 	if not convertTable[mo.type] then return end
@@ -139,7 +177,8 @@ RSR.ConvertMapItem = function(mo, convertTable, useAltType)
 	-- TODO: Apparently, there's a bug where the blockmap isn't refreshed when mo.radius is set, but only when mo.scale is set
 	-- Set mo.scale here, or wait until 2.2.16 comes out (if it fixes this...)
 	local moType = moInfo.motype
-	if useAltType and moInfo.alttype then moType = moInfo.alttype end
+	if altType and moInfo[altType] then moType = moInfo[altType] end
+	if not moType then return end
 	if type(moType) == "table" then
 		if Valid(mo.spawnpoint) then
 			mo.type = moType[(#mo.spawnpoint % #moType) + 1] -- Choose which type to use based on the mobj's spawnpoint number and the number of entries in the table
@@ -167,13 +206,17 @@ RSR.ConvertMapItem = function(mo, convertTable, useAltType)
 		-- Don't set to spawnstate if the object is a strong random monitor
 		if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) and origDamage ~= mo.info.damage then
 			if Valid(mo.rsrStrongBoxIcon) then
-				local sprite, frame = SPR_TVMY, C
-				if mo.info.damage ~= MT_UNKNOWN and mo.info.damage ~= MT_1UP_ICON then
-					sprite = states[mobjinfo[mo.info.damage].spawnstate].sprite
-					frame = (states[mobjinfo[mo.info.damage].spawnstate].frame & FF_FRAMEMASK)
+				if mo.type == MT_1UP_BOX then
+					P_RemoveMobj(mo.rsrStrongBoxIcon) -- Don't spawn an icon if the monitor is an Extra Life monitor
+				else
+					local sprite, frame = SPR_TVMY, C
+					if mo.info.damage ~= MT_UNKNOWN then
+						sprite = states[mobjinfo[mo.info.damage].spawnstate].sprite
+						frame = (states[mobjinfo[mo.info.damage].spawnstate].frame & FF_FRAMEMASK)
+					end
+					mo.rsrStrongBoxIcon.sprite = sprite
+					mo.rsrStrongBoxIcon.frame = frame
 				end
-				mo.rsrStrongBoxIcon.sprite = sprite
-				mo.rsrStrongBoxIcon.frame = frame
 			end
 		else
 			mo.state = mo.info.spawnstate
@@ -212,18 +255,21 @@ RSR.ConvertItemsMapLoad = function()
 
 	local altQueue = {}
 	for mo in mobjs.iterate() do
+		if not Valid(mo) then continue end
 		if not (gametyperules & GTR_TEAMFLAGS) -- This automatic script can't be properly balanced for CTF autogens
-		and Valid(mo) and RSR.RSMOBJ_TO_RSRMOBJ[mo.type] and RSR.RSMOBJ_TO_RSRMOBJ[mo.type].alttype then -- Track the placement of all Vanilla-Rail pickups for later use.
+		and RSR.RSMOBJ_TO_RSRMOBJ[mo.type] and RSR.RSMOBJ_TO_RSRMOBJ[mo.type].alttype then -- Track the placement of all Vanilla-Rail pickups for later use.
 			table.insert(altQueue, mo) -- Add later objects to the bottom of the queue! (Note from MIDIMan: I found this to make more sense map-wise than the other way around).
 			continue
 		end
-		RSR.ConvertMapItem(mo)
+		local typeVar = nil -- Defaults to motype when passed into RSR.ConvertMapItem
+		if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) then typeVar = "srmtype" end
+		RSR.ConvertMapItem(mo, nil, typeVar)
 	end
 
 	-- Find the last object added to the altfire stack and convert it to the alttype Object type; this is so that a singular Rail pickup automatically spawns in a semi-natural position in converted vanilla maps.
 	for key, mo in ipairs(altQueue) do
 		if key == 1 then
-			RSR.ConvertMapItem(mo, nil, true)
+			RSR.ConvertMapItem(mo, nil, "alttype")
 		else
 			RSR.ConvertMapItem(mo)
 		end
