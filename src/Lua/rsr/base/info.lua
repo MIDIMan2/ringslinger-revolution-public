@@ -350,6 +350,11 @@ if not RSR.SHIELD_INFO then
 	RSR.SHIELD_INFO = {}
 end
 
+RSR.SHIELD_INFO[SH_NONE] = {
+	armorpercent = FRACUNIT/2,
+	damagepercent = FRACUNIT
+}
+
 RSR.SHIELD_INFO[SH_WHIRLWIND] = {
 	icon = "RSRWINDI",
 	name = "Whirlwind Shield"
@@ -368,7 +373,8 @@ RSR.SHIELD_INFO[SH_ATTRACT] = {
 	icon = "RSRATTRI",
 	name = "Attraction Shield",
 	obituary = "$a's Attraction Shield shocked $v.",
-	meleedamage = 15
+	meleedamage = 15,
+	damagepercent = 3*FRACUNIT/4
 }
 RSR.SHIELD_INFO[SH_FORCE] = {
 	icon = "RSRFORCI",

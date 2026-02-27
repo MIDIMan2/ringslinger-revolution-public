@@ -132,6 +132,9 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.armor = 0
 	rsrinfo.hype = 0
 
+	rsrinfo.armorPercent = RSR.SHIELD_INFO[SH_NONE].armorpercent
+	rsrinfo.damagePercent = RSR.SHIELD_INFO[SH_NONE].damagepercent
+
 	rsrinfo.hurtByEnemy = 0
 	rsrinfo.hurtByMelee = 0
 	rsrinfo.hurtByMap = 0
@@ -444,12 +447,12 @@ RSR.PlayerArmorDamage = function(player, inflictor, damage)
 	end
 	local hadArmor = false
 	-- Attraction Shield grants you damage resistance
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then
-		damage = $ * 3 / 4
+	if rsrinfo.damagePercent ~= RSR.SHIELD_INFO[SH_NONE].damagepercent then
+		damage = FixedMul($, rsrinfo.damagePercent)
 	end
 	-- Health saving while you have armor
 	if rsrinfo.armor and not player.powers[pw_super] then
-		local saved = damage/2
+		local saved = FixedMul(damage, rsrinfo.armorPercent)
 
 		-- (DEPRECATED) Attraction Shield is less affected by armor loss than other shields (it still only saves the same amount of health though)
 		-- if (player.powers[pw_shield] & SH_ATTRACT) then
@@ -464,6 +467,8 @@ RSR.PlayerArmorDamage = function(player, inflictor, damage)
 		if rsrinfo.armor < 1 then -- If the player runs out of armor, play the shieldbreak sound
 			hadArmor = true
 			S_StartSound(player.mo, sfx_rsrcrk)
+			rsrinfo.armorPercent = RSR.SHIELD_INFO[SH_NONE].armorpercent
+			rsrinfo.damagePercent = RSR.SHIELD_INFO[SH_NONE].damagepercent
 		else
 			hurtSound = sfx_rsraht
 			serverHurtSound = sfx_rsrsmp
@@ -667,7 +672,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		RSR.SetEHPFlash(player, V_REDMAP, RSR.WARN_COOLDOWN, 2)
 	elseif RSR.PlayerHasPurpleDebuff(player) then
 		RSR.SetEHPFlash(player, V_PURPLEMAP, RSR.MINOR_COOLDOWN, 2)
-	elseif (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then
+	elseif rsrinfo.damagePercent ~= RSR.SHIELD_INFO[SH_NONE].damagepercent then
 		RSR.SetEHPFlash(player, V_AZUREMAP, RSR.MINOR_COOLDOWN, 2)
 	end
 

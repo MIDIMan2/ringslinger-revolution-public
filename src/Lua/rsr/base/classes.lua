@@ -9,6 +9,8 @@
 ---@class rsrinfo_t
 ---@field health integer Current amount of health for the player.
 ---@field armor integer Current amount of armor for the player.
+---@field armorPercent fixed_t Determines the percentage of damage taken to armor.
+---@field damagePercent fixed_t Determines the percentage of overall damage taken.
 ---@field hurtByEnemy tic_t|integer Timer for damage taken by enemies/Object-based hazards.
 ---@field hurtByMelee tic_t|integer Timer for damage taken by player melee.
 ---@field hurtByMap tic_t|integer Timer for damage taken by level geometry.
@@ -152,6 +154,8 @@
 ---@field name string Name of the shield (used for the text killfeed).
 ---@field obituary string Message to display when killed by a player with this shield for the text killfeed.
 ---@field meleedamage integer The damage dealt when meleeing a player while using the shield ability.
+---@field armorpercent fixed_t The percentage of damage dealt to a player's armor.
+---@field damagepercent fixed_t The percentage of overall damage dealt to a player.
 
 ---@class rsrgametypeinfo_t
 ---@field rsrrules boolean Makes the gametype use RSR rules.
