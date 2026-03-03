@@ -136,21 +136,23 @@ local RSR_CHATCOLORENDCODE = function(pl)
 end
 
 --- Gets the necessary mobj-related info for killfeed variables.
+---@param victim player_t
 ---@param moType mobjtype_t
----@param hasAttacker boolean|nil
----@param hurtSelf boolean|nil
-RSR.KillfeedGetMobjInfo = function(moType, hasAttacker, hurtSelf)
-	if not (moType and RSR.MOBJ_INFO[moType] and RSR.MOBJ_INFO[moType].killfeedObituary) then return end
+---@param attacker player_t|nil
+RSR.KillfeedGetMobjInfo = function(victim, moType, attacker)
+	if not (Valid(victim) and moType and RSR.MOBJ_INFO[moType] and RSR.MOBJ_INFO[moType].killfeedObituary) then return end
 	if type(RSR.MOBJ_INFO[moType].killfeedObituary) ~= "table" then
 		print("\x82WARNING:\x80 killfeedObituary for Object type"..moType.." has not been converted to the new format!")
 		return RSR.MOBJ_INFO[moType].killfeedIcon, nil
 	end
 
 	local obituary = nil
-	if hurtSelf and RSR.MOBJ_INFO[moType].killfeedObituary.hurtself then
-		obituary = RSR.MOBJ_INFO[moType].killfeedObituary.hurtself
-	elseif hasAttacker and RSR.MOBJ_INFO[moType].killfeedObituary.attacker then
-		obituary = RSR.MOBJ_INFO[moType].killfeedObituary.attacker
+	if Valid(attacker) then
+		if victim == attacker and RSR.MOBJ_INFO[moType].killfeedObituary.hurtself then -- Player can't hurt themself unless DMG_CANHURTSELF is used, so we don't need to check for it
+			obituary = RSR.MOBJ_INFO[moType].killfeedObituary.hurtself
+		elseif RSR.MOBJ_INFO[moType].killfeedObituary.attacker then
+			obituary = RSR.MOBJ_INFO[moType].killfeedObituary.attacker
+		end
 	elseif RSR.MOBJ_INFO[moType].killfeedObituary.solo then
 		obituary = RSR.MOBJ_INFO[moType].killfeedObituary.solo
 	end
@@ -167,15 +169,32 @@ end
 ---@param skincolor skincolornum_t|nil
 ---@param obituary string|nil Default is "$v died.".
 ---@param distance fixed_t|nil Distance between the victim and their attacker. Default is 0.
-RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary, distance)
+---@param assistors table|nil Table of player names who assisted in 
+RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary, distance, assistors)
 	if RSR.CV_Killfeed.value == RSR.CVKILLFEED_NONE then return end -- Don't display a message if the killfeed is disabled
 	if not victimName then return end -- We can't display a message if there is no victim!
 	inflictorPatch = $ or "RSREGGM" -- Always show Eggman for unknown causes of death
 	obituary = $ or "$v died." -- Default message
 	distance = ($ or 0)/(56*FRACUNIT)
-	if distance >= 10 then obituary = $.." ("..distance.."m)" end
+	if distance >= 10 then obituary = $.." ("..distance.."m)" end -- Display longshot distance in the obituary
 
 	if (RSR.CV_Killfeed.value & RSR.CVKILLFEED_TEXT) then
+		if assistors and #assistors then -- Display assistors in the obituary
+			obituary = $.." Assisted by "
+			if #assistors > 1 then
+				for index, assistorName in ipairs(assistors) do
+					obituary = $..string.format(
+						"%s%s%s",
+						index == #assistors and "and " or "", -- Put an "and" if this is the last assistor
+						assistorName,
+						(#assistors > 2 and index < #assistors) and ", " or ((index < #assistors) and " " or "")
+					)
+				end
+			else
+				obituary = $..assistors[1]
+			end
+			obituary = $.."."
+		end
 		-- Alternative killfeed so players can see what they did in the logs
 		local newString = string.gsub(obituary, "(%$%w?)", {
 			["$a"] = attackerName or "The Shredded Cheese Man",
@@ -186,6 +205,7 @@ RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflec
 	end
 
 	if (RSR.CV_Killfeed.value & RSR.CVKILLFEED_ICON) then
+		if #RSR.KILLFEED_MESSAGES >= 4 then table.remove(RSR.KILLFEED_MESSAGES, 1) end -- Remove the first message in the queue to make room for the new one
 		table.insert(RSR.KILLFEED_MESSAGES, {
 			victim = victimName,
 			inflictor = inflictorPatch,
@@ -200,28 +220,30 @@ RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflec
 end
 
 --- Gets the necessary damagetype-related info for killfeed varaibles.
+---@param victim player_t
+---@param inflictor mobj_t|nil
+---@param attacker player_t|nil
 ---@param damageType integer
----@param hasInflictor boolean|nil
----@param hasAttacker boolean|nil
-RSR.KillfeedGetDmgInfo = function(damageType, hasInflictor, hasAttacker)
-	if not (damageType and RSR.KILLFEED_DMG_INFO[damageType & ~DMG_CANHURTSELF]) then return end
-	local hurtSelf = (damageType & DMG_CANHURTSELF) and true or false
+RSR.KillfeedGetDmgInfo = function(victim, inflictor, attacker, damageType)
+	if not (Valid(victim) and damageType and RSR.KILLFEED_DMG_INFO[damageType & ~DMG_CANHURTSELF]) then return end
 	damageType = $ & ~DMG_CANHURTSELF
 	local obituary = nil
 	local obituaryInfo = nil
-	if hasInflictor and RSR.KILLFEED_DMG_INFO[damageType].obituaryMobj then
+	if Valid(inflictor) and RSR.KILLFEED_DMG_INFO[damageType].obituaryMobj then
 		obituaryInfo = RSR.KILLFEED_DMG_INFO[damageType].obituaryMobj
-	elseif not hasInflictor and RSR.KILLFEED_DMG_INFO[damageType].obituarySector then
+	elseif not Valid(inflictor) and RSR.KILLFEED_DMG_INFO[damageType].obituarySector then
 		obituaryInfo = RSR.KILLFEED_DMG_INFO[damageType].obituarySector
 	elseif RSR.KILLFEED_DMG_INFO[damageType].obituary then
 		obituaryInfo = RSR.KILLFEED_DMG_INFO[damageType].obituary
 	end
 
 	if obituaryInfo then
-		if hurtSelf and obituaryInfo.hurtself then
-			obituary = obituaryInfo.hurtself
-		elseif hasAttacker and obituaryInfo.attacker then
-			obituary = obituaryInfo.attacker
+		if Valid(attacker) then
+			if victim == attacker and obituaryInfo.hurtself then -- Player can't hurt themself unless DMG_CANHURTSELF is used, so we don't need to check for it
+				obituary = obituaryInfo.hurtself
+			elseif obituaryInfo.attacker then
+				obituary = obituaryInfo.attacker
+			end
 		elseif obituaryInfo.solo then
 			obituary = obituaryInfo.solo
 		end
@@ -237,7 +259,6 @@ end
 ---@param damagetype integer
 RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	if not Valid(victim) then return end
-	if #RSR.KILLFEED_MESSAGES >= 4 then table.remove(RSR.KILLFEED_MESSAGES, 1) end -- Remove the first message in the queue to make room for the new one
 
 	local hookEvent, hookName = RSR.findEvent("KillfeedMsg")
 	if hookEvent then
@@ -270,13 +291,13 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	end
 
 	if victim.rsrinfo and victim.rsrinfo.forceInflictorType and RSR.MOBJ_INFO[victim.rsrinfo.forceInflictorType] then
-		inflictorPatch, obituary = RSR.KillfeedGetMobjInfo(victim.rsrinfo.forceInflictorType, Valid(attacker) and true or false, (damagetype & DMG_CANHURTSELF) and true or false)
+		inflictorPatch, obituary = RSR.KillfeedGetMobjInfo(victim, victim.rsrinfo.forceInflictorType, attacker)
 		if victim.rsrinfo.forceInflictorReflected then infReflected = true end
 	elseif Valid(inflictor) and RSR.MOBJ_INFO[inflictor.type] then
-		inflictorPatch, obituary = RSR.KillfeedGetMobjInfo(inflictor.type, Valid(attacker) and true or false, (damagetype & DMG_CANHURTSELF) and true or false)
+		inflictorPatch, obituary = RSR.KillfeedGetMobjInfo(victim, inflictor.type, attacker)
 		if inflictor.rsrForceReflected then infReflected = true end
 	elseif damagetype then
-		inflictorPatch, obituary = RSR.KillfeedGetDmgInfo(damagetype, Valid(inflictor) and true or false, Valid(attacker) and true or false)
+		inflictorPatch, obituary = RSR.KillfeedGetDmgInfo(victim, inflictor, attacker, damagetype)
 	elseif Valid(inflictor) and Valid(inflictor.player) and inflictor.player.rsrinfo then
 		local infShield = (inflictor.player.powers[pw_shield] & SH_NOSTACK)
 		if infShield and RSR.SHIELD_INFO[infShield]
@@ -313,18 +334,18 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 			end
 			skincolor = inflictor.player.skincolor
 		end
-	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDKILLCMD) then
+	elseif victim.rsrinfo and (victim.rsrinfo.deathFlags & RSR.DEATH_USEDKILLCMD) then
 		obituary = "$v stopped being."
 		if Valid(attacker) then obituary = "$a jumpscared $v." end
-	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
+	elseif victim.rsrinfo and (victim.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
 		inflictorPatch = "RSRXPLD"
 		obituary = "$v's head asplode."
 		if Valid(attacker) then obituary = "$a made $v blow a fuse." end
-	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) then
+	elseif victim.rsrinfo and (victim.rsrinfo.deathFlags & RSR.DEATH_USEDDISINTEGRATECMD) then
 		inflictorPatch = "RSRDISNT"
 		obituary = "$v was abducted by aliens."
 		if Valid(attacker) then obituary = "$a abducted $v." end
-	elseif (victim.rsrinfo.deathFlags & RSR.DEATH_SWITCHEDTEAMS) then
+	elseif victim.rsrinfo and (victim.rsrinfo.deathFlags & RSR.DEATH_SWITCHEDTEAMS) then
 		inflictorPatch = "RSRSWTCH"
 		if Valid(attacker) and not RSR.PlayersAreTeammates(victim, attacker) then
 			obituary = "$a joined $v's cause."
@@ -340,12 +361,20 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		end
 	end
 
+	local assistors = {}
+
 	-- Don't show highlighted backgrounds in splitscreen
-	if not splitscreen and victim.rsrinfo and victim.rsrinfo.attackerInfo then
+	if not splitscreen and victim.rsrinfo and victim.rsrinfo.attackerInfo and #victim.rsrinfo.attackerInfo then
+		local killerInfo = victim.rsrinfo.attackerInfo[1]
 		for _, info in ipairs(victim.rsrinfo.attackerInfo) do
 			if not info then continue end
-			if Valid(info.player) and info.player == consoleplayer then
-				highlight = true
+			if not (Valid(info.player) and not info.player.spectator) then continue end
+			if (info.player == killerInfo.player) -- The local player is the killer
+			or (info.damage or 0) >= (killerInfo.damage or 0) then -- The local player dealt equal or more damage than the killer
+				if not (Valid(attacker) and info.player == attacker) then
+					table.insert(assistors, string.format("%s%s%s", RSR_CHATCOLORCODE(info.player), info.player.name, RSR_CHATCOLORENDCODE(info.player)))
+				end
+				if info.player == consoleplayer then highlight = true end
 			end
 		end
 	end
@@ -356,7 +385,7 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		dist = FixedHypot(FixedHypot(victim.mo.x - attacker.mo.x, victim.mo.y - attacker.mo.y), victim.mo.z - attacker.mo.z)
 	end
 
-	RSR.KillfeedPrint(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary, dist)
+	RSR.KillfeedPrint(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary, dist, assistors)
 end
 
 --- Draws the killfeed to the HUD.

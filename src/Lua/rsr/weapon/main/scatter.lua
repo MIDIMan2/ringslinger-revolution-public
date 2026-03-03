@@ -392,7 +392,7 @@ pspractions.A_ScatterAttackAlt = function(player, args)
 	player.rsrinfo.lastbuttons = $|RSR.GetAttackButton(true)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
-	RSR.TakeAmmoFromReadyWeapon(player, 4)
+	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
 
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then

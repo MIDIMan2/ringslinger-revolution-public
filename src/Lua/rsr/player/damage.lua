@@ -132,6 +132,9 @@ RSR.PlayerHealthInit = function(player)
 	rsrinfo.armor = 0
 	rsrinfo.hype = 0
 
+	rsrinfo.armorPercent = RSR.SHIELD_INFO[SH_NONE].armorpercent
+	rsrinfo.damagePercent = RSR.SHIELD_INFO[SH_NONE].damagepercent
+
 	rsrinfo.hurtByEnemy = 0
 	rsrinfo.hurtByMelee = 0
 	rsrinfo.hurtByMap = 0
@@ -499,8 +502,8 @@ RSR.PlayerArmorDamage = function(player, inflictor, damage)
 	end
 	local hadArmor = false
 	-- Attraction Shield grants you damage resistance
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT and (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_PASSIVE) then -- Disable this if ShieldEffects disables passives
-		damage = $ * 3 / 4
+	if rsrinfo.damagePercent ~= RSR.SHIELD_INFO[SH_NONE].damagepercent then
+		damage = FixedMul($, rsrinfo.damagePercent)
 	end
 	-- Health saving while you have armor
 	if rsrinfo.armor and not player.powers[pw_super] then
@@ -508,13 +511,16 @@ RSR.PlayerArmorDamage = function(player, inflictor, damage)
 			if damage > rsrinfo.armor then
 				damage = $ - rsrinfo.armor
 				rsrinfo.armor = 0
+				hadArmor = true
 				S_StartSound(player.mo, sfx_rsrcrk)
+				rsrinfo.armorPercent = RSR.SHIELD_INFO[SH_NONE].armorpercent
+				rsrinfo.damagePercent = RSR.SHIELD_INFO[SH_NONE].damagepercent
 			else
 				rsrinfo.armor = $ - damage
 				damage = 0
 			end
 		else
-			local saved = damage/2
+			local saved = FixedMul(damage, rsrinfo.armorPercent)
 
 			-- (DEPRECATED) Attraction Shield is less affected by armor loss than other shields (it still only saves the same amount of health though)
 			-- if (player.powers[pw_shield] & SH_ATTRACT) then
@@ -529,6 +535,8 @@ RSR.PlayerArmorDamage = function(player, inflictor, damage)
 			if rsrinfo.armor < 1 then -- If the player runs out of armor, play the shieldbreak sound
 				hadArmor = true
 				S_StartSound(player.mo, sfx_rsrcrk)
+				rsrinfo.armorPercent = RSR.SHIELD_INFO[SH_NONE].armorpercent
+				rsrinfo.damagePercent = RSR.SHIELD_INFO[SH_NONE].damagepercent
 			else
 				hurtSound = sfx_rsraht
 				serverHurtSound = sfx_rsrsmp
@@ -735,7 +743,7 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 		RSR.SetEHPFlash(player, V_REDMAP, RSR.WARN_COOLDOWN, 2)
 	elseif RSR.PlayerHasPurpleDebuff(player) then
 		RSR.SetEHPFlash(player, V_PURPLEMAP, RSR.MINOR_COOLDOWN, 2)
-	elseif (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then
+	elseif rsrinfo.damagePercent ~= RSR.SHIELD_INFO[SH_NONE].damagepercent then
 		RSR.SetEHPFlash(player, V_AZUREMAP, RSR.MINOR_COOLDOWN, 2)
 	end
 
@@ -787,6 +795,8 @@ RSR.PlayerForceDeath = function(player, inflictor, source, damage, damagetype)
 		if G_TagGametype() and not (player.pflags & PF_TAGIT) and Valid(source) and Valid(source.player) and (source.player.pflags & PF_TAGIT) then
 			player.rsrinfo.deathFlags = $|RSR.DEATH_GOTTAGGED
 		end
+		-- TODO: Running both these lines cause P_KillMobj to run twice
+		-- There is currently a safeguard in place to prevent the PlayerDeath function from running twice, but see if there's a better way
 		P_DamageMobj(player.mo, inflictor, source, damage, damagetype|DMG_DEATHMASK)
 		return true
 	end
@@ -975,7 +985,7 @@ RSR.TeamSwitch = function(player, team, fromspectators)
 		if (gametyperules & (GTR_TAG|GTR_HIDEFROZEN)) then
 			if (leveltime > (CV_FindVar("hidetime").value * TICRATE)) then return end -- Let P_SpectatorJoinGame handle players joining after hidetime
 			player.spectator = false -- Do this before it gets set to false in the source code, so we don't mess up our implementation
-			RSR.TagCheckSurvivors()
+			RSR.TagCheckSurvivors(player)
 		end
 	end
 end
@@ -1133,6 +1143,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	---@type player_t
 	local player = target.player
 	if not (Valid(player) and player.rsrinfo) then return end
+	if player.playerstate == PST_DEAD then return end -- Don't run the hook if the player is already dead (would check for health <= 0, but that gets set before the hook apparently)
 
 	local hookEvent, hookName = RSR.findEvent("PlayerDeath")
 	if hookEvent then
@@ -1173,7 +1184,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 				rsrinfo.attackerInfo = {}
 			end
 			local sourcePlayer = Valid(source) and source.player or nil
-			if #rsrinfo.attackerInfo then
+			if #rsrinfo.attackerInfo and not (player == sourcePlayer) then -- Make sure the player didn't hurt themself
 				sourcePlayer = rsrinfo.attackerInfo[1].player
 			end
 
@@ -1208,13 +1219,18 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 
 			local wasHiding = (G_TagGametype() and (gametyperules & GTR_HIDEFROZEN) and not (player.pflags & PF_GAMETYPEOVER))
 
+			-- Set sourcePlayer even if the player hurt themself
+			if #rsrinfo.attackerInfo then sourcePlayer = rsrinfo.attackerInfo[1].player end
+
 			if Valid(sourcePlayer) and sourcePlayer.rsrinfo
 			and sourcePlayer ~= player and not RSR.PlayersAreTeammates(player, sourcePlayer) then
 				sourcePlayer.rsrinfo.hitSound = RSR.HITSOUND_KILL
 				if not (Valid(inflictor) and Valid(source)) then sourcePlayer.rsrinfo.hitSound = $|RSR.HITSOUND_NOQUAKEMASK end
 				-- We now make sure to award points to the last attacker even if the player voluntarily jumped off a cliff or something because it turns out you can use that to reverse-killsteal
 				-- Points are already awarded to seekers in H&S if a player dies
-				if not wasHiding and not (Valid(source) and Valid(source.player)) and #rsrinfo.attackerInfo then
+				if not wasHiding
+				and (not (Valid(source) and Valid(source.player)) or (Valid(source) and target == source))
+				and #rsrinfo.attackerInfo then
 					P_AddPlayerScore(sourcePlayer, 100)
 				end
 			end
@@ -1238,13 +1254,13 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 
 			-- Points are already awarded to seekers in H&S if a player dies
 			if not wasHiding and Valid(sourcePlayer) and #rsrinfo.attackerInfo > 1 then
-				local lastInfo = rsrinfo.attackerInfo[1]
+				local killerInfo = rsrinfo.attackerInfo[1]
 				-- We also prevent reverse-assiststealing??? That was a thing apparently
 				for i = 2, #rsrinfo.attackerInfo do
 					local info = rsrinfo.attackerInfo[i]
 					if not info then continue end -- Make sure the attacker info exists
 					-- Only award score if the attacker dealt more damage than the killer
-					if (info.damage or 0) < (lastInfo.damage or 0) then continue end
+					if (info.damage or 0) < (killerInfo.damage or 0) then continue end
 					-- Don't give score to spectators
 					if not Valid(info.player) or info.player.spectator then continue end
 

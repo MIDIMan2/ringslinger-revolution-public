@@ -106,6 +106,13 @@ A_GiveShield = function(actor, var1, var2)
 	if player.rsrinfo.armor < 10 then
 		player.rsrinfo.armor = 10
 	end
+	local shieldInfo = RSR.SHIELD_INFO[var1 & SH_NOSTACK]
+	player.rsrinfo.armorPercent = RSR.SHIELD_INFO[SH_NONE].armorpercent
+	player.rsrinfo.damagePercent = RSR.SHIELD_INFO[SH_NONE].damagepercent
+	if shieldInfo then
+		if shieldInfo.armorpercent ~= nil then player.rsrinfo.armorPercent = shieldInfo.armorpercent end
+		if shieldInfo.damagepercent ~= nil then player.rsrinfo.damagePercent = shieldInfo.damagepercent end
+	end
 	RSR.BonusFade(player)
 	super(actor, var1, var2)
 end

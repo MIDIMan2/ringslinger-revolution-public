@@ -161,8 +161,8 @@ RSR.ReflectMissile = function(source, oldMissile, newMissile)
 -- 		target.player.rsrinfo.forceInflictorReflected = missile.rsrForceReflected
 	end
 
-	-- Don't let the missile explode in your face
-	P_RemoveMobj(oldMissile)
+	-- Don't let rail rings pierce through Force Shield players
+	oldMissile.rsrRailCantPierce = true
 
 	return newMissile
 end
@@ -190,6 +190,7 @@ RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, 
 	missile.target = source
 	if Valid(reflected) then
 		RSR.ReflectMissile(source, reflected, missile)
+		if not Valid(missile) then return end
 		angle = missile.angle
 		slope = missile.pitch
 	else

@@ -43,7 +43,7 @@ mobjinfo[MT_RSR_PROJECTILE_AUTO] = {
 	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 11,
+	damage = 8,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
@@ -64,7 +64,7 @@ mobjinfo[MT_RSR_PROJECTILE_AUTO_SNP] = {
 	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
-	damage = 11,
+	damage = 8,
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
@@ -138,7 +138,7 @@ pspractions.A_AutoAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
-	RSR.TakeAmmoFromReadyWeapon(player, 3)
+	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
 
 	local angle = player.mo.angle
 	local pitch = player.cmd.aiming<<16

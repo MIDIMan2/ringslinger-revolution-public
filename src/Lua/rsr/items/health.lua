@@ -142,7 +142,7 @@ end
 ---@param toucher mobj_t The player object touching the pickup.
 ---@param health integer The amount of health given to the player by the pickup.
 RSR.TouchHealthDefault = function(special, toucher, health)
-	local player = toucher.player
+	local player = toucher.player ---@type player_t
 
 	if not RSR.GiveHealth(player, health, false, true) then return true end
 	RSR.BonusFade(player)
@@ -155,7 +155,7 @@ end
 ---@param health integer
 RSR.HealthTouchSpecial = function(special, toucher, health)
 	if not (Valid(special) and Valid(toucher)) then return end
-	local player = toucher.player
+	local player = toucher.player ---@type player_t
 	if not (Valid(player) and player.rsrinfo) then return end
 
 	local hookEvent, hookName = RSR.findEvent("TouchHealth")
@@ -177,7 +177,7 @@ end
 ---@param toucher mobj_t The player object touching the pickup.
 ---@param armor integer The amount of armor given to the player by the pickup.
 RSR.TouchArmorDefault = function(special, toucher, armor)
-	local player = toucher.player
+	local player = toucher.player ---@type player_t
 
 	if not RSR.GiveArmor(player, armor, false, true) then return true end
 	RSR.BonusFade(player)
@@ -190,7 +190,7 @@ end
 ---@param armor integer
 RSR.ArmorTouchSpecial = function(special, toucher, armor)
 	if not (Valid(special) and Valid(toucher)) then return end
-	local player = toucher.player
+	local player = toucher.player ---@type player_t
 	if not (Valid(player) and player.rsrinfo) then return end
 
 	local hookEvent, hookName = RSR.findEvent("TouchArmor")
