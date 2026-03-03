@@ -12,7 +12,7 @@ RSR.AddAmmo("HOMING", {
 RSR.AddWeapon("HOMING", {
 	ammotype = RSR.AMMO_HOMING,
 	ammoamount = 10,
-	ammoalt = 3,
+	ammoalt = 4,
 	class = 7,
 	delay = 12,
 	delayspeed = 6,
@@ -83,21 +83,20 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if not (mo.flags & MF_MISSILE) then return end
 
 	-- Produce smoke and sizzle if the homing ring is locked onto a target
+	if noPlayerSpeed then -- Make the Router RPB produce smoke
+		RSR.ProjectileGhostTimer(mo, MT_SMOKE)
+	end
 	if not Valid(mo.tracer) then
 		RSR.ProjectileGhostTimer(mo)
 		if mo.rsrLockOnSound then mo.rsrLockOnSound = nil end
 	else
 		if not noPlayerSpeed then RSR.ProjectileTravelSound(mo) end -- Regular travelling sound
 		RSR.ProjectileAlertSound(mo, mo.tracer.player) -- Player alert sound
-		if noPlayerSpeed then -- Make Homing use a special jet flame effect while RPB keeps the smoke
-			RSR.ProjectileGhostTimer(mo, MT_SMOKE)
-		else
-			RSR.ProjectileGhostTimer(mo, MT_SONIC3KBOSSEXPLODE)
-		end
+		RSR.ProjectileGhostTimer(mo, MT_SONIC3KBOSSEXPLODE)
 	end
 
-	local tracer = mo.tracer
-	if not (Valid(tracer) and tracer.health > 0) then
+	if Valid(mo.tracer) and Valid(mo.target) and RSR.PlayersAreTeammates(mo.target.player, mo.tracer.player) then mo.tracer = nil end -- Stop targeting your tracer if you're on the same team now (can happen in LaserTag when a hider with active heat-seeking weapons is killed)
+	if not (Valid(mo.tracer) and mo.tracer.health > 0) then
 		if radius == nil then radius = 640*FRACUNIT end
 		radius = FixedMul($, mo.scale)
 		local xShift = FixedMul(radius/2, cos(mo.angle))
@@ -125,6 +124,9 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 				if RSR.PlayersAreTeammates(missile.target.player, enemy.player) or (gametyperules & GTR_FRIENDLY) then return end
 				if enemy.player.spectator and not RSR.CV_Ghostbusters.value then return end -- Don't target spectators if rsr_ghostbusters is false
 			end
+
+			-- Ignore monitors unless they're Eggman monitors (for the lulz)
+			if (enemy.flags & MF_MONITOR) and not (enemy.type == MT_EGGMAN_BOX or enemy.type == MT_EGGMAN_GOLDBOX) then return end
 
 			-- Don't target enemies outside the missile's distance search!
 			local dist = FixedHypot(FixedHypot(enemy.x - missile.x, enemy.y - missile.y), enemy.z - missile.z)
@@ -163,9 +165,9 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 		if not noPlayerSpeed then RSR.ProjectileAlertSound(mo, mo.tracer.player) end -- Router RPB alert sound
 		angleTurn = FixedAngle(4*FRACUNIT)
 	end
-	local angleTo = R_PointToAngle2(mo.x, mo.y, tracer.x, tracer.y)
-	local distTo = R_PointToDist2(mo.x, mo.y, tracer.x, tracer.y)
-	local pitchTo = R_PointToAngle2(0, mo.z + mo.height/2, distTo, tracer.z + tracer.height/2)
+	local angleTo = R_PointToAngle2(mo.x, mo.y, mo.tracer.x, mo.tracer.y)
+	local distTo = R_PointToDist2(mo.x, mo.y, mo.tracer.x, mo.tracer.y)
+	local pitchTo = R_PointToAngle2(0, mo.z + mo.height/2, distTo, mo.tracer.z + mo.tracer.height/2)
 
 	mo.angle = RSR.AngleTowardsAngle($, angleTo, angleTurn)
 	mo.pitch = RSR.AngleTowardsAngle($, pitchTo, angleTurn)
@@ -174,8 +176,8 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if not noPlayerSpeed and Valid(player) then -- Try to catch up with players, similar to the Deton
 		curSpeed = player.normalspeed
 		-- TODO: player.speed might cause problems
-		if player.speed > player.normalspeed then curSpeed = FixedDiv(player.speed, tracer.scale) end -- Go faster if the player is going faster than their normalspeed
-		curSpeed = FixedMul(3*$/4, tracer.scale)
+		if player.speed > player.normalspeed then curSpeed = FixedDiv(player.speed, mo.tracer.scale) end -- Go faster if the player is going faster than their normalspeed
+		curSpeed = FixedMul(3*$/4, mo.tracer.scale)
 	end
 	if noPlayerSpeed then
 		RSR.ProjectileTravelSound(mo) -- Router RPB travelling sound
@@ -216,7 +218,7 @@ mobjinfo[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	painchance = 256*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
-	speed = 80*FRACUNIT,
+	speed = 75*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
 	damage = 1,
@@ -331,7 +333,7 @@ pspractions.A_HomingAttackAlt = function(player, args)
 		S_StopSoundByID(player.mo, sfx_hoatsk)
 		if Valid(lockOn) and (player.rsrinfo.waspTime < 1) then
 			RSR.SetWeaponDelay(player)
-			RSR.TakeAmmoFromReadyWeapon(player, 3)
+			RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
 			local homing = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING_BOMB, player.mo.angle, player.cmd.aiming<<16)
 			if Valid(homing) then
 				homing.tracer = lockOn

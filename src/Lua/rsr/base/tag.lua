@@ -10,22 +10,27 @@ Tag in RSR has its own rules:
 RSR.TAG_HIDERRATIO = 6
 
 --- Lua reimplementation of P_CheckSurvivors, since it's not exposed to Lua.
-RSR.TagCheckSurvivors = function()
+---@param player player_t|nil
+RSR.TagCheckSurvivors = function(player)
 	local survivors = 0
 	local taggers = 0
 	local spectators = 0
 	local numPlayers = 0
+	local survivorIndex = 0
 	local survivorArray = {}
 
-	for player in players.iterate do
-		if not Valid(player) then continue end
-		if player.spectator then
+	for curPlayer in players.iterate do
+		if not Valid(curPlayer) then continue end
+		if curPlayer.spectator then
 			spectators = $+1
-		elseif (player.pflags & PF_TAGIT) and player.quittime < 30*TICRATE then
+		elseif (curPlayer.pflags & PF_TAGIT) and curPlayer.quittime < 30*TICRATE then
 			taggers = $+1
-		elseif not (player.pflags & PF_GAMETYPEOVER) and player.quittime < 30*TICRATE then
-			table.insert(survivorArray, #player)
+		elseif not (curPlayer.pflags & PF_GAMETYPEOVER) and curPlayer.quittime < 30*TICRATE then
+			table.insert(survivorArray, #curPlayer)
 			survivors = $+1
+			if Valid(player) and player == curPlayer then
+				survivorIndex = survivors
+			end
 		end
 		numPlayers = $+1
 	end
@@ -33,7 +38,7 @@ RSR.TagCheckSurvivors = function()
 	if numPlayers <= 0 then return end -- Don't go any further if no players were found.
 
 	if not taggers then --If there are no taggers, pick a survivor at random to be it.
-		--Exception for hide and seek. If a round has started and the IR player leaves, end the round.
+		--Exception for hide and seek. If a round has started and the IT player leaves, end the round.
 		if (gametyperules & GTR_HIDEFROZEN) and leveltime >= (CV_FindVar("hidetime").value * TICRATE) then
 			print("The IT player has left the game.")
 			if server then COM_BufInsertText(server, "exitlevel") end
@@ -41,7 +46,8 @@ RSR.TagCheckSurvivors = function()
 		end
 
 		if survivors then
-			local newTagger = survivorArray[P_RandomKey(survivors) + 1]
+			if not survivorIndex then survivorIndex = P_RandomKey(survivors) + 1 end
+			local newTagger = survivorArray[survivorIndex]
 
 			print(players[newTagger].name.." is now IT!") -- Tell everyone who is it!
 			players[newTagger].pflags = $|PF_TAGIT
@@ -70,15 +76,19 @@ RSR.TagCheckSurvivors = function()
 
 	if survivors and RSR.TAG_HIDERRATIO > 1 then
 		local numTaggers = ((taggers + survivors - 1) / RSR.TAG_HIDERRATIO) + 1 -- Calculate the number of taggers there should be in the map (including the one already in the map)
+		local taggedOne = false
 		while taggers < numTaggers do -- Turn some survivors into taggers
-			local randomIndex = P_RandomKey(survivors) + 1
-			local newTagger = survivorArray[randomIndex]
+			if not survivorIndex or taggedOne then
+				survivorIndex = P_RandomKey(survivors) + 1
+				taggedOne = true
+			end
+			local newTagger = survivorArray[survivorIndex]
 
 			print(players[newTagger].name.." is now IT!") -- Tell everyone who is it!
 			players[newTagger].pflags = $|PF_TAGIT
 
 			survivors = $-1 --Get rid of the player we just made IT.
-			table.remove(survivorArray, randomIndex) -- Remove that player from the survivor array so we don't 
+			table.remove(survivorArray, survivorIndex) -- Remove that player from the survivor array so we don't mark the same player as a tagger.
 
 			taggers = $+1
 		end

@@ -293,6 +293,7 @@ pspractions.A_RSRCheckAmmo = function(player, args)
 			if RSR.CheckAmmo(player, RSR.WEAPON_INFO[weapon].ammotype) then
 				player.rsrinfo.readyWeapon = weapon
 				RSR.DrawWeapon(player, weapon)
+				player.rsrinfo.useZoom = false
 				return true
 			end
 		end
@@ -300,5 +301,6 @@ pspractions.A_RSRCheckAmmo = function(player, args)
 	end
 
 	RSR.DrawWeapon(player, RSR.WEAPON_NONE, true)
+	player.rsrinfo.useZoom = false
 	return true
 end
