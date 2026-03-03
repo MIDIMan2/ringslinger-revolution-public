@@ -109,7 +109,7 @@ A_GiveShield = function(actor, var1, var2)
 	local shieldInfo = RSR.SHIELD_INFO[var1 & SH_NOSTACK]
 	player.rsrinfo.armorPercent = RSR.SHIELD_INFO[SH_NONE].armorpercent
 	player.rsrinfo.damagePercent = RSR.SHIELD_INFO[SH_NONE].damagepercent
-	if shieldInfo then
+	if shieldInfo and (RSR.CV_ShieldEffects.value & RSR.CVSHIELD_PASSIVE) then -- Disable this if ShieldEffects disables passives
 		if shieldInfo.armorpercent ~= nil then player.rsrinfo.armorPercent = shieldInfo.armorpercent end
 		if shieldInfo.damagepercent ~= nil then player.rsrinfo.damagePercent = shieldInfo.damagepercent end
 	end
