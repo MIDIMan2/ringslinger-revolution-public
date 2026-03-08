@@ -117,7 +117,7 @@ RSR.MONITOR_RANDOMS = {
 	{MT_BUBBLEWRAP_BOX,	0,	9},
 	{MT_FLAMEAURA_BOX,	0,	9},
 	{MT_RECYCLER_BOX,	0,	2},
-	{MT_MIXUP_BOX,		0,	4},
+	{MT_MIXUP_BOX,		0,	4,	MT_SNEAKERS_BOX},
 	{MT_SNEAKERS_BOX,	0,	6},
 	{MT_1UP_BOX,		4,	0},
 	{MT_INVULN_BOX,		2,	0},
@@ -138,7 +138,12 @@ RSR.GetWeakOrStrongMonitor = function(mo)
 		if (mo.flags2 & MF2_STRONGBOX) then boxamt = monitorInfo[2] end
 
 		for i = boxamt, 1, -1 do
-			spawnchance[numchoices] = monitorInfo[1]
+			-- Convert teleporter monitors into speed shoes monitors
+			if monitorInfo[4] and G_TagGametype() and (gametyperules & GTR_HIDEFROZEN) then
+				spawnchance[numchoices] = monitorInfo[4]
+			else
+				spawnchance[numchoices] = monitorInfo[1]
+			end
 			numchoices = $+1
 		end
 	end
