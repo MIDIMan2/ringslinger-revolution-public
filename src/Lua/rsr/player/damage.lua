@@ -856,8 +856,6 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 		return
 	end
 
-	if G_TagGametype() and leveltime <= CV_FindVar("hidetime").value * TICRATE then return end
-
 	local shield = player.powers[pw_shield]
 	if damagetype == DMG_FIRE and (shield & SH_PROTECTFIRE) then return end
 	if damagetype == DMG_WATER and (shield & SH_PROTECTWATER) then return end
@@ -869,6 +867,12 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 		and not Valid(inflictor.player) then -- This code was meant for enemies only
 			P_DamageMobj(inflictor, target, target, 1)
 		end
+		return false
+	end
+
+	-- Prevent damage from opposing players when "hiding" in Tag or H&S
+	if G_TagGametype() and leveltime <= CV_FindVar("hidetime").value * TICRATE
+	and Valid(source) and Valid(source.player) then
 		return false
 	end
 

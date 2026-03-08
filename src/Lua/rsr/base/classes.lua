@@ -11,9 +11,9 @@
 ---@field armor integer Current amount of armor for the player.
 ---@field armorPercent fixed_t Determines the percentage of damage taken to armor.
 ---@field damagePercent fixed_t Determines the percentage of overall damage taken.
----@field hurtByEnemy tic_t|integer Timer for damage taken by enemies/Object-based hazards.
----@field hurtByMelee tic_t|integer Timer for damage taken by player melee.
----@field hurtByMap tic_t|integer Timer for damage taken by level geometry.
+---@field hurtByEnemy tic_t Timer for damage taken by enemies/Object-based hazards.
+---@field hurtByMelee tic_t Timer for damage taken by player melee.
+---@field hurtByMap tic_t Timer for damage taken by level geometry.
 ---@field attackKnockback boolean Whether the player was hurt while attempting to melee another player.
 ---@field hitSound integer Plays a hitsound using RSR.HITSOUND_* constants.
 ---@field deathFlags integer Hack for MobjDeath (uses RSR.DEATH_* constants).
@@ -116,13 +116,13 @@
 
 ---@class rsrpowerup_t
 ---@field powerup integer Powerup in the player's inventory (uses POWERUP_* constants).
----@field tics integer Timer for the powerup.
+---@field tics tic_t Timer for the powerup.
 ---@field penalty tic_t Time in tics to subtract from the time bonus when addTics is used in RSR.GivePowerup.
 
 ---@class rsrpowerupinfo_t
 ---@field icon string Icon for the powerup.
 ---@field power integer Power to set for player_t.powers (uses pw_* constants).
----@field tics integer Time limit for the powerup.
+---@field tics tic_t Time limit for the powerup.
 
 ---@class rsrstarpostdata_t
 ---@field ammo integer[] An array containing ammo amounts of each type in the player's inventory when they passed the last starpost.
