@@ -136,7 +136,7 @@ mobjinfo[MT_RSR_POWERUP_INFINITY] = {
 	spawnstate = S_RSR_POWERUP_INFINITY,
 	deathstate = S_RSR_ITEM_DEATH,
 	deathsound = sfx_ncitem,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 28*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }

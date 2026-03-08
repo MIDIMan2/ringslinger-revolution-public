@@ -22,7 +22,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 
 	bombDist = FixedMul($, moScale)
 	thrustDist = FixedMul($, moScale)
-	fullDist = FixedMul($, moScale)
+	fullDist = min(FixedMul($, moScale), bombDist) -- Make sure fullDist doesn't go above bombDist
 
 	mo.rsrProjectile = nil
 	mo.rsrRealDamage = true
@@ -190,7 +190,7 @@ A_RSRRingExplode = function(mo, var1, var2)
 
 	if RSR.MOBJ_INFO[mo.type] then
 		local rsrMobjInfo = RSR.MOBJ_INFO[mo.type]
-		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime, rsrMobjInfo.fulldamage, rsrMobjInfo.thrustdamage, rsrMobjInfo.aimthrust)
+		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime, rsrMobjInfo.fulldist, rsrMobjInfo.thrustdamage, rsrMobjInfo.aimthrust)
 	else
 		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime)
 	end

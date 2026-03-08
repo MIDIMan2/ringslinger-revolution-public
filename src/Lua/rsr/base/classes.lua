@@ -57,7 +57,7 @@
 ---@field damage integer Damage dealt to the player on contact.
 ---@field knockback fixed_t Knockback scale dealt to the player on contact.
 ---@field nothomable boolean Makes the mobj not homable.
----@field fulldamage integer Maximum damage dealt to the player from splash damage.
+---@field fulldist integer Determines the radius of maximum damage dealt to the player from splash damage.
 ---@field thrustdamage integer Knockback dealt to the player from splash damage.
 ---@field aimthrust boolean Makes splash damage thrust the source mobj in the direction they're facing.
 ---@field dontreflect boolean Makes the projectile non-reflectable by the Force shields.

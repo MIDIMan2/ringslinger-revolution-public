@@ -305,7 +305,7 @@ mobjinfo[MT_RSR_PICKUP_BOUNCE] = {
 	seestate = S_RSR_PICKUP_BOUNCE_PANEL,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 28*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
