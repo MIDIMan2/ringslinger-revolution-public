@@ -28,9 +28,12 @@ freeslot(
 	"sfx_boatfr",
 	"sfx_grndfr",
 	"sfx_grndab", -- Created by orbitalviolet
+	"sfx_gratch", -- TODO: Replace this with a better sound(?)
 	"sfx_gratfr",
 	"sfx_gratab", -- Created by orbitalviolet
 	"sfx_gratrm", -- Created by orbitalviolet
+	"sfx_stikrm",
+	"sfx_stikrn", -- TODO: Replace this with a better sound(?)
 	"sfx_stikbp", -- Created by orbitalviolet
 	"sfx_gratrd", -- Created by orbitalviolet
 	"sfx_stikbm", -- Created by orbitalviolet
@@ -225,8 +228,10 @@ freeslot(
 	"MT_RSR_PROJECTILE_GRENADE_STICKYBOMB",
 	"S_RSR_PROJECTILE_GRENADE",
 	"S_RSR_PROJECTILE_GRENADE_STICKYBOMB",
+	"S_RSR_PROJECTILE_GRENADE_STICKYBOMB_ARMED",
 	"S_RSR_PROJECTILE_GRENADE_STICKYBOMB_DETONATE",
 	"S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND",
+	"S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_ARMED",
 	"S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE",
 	"S_RSR_NIGHTSPARKLE_GRENADE",
 	-- Bomb
@@ -314,6 +319,8 @@ freeslot(
 -- Weapons
 sfxinfo[sfx_noammo].caption = "Not enough Rings..."
 sfxinfo[sfx_cvxpld].caption = "Player exploded..."
+
+-- Red Ring
 sfxinfo[sfx_redfir].caption = "Red Ring fired"
 sfxinfo[sfx_redal1].caption = "Charged Ring 1"
 sfxinfo[sfx_redal2].caption = "Charged Ring 2"
@@ -327,30 +334,44 @@ sfxinfo[sfx_rrchab].caption = "Charged Ring travelling"
 sfxinfo[sfx_rrchab].flags = SF_X2AWAYSOUND -- Make a max-charged shot heard from further away
 sfxinfo[sfx_csftcp].caption = "Red Ring charged!"
 sfxinfo[sfx_chloop].caption = "Red Ring humming"
+
+-- Automatic Ring
 sfxinfo[sfx_autofr].caption = "Automatic fired"
 sfxinfo[sfx_atatfr].caption = "Automatic: Spray&Pray"
+
+-- Scatter Ring
 sfxinfo[sfx_sctrfr].caption = "Scatter fired"
 sfxinfo[sfx_scatfr].caption = "Scatter: Mass Scrambler"
 sfxinfo[sfx_scatxp].caption = "Scrambler airbursting"
 sfxinfo[sfx_scatx1].caption = "Scrambler bomblet explosion"
 sfxinfo[sfx_scatx2].caption = "Scrambler bomblet explosion"
 sfxinfo[sfx_scatab].caption = "Scrambler bomblets travelling"
+
+-- Explosion Ring
 sfxinfo[sfx_bombfr].caption = "Explosion fired"
 sfxinfo[sfx_bombab].caption = "Explosion travelling"
 sfxinfo[sfx_boatfr].caption = "Explosion: Self-Propel"
+
+-- Grenade Ring
 sfxinfo[sfx_grndfr].caption = "Grenade fired"
 sfxinfo[sfx_grndab].caption = "Grenade travelling"
 sfxinfo[sfx_gratfr].caption = "Grenade: Stickybomb"
 sfxinfo[sfx_gratab].caption = "Stickybomb travelling"
 sfxinfo[sfx_gratrm].caption = "Stickybomb attach"
+sfxinfo[sfx_stikrm].caption = "Stickybomb arming"
+sfxinfo[sfx_stikrn].caption = "Stickybomb armed"
 sfxinfo[sfx_stikbp].caption = "Stickybomb nearby"
 sfxinfo[sfx_stikbp].flags = SF_X2AWAYSOUND -- Easier to detect nearby Stickybombs
 sfxinfo[sfx_gratrd].caption = "Stickybomb activated"
 sfxinfo[sfx_stikbm].caption = "Stickybomb explosion"
 sfxinfo[sfx_stikbm].flags = SF_X2AWAYSOUND -- Make the Stickybomb's explosion heard from further away
+
+-- Bounce Ring
 sfxinfo[sfx_boncfr].caption = "Bounce fired"
 sfxinfo[sfx_bcatfr].caption = "Bounce: Goldburster"
 sfxinfo[sfx_bcmega].caption = "Goldburster explosion"
+
+-- Homing Ring
 sfxinfo[sfx_homifr].caption = "Homing fired"
 sfxinfo[sfx_homitg].caption = "Homing lock-on"
 sfxinfo[sfx_homiab].caption = "Homing locked-on and seeking"
@@ -363,6 +384,8 @@ sfxinfo[sfx_hoattg].caption = "Router RPB incoming!"
 sfxinfo[sfx_hoatpt].caption = "RPB ready"
 sfxinfo[sfx_hoatno].caption = "No targets..."
 sfxinfo[sfx_hoatct].caption = "RPB on your tail!"
+
+-- Rail Ring
 sfxinfo[sfx_scope].caption = "Scoping"
 sfxinfo[sfx_epocs].caption = "Unscoping"
 sfxinfo[sfx_railgn].caption = "Rail fired!"
@@ -372,6 +395,8 @@ sfxinfo[sfx_railht].flags = SF_X2AWAYSOUND -- Make the Rail Ring terrain impact 
 sfxinfo[sfx_railec].caption = "Rail echoing..."
 sfxinfo[sfx_railms].caption = "Rail near-miss..."
 sfxinfo[sfx_mchina].caption = "Rail polykill!"
+
+-- ???
 sfxinfo[sfx_bfrlnc].caption = "BFR firing!"
 sfxinfo[sfx_bfrlnc].flags = SF_X4AWAYSOUND -- Make the Bright Fluorescent Ring shot heard from further away
 sfxinfo[sfx_bfrxpd].caption = "BFR explosion..!"

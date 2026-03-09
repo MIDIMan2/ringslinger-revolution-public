@@ -323,9 +323,17 @@ pspractions.A_HomingAttackAlt = function(player, args)
 			visual.drawonlyforplayer = player
 			visual.alpha = FixedDiv(RSR.HOMING_WASP_MAX - player.rsrinfo.waspTime, RSR.HOMING_WASP_MAX)
 		end
-		player.rsrinfo.waspTime = $ - 1
-		if (player.rsrinfo.waspTime == 0) then
-			S_StartSound(lockOn, sfx_hoatpt)
+		if player.rsrinfo.waspTime > 0 then
+			local decrement = 1
+			-- Decrement waspTime faster if the player has speed shoes, is super, or has an Attraction Shield
+			if player.powers[pw_sneakers] or player.powers[pw_super]
+			or ((player.powers[pw_shield] & SH_NOSTACK == SH_ATTRACT) and (leveltime & 1)) then
+				decrement = 2
+			end
+			player.rsrinfo.waspTime = max($ - decrement, 0)
+			if (player.rsrinfo.waspTime == 0) then
+				S_StartSound(lockOn, sfx_hoatpt)
+			end
 		end
 	end
 

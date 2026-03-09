@@ -40,7 +40,8 @@
 ---@field basicChargeDontTakeAmmo boolean|nil Determines if the Charged Shot shouldn't take ammo.
 ---@field scatterFlak mobj_t|nil A reference to the player's last Mass Scrambler ring fired.
 ---@field bounceMega mobj_t|nil A reference to the player's last Goldburster ring fired.
----@field waspTime integer|nil Timer for the Homing Ring's altfire.
+---@field stickyCharge tic_t|nil Timer for the Grenade Ring's altfire.
+---@field waspTime tic_t|nil Timer for the Homing Ring's altfire.
 ---@field lastbuttons UINT16 Buttons (BT_* constants) held on the last game tic.
 ---@field lastexiting tic_t Value of player.exiting on the last game tic.
 ---@field lastemeralds UINT16 Value of player.powers[pw_emeralds] on the last game tic.
