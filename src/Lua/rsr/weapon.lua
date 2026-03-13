@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-fields
 -- Ringslinger Revolution - Weapons
 
 local folder = "rsr/weapon"

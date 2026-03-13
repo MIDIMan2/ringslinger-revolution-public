@@ -107,7 +107,7 @@ end
 ---@param powerupType integer
 RSR.PowerupTouchSpecial = function(special, toucher, powerupType)
 	if not (Valid(special) and Valid(toucher)) then return end
-	local player = toucher.player
+	local player = toucher.player ---@type player_t
 	if not (Valid(player) and player.rsrinfo) then return end
 
 	local hookEvent, hookName = RSR.findEvent("TouchPowerup")

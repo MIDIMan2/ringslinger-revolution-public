@@ -418,6 +418,7 @@ pspractions.A_GrenadeAttack = function(player, args)
 end
 
 --- Fires a Proximity Grenade ring from the player.
+---@param player player_t
 pspractions.A_GrenadeAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
