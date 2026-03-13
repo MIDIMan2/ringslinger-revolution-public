@@ -435,16 +435,17 @@ pspractions.A_GrenadeAttackAlt = function(player, args)
 		or ((player.powers[pw_shield] & SH_NOSTACK == SH_ATTRACT) and (leveltime & 1)) then
 			decrement = 2
 		end
-		print(decrement)
 		player.rsrinfo.stickyCharge = max($ - decrement, 0)
 	end
 
-	if not (player.cmd.buttons & BT_FIRENORMAL) or not (RSR.PlayerHasEmerald(player, EMERALD7) or player.powers[pw_super]) then
+	if not (player.cmd.buttons & BT_FIRENORMAL) or not (RSR.PlayerHasEmerald(player, EMERALD5) or player.powers[pw_super]) then
 		S_StopSoundByID(player.mo, sfx_gratch)
 		RSR.SetWeaponDelay(player, nil, nil, true)
 		RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
 
-		local throwScale = FixedDiv((RSR.STICKYBOMB_CHARGE_MAX - player.rsrinfo.stickyCharge) / (RSR.STICKYBOMB_CHARGE_MAX/5), 5)
+		local throwScale = FixedDiv(min((RSR.STICKYBOMB_CHARGE_MAX - player.rsrinfo.stickyCharge) / (RSR.STICKYBOMB_CHARGE_MAX/5) + 1, 5), 5)
+		local noPlayerSpeed = false
+		if throwScale < FRACUNIT/2 then noPlayerSpeed = true end
 
 		local missile = RSR.SpawnPlayerMissile(
 			player.mo,
@@ -452,12 +453,14 @@ pspractions.A_GrenadeAttackAlt = function(player, args)
 			player.mo.angle,
 			player.cmd.aiming<<16,
 			nil,
-			FixedMul(mobjinfo[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB].speed, throwScale)
+			FixedMul(mobjinfo[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB].speed, throwScale),
+			nil,
+			noPlayerSpeed
 		)
 		if Valid(missile) then
 			P_SetObjectMomZ(missile, throwScale, true)
 		end
-		player.rsrinfo.stickyCharge = RSR.HOMING_WASP_MAX
+		player.rsrinfo.stickyCharge = RSR.STICKYBOMB_CHARGE_MAX
 
 		if pspractions.A_RSRCheckAmmo(player, {}) then return end
 		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, "S_GRENADE_RECOVER")

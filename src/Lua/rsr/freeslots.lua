@@ -355,6 +355,7 @@ sfxinfo[sfx_boatfr].caption = "Explosion: Self-Propel"
 -- Grenade Ring
 sfxinfo[sfx_grndfr].caption = "Grenade fired"
 sfxinfo[sfx_grndab].caption = "Grenade travelling"
+sfxinfo[sfx_gratch].caption = "Stickybomb charging"
 sfxinfo[sfx_gratfr].caption = "Grenade: Stickybomb"
 sfxinfo[sfx_gratab].caption = "Stickybomb travelling"
 sfxinfo[sfx_gratrm].caption = "Stickybomb attach"

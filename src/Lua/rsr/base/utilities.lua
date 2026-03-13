@@ -175,7 +175,8 @@ end
 ---@param reflected mobj_t|nil If set to an Object, this makes the spawned missile act as a reflected version using this Object's properties.
 ---@param speed fixed_t|integer|nil Sets the speed of the missile (default is missileType's Speed property).
 ---@param sound integer|nil Determines what sound to use for the spawned missile (uses sfx_* constants).
-RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, speed, sound)
+---@param noPlayerSpeed boolean|nil If true, this prevents the player's speed from being accounted for.
+RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, speed, sound, noPlayerSpeed)
 	if not Valid(source) then return end
 	missileType = $ or MT_JETTBULLET
 	angle = $ or source.angle
@@ -233,23 +234,25 @@ RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, 
 	if not Valid(missile) then return end
 	if not speed then return missile end
 
-	-- Make sure the player can't outrun their projectiles
-	-- Based off of Snap the Sentinel v3.1's code
-	local missileSpeed = FixedMul(speed, missile.scale)
-	local angleOffset = source.angle - R_PointToAngle2(0, 0, source.momx, source.momy)
+	if not noPlayerSpeed then
+		-- Make sure the player can't outrun their projectiles
+		-- Based off of Snap the Sentinel v3.1's code
+		local missileSpeed = FixedMul(speed, missile.scale)
+		local angleOffset = source.angle - R_PointToAngle2(0, 0, source.momx, source.momy)
 
-	local fracOffset = AngleFixed(angleOffset)
-	if fracOffset > 180*FRACUNIT then fracOffset = $ - 360*FRACUNIT end
+		local fracOffset = AngleFixed(angleOffset)
+		if fracOffset > 180*FRACUNIT then fracOffset = $ - 360*FRACUNIT end
 
-	if fracOffset > -90*FRACUNIT and fracOffset < 90*FRACUNIT then
-		local sourceSpeed = FixedMul(
-			FixedHypot(FixedHypot(source.momx, source.momy), source.momz),
-			abs(cos(angleOffset))
-		)
-		local speedScale = FixedDiv(sourceSpeed + missileSpeed, missileSpeed)
-		missile.momx = FixedMul($, speedScale)
-		missile.momy = FixedMul($, speedScale)
-		missile.momz = FixedMul($, speedScale)
+		if fracOffset > -90*FRACUNIT and fracOffset < 90*FRACUNIT then
+			local sourceSpeed = FixedMul(
+				FixedHypot(FixedHypot(source.momx, source.momy), source.momz),
+				abs(cos(angleOffset))
+			)
+			local speedScale = FixedDiv(sourceSpeed + missileSpeed, missileSpeed)
+			missile.momx = FixedMul($, speedScale)
+			missile.momy = FixedMul($, speedScale)
+			missile.momz = FixedMul($, speedScale)
+		end
 	end
 
 	return missile
