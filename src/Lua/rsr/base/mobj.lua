@@ -25,6 +25,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 	fullDist = min(FixedMul($, moScale), bombDist) -- Make sure fullDist doesn't go above bombDist
 	local checkDist = max(bombDist, thrustDist) -- Make sure thrustDist always works
 
+	mo.flags2 = $|MF2_DEBRIS -- The Explosion Ring does this in vanilla, so why not do it here too? (Makes it so Stickybombs can blow each other up)
 	mo.rsrProjectile = nil
 	mo.rsrRealDamage = true
 	mo.rsrDontThrust = true -- The damage thrust code conflicts with the explosion thrust code, so disable it

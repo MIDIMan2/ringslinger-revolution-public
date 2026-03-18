@@ -329,13 +329,12 @@ end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
 ---@param damagetype integer
 addHook("ShouldDamage", function(target, inflictor, source, damage, damagetype)
 	if not (Valid(target) and Valid(inflictor)) then return end
-	if not inflictor.rsrProjectile then return false end -- Only take damage from RSR-registered projectiles!
+	if not (inflictor.rsrProjectile or (inflictor.flags2 & MF2_DEBRIS)) then return false end -- Only take damage from RSR-registered projectiles or explosions!
 
 	-- Stickybombs always detonate other Stickybombs!
 	if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB and not (inflictor.flags & MF_STICKY) then
-		if RSR.PlayersAreTeammates(target.target.player, source.player) and not (target.target == source) and not (RSR.CheckFriendlyFire()) then return false end -- Don't detonate due to non-self ally Stickybombs
-			target.fuse = 1
-		end
+		if Valid(source) and RSR.PlayersAreTeammates(target.target.player, source.player) and (target.target ~= source) and not (RSR.CheckFriendlyFire()) then return false end -- Don't detonate due to non-self ally Stickybombs
+		target.fuse = 1
 	else
 		if Valid(source) then
 			if Valid(target.target) then
