@@ -168,59 +168,23 @@ RSR.BounceThinker = function(mo)
 	mo.rsrPrevMomZ = mo.momz
 end
 
---- MobjMoveCollide hook code for the Bounce Ring.
+-- Bounce Ring object impact code
 ---@param tmthing mobj_t
 ---@param thing mobj_t
-RSR.BounceMoveCollide = function(tmthing, thing)
+RSR.addHook("ProjectileMoveCollide", function(tmthing, thing)
 	if not (Valid(tmthing) and Valid(thing)) then return end
-	if not (tmthing.flags & MF_MISSILE) then return end
 
-	-- Don't run collision code if the projectile flew over or under the target
-	if tmthing.z > thing.z + thing.height
-	or thing.z > tmthing.z + tmthing.height then
-		return
-	end
-
-	if Valid(tmthing.target) then
-		-- Don't hit the source of the projectile
-		if thing == tmthing.target then
-			return
-		end
-	end
-
-	-- Go through players (unless friendlyfire is on) and bots
-	if Valid(thing.player) then
-		if Valid(tmthing.target) and Valid(tmthing.target.player) and RSR.PlayersAreTeammates(tmthing.target.player, thing.player)
-		and not RSR.CheckFriendlyFire() then
-			return false
-		end
-
-		if thing.player.bot then
-			local bot = thing.player.bot
-
-			-- Pass through 2-player bots
-			if bot == BOT_2PAI or bot == BOT_2PHUMAN then
-				return false
-			end
-		end
-	end
-
-	if not (thing.flags & MF_SHOOTABLE) then return end
-
-	if tmthing.rsrBounced then
-		return false
-	end
+	if tmthing.rsrBounced then return true end
 
 	P_DamageMobj(thing, tmthing, tmthing.target, tmthing.rsrDamage)
 	tmthing.momx = -$
 	tmthing.momy = -$
 	tmthing.rsrBounced = 4 -- Add a timer so the bounce ring doesn't get stuck on an object
-
 	RSR.BounceIncrementCount(tmthing)
-	return false
-end
+	return true
+end, MT_RSR_PROJECTILE_BOUNCE)
 
---- MobjMoveBlocked hook code for the Bounce Ring.
+--- Bounce Ring wall impact code
 ---@param mo mobj_t
 ---@param line line_t
 RSR.BounceMoveBlocked = function(mo, _, line)
@@ -251,11 +215,11 @@ end
 
 addHook("MobjSpawn", RSR.BounceSpawn, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjThinker", RSR.BounceThinker, MT_RSR_PROJECTILE_BOUNCE)
-addHook("MobjMoveCollide", RSR.BounceMoveCollide, MT_RSR_PROJECTILE_BOUNCE)
+addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjMoveBlocked", RSR.BounceMoveBlocked, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjSpawn", RSR.BounceSpawn, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 addHook("MobjThinker", RSR.BounceThinker, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
-addHook("MobjMoveCollide", RSR.BounceMoveCollide, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
+addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 addHook("MobjMoveBlocked", RSR.BounceMoveBlocked, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 
 -- --------------------------------

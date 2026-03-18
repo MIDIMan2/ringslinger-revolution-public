@@ -35,6 +35,7 @@ freeslot(
 	"sfx_stikrm",
 	"sfx_stikrn", -- TODO: Replace this with a better sound(?)
 	"sfx_stikbp", -- Created by orbitalviolet
+	"sfx_stikht", -- TODO: Replace this with a better sound(?)
 	"sfx_gratrd", -- Created by orbitalviolet
 	"sfx_stikbm", -- Created by orbitalviolet
 	"sfx_boncfr", -- Created by orbitalviolet
@@ -361,9 +362,10 @@ sfxinfo[sfx_gratab].caption = "Stickybomb travelling"
 sfxinfo[sfx_gratrm].caption = "Stickybomb armed"
 sfxinfo[sfx_gratrm].flags = SF_X2AWAYSOUND -- Easier to detect nearby Stickybombs
 sfxinfo[sfx_stikrm].caption = "Stickybomb arming"
-sfxinfo[sfx_stikrn].caption = "Stickybomb atach"
+sfxinfo[sfx_stikrn].caption = "Stickybomb attach"
 sfxinfo[sfx_stikbp].caption = "Stickybomb nearby"
 sfxinfo[sfx_stikbp].flags = SF_X2AWAYSOUND -- Easier to detect nearby Stickybombs
+sfxinfo[sfx_stikht].caption = "Stickybomb damaged"
 sfxinfo[sfx_gratrd].caption = "Stickybomb activated"
 sfxinfo[sfx_stikbm].caption = "Stickybomb explosion"
 sfxinfo[sfx_stikbm].flags = SF_X2AWAYSOUND -- Make the Stickybomb's explosion heard from further away

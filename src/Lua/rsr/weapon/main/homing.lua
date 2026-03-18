@@ -191,6 +191,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	mo.momz = FixedMul(sin(mo.pitch), curSpeed)
 end
 
+-- Homing Ring spawn code
 ---@param mo mobj_t
 addHook("MobjSpawn", function(mo)
 	if not Valid(mo) then return end
@@ -228,6 +229,7 @@ mobjinfo[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 
 states[S_RSR_PROJECTILE_HOMING_BOMB] =	{SPR_RSBH,	H|FF_ANIMATE|FF_FULLBRIGHT,	-1,	nil,	6,	1,	S_NULL}
 
+-- Router RPB spawn code
 ---@param mo mobj_t
 addHook("MobjSpawn", function(mo)
 	if not Valid(mo) then return end

@@ -73,58 +73,36 @@ mobjinfo[MT_RSR_PROJECTILE_BASIC_CHARGED] = {
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
+-- Charged Shot spawn code
+---@param mo mobj_t
 addHook("MobjSpawn", function(mo)
 	if not Valid(mo) then return end
 
 	RSR.ProjectileSpawn(mo)
 	mo.rsrChargeHitList = {}
 end, MT_RSR_PROJECTILE_BASIC_CHARGED)
+
+-- Charged Shot thinker code
+---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 
 	if mo.rsrChargeTravelSound then RSR.ProjectileTravelSound(mo) end
 	RSR.ProjectileGhostTimer(mo)
-	if (leveltime & 1) then
+	if (leveltime & 1) then -- Make the Charged Shot "blink"
 		mo.color = SKINCOLOR_SALMON
 	else
 		mo.color = SKINCOLOR_RED
 	end
 end, MT_RSR_PROJECTILE_BASIC_CHARGED)
-addHook("MobjMoveCollide", function(tmthing, thing)
+
+addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BASIC_CHARGED)
+
+-- Charged Shot object collision code
+---@param tmthing mobj_t
+---@param thing mobj_t
+RSR.addHook("ProjectileMoveCollide", function(tmthing, thing)
 	if not (Valid(tmthing) and Valid(thing)) then return end
-	if not (tmthing.flags & MF_MISSILE) then return end
-
-	-- Don't run collision code if the projectile flew over or under the target
-	if tmthing.z > thing.z + thing.height
-	or thing.z > tmthing.z + tmthing.height then
-		return
-	end
-
-	if Valid(tmthing.target) then
-		-- Don't hit the source of the projectile
-		if thing == tmthing.target then
-			return
-		end
-	end
-
-	-- Go through players (unless friendlyfire is on) and bots
-	if Valid(thing.player) then
-		if Valid(tmthing.target) and Valid(tmthing.target.player) and RSR.PlayersAreTeammates(tmthing.target.player, thing.player)
-		and not RSR.CheckFriendlyFire() then
-			return false
-		end
-
-		if thing.player.bot then
-			local bot = thing.player.bot
-
-			-- Pass through 2-player bots
-			if bot == BOT_2PAI or bot == BOT_2PHUMAN then
-				return false
-			end
-		end
-	end
-
-	if not (thing.flags & MF_SHOOTABLE) then return end
 
 	if not tmthing.rsrChargeHitList[thing] then
 		S_StartSound(tmthing, tmthing.info.activesound) -- Play the charged ring hit sound to signify the charged ring actually hit something
@@ -132,7 +110,7 @@ addHook("MobjMoveCollide", function(tmthing, thing)
 		if not (Valid(tmthing) and Valid(thing)) then return false end
 		tmthing.rsrChargeHitList[thing] = true
 	end
-	return false
+	return true
 end, MT_RSR_PROJECTILE_BASIC_CHARGED)
 
 -- --------------------------------

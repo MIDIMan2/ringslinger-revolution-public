@@ -280,9 +280,9 @@ RSR.ProjectileMoveCollide = function(tmthing, thing)
 
 	if Valid(tmthing.target) then
 		-- Don't hit the source of the projectile
-		if thing == tmthing.target then
-			return
-		end
+		if thing == tmthing.target then return end
+		-- Don't hit the source's projectiles either
+		if (thing.flags & MF_MISSILE) and Valid(thing.target) and thing.target == tmthing.target then return false end
 	end
 
 	-- Go through players (unless friendlyfire is on) and bots
@@ -304,7 +304,24 @@ RSR.ProjectileMoveCollide = function(tmthing, thing)
 
 	if not (thing.flags & MF_SHOOTABLE) then return end
 
-	-- Consider using a hook here in the future
+	local hookEvent, hookName = RSR.findEvent("ProjectileMoveCollide")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if not v.typedef then
+					if not v.errored then
+						print("\x85".."ERROR:\x80 \"ProjectileMoveCollide\" hook requires an object type for its third parameter!")
+						S_StartSound(nil, sfx_lose)
+						v.errored = true
+					end
+					continue
+				end
+				if hookEvent.typefor(tmthing, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, tmthing, thing)
+			if result then return false end
+		end
+	end
 
 	local damage = tmthing.info.damage
 	if tmthing.rsrDamage then damage = tmthing.rsrDamage end

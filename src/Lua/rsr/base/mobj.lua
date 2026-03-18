@@ -23,6 +23,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 	bombDist = FixedMul($, moScale)
 	thrustDist = FixedMul($, moScale)
 	fullDist = min(FixedMul($, moScale), bombDist) -- Make sure fullDist doesn't go above bombDist
+	local checkDist = max(bombDist, thrustDist) -- Make sure thrustDist always works
 
 	mo.rsrProjectile = nil
 	mo.rsrRealDamage = true
@@ -98,7 +99,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 
 			enemy.momz = $ + FixedMul(thrust, sin(pitch))
 		end
-	end, mo, mo.x - bombDist, mo.x + bombDist, mo.y - bombDist, mo.y + bombDist)
+	end, mo, mo.x - checkDist, mo.x + checkDist, mo.y - checkDist, mo.y + checkDist)
 
 	P_StartQuake(bombDamage*FRACUNIT, 12, {x = mo.x, y = mo.y, z = mo.z + mo.height/2}, thrustDist)
 -- 	P_StartQuake(bombDamage*FRACUNIT, 12, nil, nil)

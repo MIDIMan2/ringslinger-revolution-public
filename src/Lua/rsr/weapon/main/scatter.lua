@@ -83,6 +83,8 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION] = {
 states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION_XPLDSOUND] =	{SPR_NULL,	A,	0,	A_ScatterFlakCannonXpldSound,	0,	0,	S_RSR_RINGEXPLODEULTRALOW}
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
+-- Mass Scrambler submunition thinker code
+---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 	if mo.health <= 0 then return end
@@ -207,6 +209,8 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON] = {
 states[S_RSR_PROJECTILE_SCATTER_FLAKCANNON] =	{SPR_RSBS,	FF_FULLBRIGHT,	0,	A_ScatterFlakCannon,	0,	0,	S_BOSSEXPLODE}
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON)
+-- Mass Scrambler thinker code
+---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 	RSR.ProjectileGhostTimer(mo) -- Smoke particles
@@ -215,45 +219,13 @@ addHook("MobjThinker", function(mo)
 	mo.rsrPrevMomY = mo.momy
 	mo.rsrPrevMomZ = mo.momz
 end, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON)
+addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON)
+-- Mass Scrambler object impact code
 ---@param tmthing mobj_t
 ---@param thing mobj_t
-addHook("MobjMoveCollide", function(tmthing, thing)
+RSR.addHook("ProjectileMoveCollide", function(tmthing, thing)
 	if not (Valid(tmthing) and Valid(thing)) then return end
-	if not (tmthing.flags & MF_MISSILE) then return end
 
-	-- Don't run collision code if the projectile flew over or under the target
-	if tmthing.z > thing.z + thing.height
-	or thing.z > tmthing.z + tmthing.height then
-		return
-	end
-
-	if Valid(tmthing.target) then
-		-- Don't hit the source of the projectile
-		if thing == tmthing.target then
-			return
-		end
-	end
-
-	-- Go through players (unless friendlyfire is on) and bots
-	if Valid(thing.player) then
-		if Valid(tmthing.target) and Valid(tmthing.target.player) and RSR.PlayersAreTeammates(tmthing.target.player, thing.player)
-		and not RSR.CheckFriendlyFire() then
-			return false
-		end
-
-		if thing.player.bot then
-			local bot = thing.player.bot
-
-			-- Pass through 2-player bots
-			if bot == BOT_2PAI or bot == BOT_2PHUMAN then
-				return false
-			end
-		end
-	end
-
-	if not (thing.flags & MF_SHOOTABLE) then return end
-
-	---@type integer|INT32
 	local damage = tmthing.info.damage
 	if tmthing.rsrDamage then damage = tmthing.rsrDamage end
 	P_DamageMobj(thing, tmthing, tmthing.target, damage)
@@ -261,8 +233,9 @@ addHook("MobjMoveCollide", function(tmthing, thing)
 		tmthing.angle = $ + ANGLE_180
 		P_ExplodeMissile(tmthing)
 	end
-	return false
+	return true
 end, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON)
+-- Mass Scrambler wall impact code
 ---@param mo mobj_t
 ---@param thing mobj_t
 ---@param line line_t
@@ -271,7 +244,7 @@ addHook("MobjMoveBlocked", function(mo, thing, line)
 
 	if Valid(line) then
 		-- Don't bounce against the sky
-		-- TODO: It still happens in that one Scatter ring alcove in Jade Valley, because P_CheckSkyHit is buggy.
+		-- TODO: It still happens in that one Scatter ring alcove in Jade Valley, because MobjMoveBlocked is buggy.
 		if P_CheckSkyHit(mo, line) then
 			P_RemoveMobj(mo)
 			return true
@@ -333,6 +306,7 @@ addHook("MobjThinker", RSR.WeaponPickupThinker, MT_RSR_PICKUP_SCATTER)
 
 local pspractions = PSprites.ACTIONS
 
+-- Scatter Ring WeaponReady code
 ---@param player player_t
 ---@param weaponInfo rsrweaponinfo_t
 ---@param args table

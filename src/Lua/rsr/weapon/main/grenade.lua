@@ -2,6 +2,7 @@
 -- Ringslinger Revolution - Grenade Weapon
 -- TODO: Use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
 
+RSR.GRENADE_FUSE = TICRATE
 RSR.STICKYBOMB_CHARGE_MAX = 3*TICRATE/2
 
 RSR.AddAmmo("GRENADE", {
@@ -57,6 +58,14 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE] = {
 
 states[S_RSR_PROJECTILE_GRENADE] =	{SPR_RSBG,	FF_ANIMATE|FF_FULLBRIGHT,	-1,	nil,	17,	2,	S_NULL}
 
+--- Activates the Grenade Ring's fuse.
+RSR.GrenadeActivate = function(mo)
+	if not Valid(mo) then return end
+	if mo.fuse then return end -- Don't activate again!
+	mo.fuse = RSR.GRENADE_FUSE
+	S_StartSound(mo, mo.info.attacksound)
+end
+
 -- Initialise the Grenade
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_GRENADE)
 
@@ -92,7 +101,7 @@ addHook("MobjThinker", function(mo)
 		if (hitFloor and P_MobjFlip(mo) == 1)
 		or (hitCeiling and P_MobjFlip(mo) == -1) then
 			mo.threshold = $+1
-
+			RSR.GrenadeActivate(mo)
 			mo.momx = 3*$/5
 			mo.momy = 3*$/5
 -- 			mo.momz = -2*$/3
@@ -118,14 +127,8 @@ end, MT_RSR_PROJECTILE_GRENADE)
 
 -- Grenade impact handler
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_GRENADE)
-addHook("MobjMoveCollide", function(mo)
-	if not mo.fuse then
-		mo.fuse = TICRATE
-		S_StartSound(mo, mo.info.attacksound)
-	end
-end, MT_RSR_PROJECTILE_GRENADE)
 
--- Grenade anti-sky-bounce checker
+-- Grenade anti-sky-bounce checker and wall impact handler
 ---@param mo mobj_t
 ---@param line line_t
 addHook("MobjMoveBlocked", function(mo, _, line)
@@ -135,10 +138,9 @@ addHook("MobjMoveBlocked", function(mo, _, line)
 	if Valid(line) and P_CheckSkyHit(mo, line) then
 		P_RemoveMobj(mo)
 		return true
-	elseif not mo.fuse then
-		mo.fuse = TICRATE
-		S_StartSound(mo, mo.info.attacksound)
 	end
+
+	RSR.GrenadeActivate(mo)
 end, MT_RSR_PROJECTILE_GRENADE)
 
 -- --------------------------------
@@ -179,7 +181,7 @@ RSR.GrenadeStickyBombActivate = function(mo)
 
 	S_StartSound(mo, mo.info.activesound)
 	mo.momx, mo.momy, mo.momz = 0, 0, 0 -- Full stop!
-	mo.flags = $|MF_NOGRAVITY|MF_NOCLIP|MF_NOCLIPHEIGHT -- Stay there!
+	mo.flags = $|MF_NOGRAVITY|MF_NOCLIPHEIGHT -- Stay there!
 	mo.flags = $ & ~MF_STICKY -- Don't check again!
 	S_StartSound(mo, sfx_stikrm) -- Play the "stick" sound
 	mo.fuse = 18 -- Arming fuse (roughly 1.184 seconds, length of arming sound)
@@ -290,7 +292,7 @@ addHook("MobjFuse", function(mo)
 		else
 			mo.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMB_ARMED
 		end
-		mo.flags = $|MF_SHOOTABLE -- Used for disarming Stickybombs
+		mo.flags = ($ & ~MF_NOBLOCKMAP)|MF_SHOOTABLE -- Used for disarming Stickybombs
 		return true
 	end
 
@@ -304,73 +306,63 @@ addHook("MobjFuse", function(mo)
 	return true
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
 
--- Stickybomb flying code
-addHook("MobjMoveCollide", function(tmthing, thing)
+addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+-- Stickybomb object impact code
+---@param tmthing mobj_t
+---@param thing mobj_t
+RSR.addHook("ProjectileMoveCollide", function(tmthing, thing)
 	if not (Valid(tmthing) and Valid(thing)) then return end
-	if not (tmthing.flags & MF_MISSILE) then return end
 
-	-- Don't run collision code if the projectile flew over or under the target
-	if tmthing.z > thing.z + thing.height
-	or thing.z > tmthing.z + tmthing.height then
-		return
-	end
-
-	if Valid(tmthing.target) then
-		-- Don't hit the source of the projectile
-		if thing == tmthing.target then
-			return
-		end
-	end
-
-	-- Go through players (unless friendlyfire is on) and bots
-	if Valid(thing.player) then
-		if Valid(tmthing.target) and Valid(tmthing.target.player) and RSR.PlayersAreTeammates(tmthing.target.player, thing.player)
-		and not RSR.CheckFriendlyFire() then
-			return false
-		end
-
-		if thing.player.bot then
-			local bot = thing.player.bot
-
-			-- Pass through 2-player bots
-			if bot == BOT_2PAI or bot == BOT_2PHUMAN then
-				return false
-			end
-		end
-	end
-
-	if not (thing.flags & MF_SHOOTABLE) then return end
-
-	if tmthing.rsrBounced then
-		return false
-	end
-
+	if tmthing.rsrBounced then return true end
 	P_DamageMobj(thing, tmthing, tmthing.target, tmthing.info.damage)
 	tmthing.momx = -$
 	tmthing.momy = -$
 	tmthing.rsrBounced = 4 -- Add a timer so the stickybomb doesn't get stuck on an object
+	return true
+end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+--- Allow self and enemy weapons to disarm own Stickybombs
+---@param target mobj_t
+---@param inflictor mobj_t
+---@param source mobj_t
+---@param damagetype integer
+addHook("ShouldDamage", function(target, inflictor, source, damage, damagetype)
+	if not (Valid(target) and Valid(inflictor)) then return end
+	if not inflictor.rsrProjectile then return false end -- Only take damage from RSR-registered projectiles!
+
+	-- Stickybombs always detonate other Stickybombs!
+	if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB and not (inflictor.flags & MF_STICKY) then
+		target.fuse = 1
+	end
+
+	if Valid(source) then
+		if Valid(target.target) then
+			if RSR.PlayersAreTeammates(target.target.player, source.player) and not RSR.CheckFriendlyFire() then return false end -- Don't lose fuse from ally damage
+			if target.target == source then return false end -- Don't lose fuse from your own bullets
+		end
+	end
+	local damageInfo = RSR.GetInflictorDamage(target, inflictor, source, damage, damagetype)
+	if damageInfo then damage = damageInfo.damage end
+	S_StartSound(target, sfx_stikht)
+	target.fuse = max(1, $ - damage * 4)
 
 	return false
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
 
----Allow self and enemy weapons to disarm own Stickybombs
----@param mo mobj_t
----@param inflictor mobj_t
----@param source mobj_t
----@param damagetype integer
-addHook("MobjDamage", function(mo, inflictor, source, damage, damagetype)
-	if not (Valid(mo) and Valid(inflictor)) then return end
+-- addHook("MobjDamage", function(mo, inflictor, source, damage, damagetype)
+-- 	if not (Valid(mo) and Valid(inflictor)) then return end
 
-	if inflictor.rsrProjectile then -- The inflictor is an RSR-registered projectile
-		if Valid(mo.target.player) and Valid(source.player) and RSR.PlayersAreTeammates(mo.target.player, source.player) then return end -- Don't lose fuse from ally damage
-		if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB then -- Stickybombs always detonate other Stickybombs!
-			mo.fuse = 0
-		else -- We multiply "damage" to Stickybombs by 4 to make this actually worth doing
-			if Valid(mo.target) and (mo.target == source) then return end -- Don't lose fuse from your own bullets
-			mo.fuse = $ - (damage * 4)
-		end
-	else return end
- end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+-- 	if inflictor.rsrProjectile then -- The inflictor is an RSR-registered projectile
+-- 		if Valid(mo.target) and Valid(mo.target.player) and Valid(source.player) and RSR.PlayersAreTeammates(mo.target.player, source.player) then return end -- Don't lose fuse from ally damage
+-- 		if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB then -- Stickybombs always detonate other Stickybombs!
+-- 			mo.fuse = 0
+-- 		else -- We multiply "damage" to Stickybombs by 4 to make this actually worth doing
+-- 			if Valid(mo.target) and (mo.target == source) then return end -- Don't lose fuse from your own bullets
+-- 			mo.fuse = max(1, $ - (damage * 4))
+-- 		end
+-- 	else return end
+--  end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
 
 --- This makes bombs Sticky
 ---@param mo mobj_t
@@ -456,8 +448,6 @@ pspractions.A_GrenadeAttack = function(player, args)
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_GRENADE, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then
 		P_SetObjectMomZ(missile, FRACUNIT, true)
-		-- Reaction time is being used for splash damage
-		missile.fuse = 2*TICRATE + 2
 	end
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
@@ -524,7 +514,7 @@ psprstates["S_GRENADE_READY"] =	{"RSRGRND",	"A",	1,	"A_RSRWeaponReady",	{},	"S_G
 -- Attack
 psprstates["S_GRENADE_ATTACK"] =	{"RSRGRND",	"A",	0,	"A_GrenadeAttack",	{},	"S_GRENADE_RECOVER"}
 -- Attack Alt
-psprstates["S_GRENADE_ATTACKALT_SOUND"] =	{"RSRGRND",	"A",	0,	"A_StartSound",			{sfx_gratch},	"S_GRENADE_ATTACKALT_LOWER"} -- TODO: Replace the sound
+psprstates["S_GRENADE_ATTACKALT_SOUND"] =	{"RSRGRND",	"A",	0,	"A_StartSound",			{sfx_gratch},	"S_GRENADE_ATTACKALT_LOWER"} -- TODO: Replace the sound?
 psprstates["S_GRENADE_ATTACKALT_LOWER"] =	{"RSRGRND",	"AAAA",	1,	"A_GrenadeAttackAlt",	{PSprites.PSPR_WEAPON,	0,	8*FRACUNIT,	true},	"S_GRENADE_ATTACKALT"}
 psprstates["S_GRENADE_ATTACKALT"] =			{"RSRGRND",	"A",	1,	"A_GrenadeAttackAlt",	{},	"S_GRENADE_ATTACKALT"}
 -- Recover

@@ -67,6 +67,8 @@ mobjinfo[MT_RSR_PROJECTILE_BOMB_MISSILEFORM] = {
 states[S_RSR_PROJECTILE_BOMB] =	{SPR_RSWE,	FF_ANIMATE|FF_FULLBRIGHT,	-1,	nil,	15,	1,	S_NULL}
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_BOMB)
+-- Explosion Ring thinker code
+---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 	if mo.health <= 0 then return end
@@ -82,6 +84,8 @@ addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOMB)
 -- --------------------------------
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_BOMB_MISSILEFORM)
+-- Self-Propel thinker code
+---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 	if mo.health <= 0 then return end
