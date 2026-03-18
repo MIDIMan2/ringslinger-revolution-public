@@ -184,7 +184,7 @@ RSR.GrenadeStickyBombActivate = function(mo)
 	mo.flags = $|MF_NOGRAVITY|MF_NOCLIPHEIGHT -- Stay there!
 	mo.flags = $ & ~MF_STICKY -- Don't check again!
 	S_StartSound(mo, sfx_stikrm) -- Play the "stick" sound
-	mo.fuse = 18 -- Arming fuse (roughly 1.184 seconds, length of arming sound)
+	mo.fuse = 18 -- Arming fuse (roughly 0.5 seconds)
 	S_StartSound(mo, sfx_gratrm) -- Play arming sound
 end
 
@@ -333,21 +333,23 @@ addHook("ShouldDamage", function(target, inflictor, source, damage, damagetype)
 
 	-- Stickybombs always detonate other Stickybombs!
 	if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB and not (inflictor.flags & MF_STICKY) then
-		target.fuse = 1
-	end
-
-	if Valid(source) then
-		if Valid(target.target) then
-			if RSR.PlayersAreTeammates(target.target.player, source.player) and not RSR.CheckFriendlyFire() then return false end -- Don't lose fuse from ally damage
-			if target.target == source then return false end -- Don't lose fuse from your own bullets
+		if RSR.PlayersAreTeammates(target.target.player, source.player) and not (target.target == source) and not (RSR.CheckFriendlyFire()) then return false end -- Don't detonate due to non-self ally Stickybombs
+			target.fuse = 1
 		end
-	end
-	local damageInfo = RSR.GetInflictorDamage(target, inflictor, source, damage, damagetype)
-	if damageInfo then damage = damageInfo.damage end
-	S_StartSound(target, sfx_stikht)
-	target.fuse = max(1, $ - damage * 4)
+	else
+		if Valid(source) then
+			if Valid(target.target) then
+				if RSR.PlayersAreTeammates(target.target.player, source.player) and not RSR.CheckFriendlyFire() then return false end -- Don't lose fuse from ally damage
+				if target.target == source then return false end -- Don't lose fuse from your own bullets
+			end
+		end
+		local damageInfo = RSR.GetInflictorDamage(target, inflictor, source, damage, damagetype)
+		if damageInfo then damage = damageInfo.damage end
+		S_StartSound(target, sfx_stikht)
+		target.fuse = max(1, $ - damage * 4)
 
-	return false
+		return false
+	end
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
 
 -- addHook("MobjDamage", function(mo, inflictor, source, damage, damagetype)
