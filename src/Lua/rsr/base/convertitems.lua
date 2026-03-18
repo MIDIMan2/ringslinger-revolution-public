@@ -94,6 +94,7 @@ RSR.RSMOBJ_TO_RSRMOBJ = {
 	},
 	[MT_RECYCLER_BOX] = {
 		srmtype = MT_1UP_BOX,
+		hidetype = MT_SNEAKERS_BOX,
 		dontremove = true
 	},
 	[MT_WHIRLWIND_BOX] = {
