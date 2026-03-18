@@ -57,7 +57,10 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE] = {
 
 states[S_RSR_PROJECTILE_GRENADE] =	{SPR_RSBG,	FF_ANIMATE|FF_FULLBRIGHT,	-1,	nil,	17,	2,	S_NULL}
 
+-- Initialise the Grenade
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_GRENADE)
+
+-- Grenade thinker
 ---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
@@ -67,9 +70,9 @@ addHook("MobjThinker", function(mo)
 	RSR.ProjectileTravelSound(mo) -- Travelling sound
 	RSR.ProjectileGhostTimer(mo, MT_SMOKE) -- Smoke particles
 
-	if mo.fuse % TICRATE == 0 then
-		S_StartSound(mo, mo.info.attacksound)
-	end
+	-- if mo.fuse % TICRATE == 0 then
+	-- 	S_StartSound(mo, mo.info.attacksound)
+	-- end
 
 	local hitFloor = mo.z + mo.momz <= mo.floorz
 	local hitCeiling = mo.z + mo.height + mo.momz >= mo.ceilingz
@@ -104,13 +107,25 @@ addHook("MobjThinker", function(mo)
 		return
 	end
 end, MT_RSR_PROJECTILE_GRENADE)
+
+-- Explode the Grenade 1 second after impacting a surface
 ---@param mo mobj_t
 addHook("MobjFuse", function(mo)
 	if not Valid(mo) then return end
 	P_ExplodeMissile(mo)
 	return true
 end, MT_RSR_PROJECTILE_GRENADE)
+
+-- Grenade impact handler
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_GRENADE)
+addHook("MobjMoveCollide", function(mo)
+	if not mo.fuse then
+		mo.fuse = TICRATE
+		S_StartSound(mo, mo.info.attacksound)
+	end
+end, MT_RSR_PROJECTILE_GRENADE)
+
+-- Grenade anti-sky-bounce checker
 ---@param mo mobj_t
 ---@param line line_t
 addHook("MobjMoveBlocked", function(mo, _, line)
@@ -120,6 +135,9 @@ addHook("MobjMoveBlocked", function(mo, _, line)
 	if Valid(line) and P_CheckSkyHit(mo, line) then
 		P_RemoveMobj(mo)
 		return true
+	elseif not mo.fuse then
+		mo.fuse = TICRATE
+		S_StartSound(mo, mo.info.attacksound)
 	end
 end, MT_RSR_PROJECTILE_GRENADE)
 
@@ -163,9 +181,9 @@ RSR.GrenadeStickyBombActivate = function(mo)
 	mo.momx, mo.momy, mo.momz = 0, 0, 0 -- Full stop!
 	mo.flags = $|MF_NOGRAVITY|MF_NOCLIP|MF_NOCLIPHEIGHT -- Stay there!
 	mo.flags = $ & ~MF_STICKY -- Don't check again!
-	S_StartSound(mo, sfx_gratrm) -- Play the "stick" sound
-	mo.fuse = 41-- Arming fuse (roughly 1.184 seconds, length of arming sound)
-	S_StartSound(mo, sfx_stikrm) -- Play arming sound
+	S_StartSound(mo, sfx_stikrm) -- Play the "stick" sound
+	mo.fuse = 18 -- Arming fuse (roughly 1.184 seconds, length of arming sound)
+	S_StartSound(mo, sfx_gratrm) -- Play arming sound
 end
 
 addHook("MobjSpawn", function(mo)
@@ -173,6 +191,8 @@ addHook("MobjSpawn", function(mo)
 	mo.cusval = 0
 	RSR.ProjectileSpawn(mo)
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+-- Stickybomb thinker
 ---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
@@ -253,6 +273,8 @@ addHook("MobjThinker", function(mo)
 		end
 	end
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+-- Function that arms/detonates Stickybombs when fuse runs out
 ---@param mo mobj_t
 addHook("MobjFuse", function(mo)
 	if not Valid(mo) then return end
@@ -268,6 +290,7 @@ addHook("MobjFuse", function(mo)
 		else
 			mo.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMB_ARMED
 		end
+		mo.flags = $|MF_SHOOTABLE -- Used for disarming Stickybombs
 		return true
 	end
 
@@ -280,6 +303,8 @@ addHook("MobjFuse", function(mo)
 	end
 	return true
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+-- Stickybomb flying code
 addHook("MobjMoveCollide", function(tmthing, thing)
 	if not (Valid(tmthing) and Valid(thing)) then return end
 	if not (tmthing.flags & MF_MISSILE) then return end
@@ -327,6 +352,25 @@ addHook("MobjMoveCollide", function(tmthing, thing)
 
 	return false
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+---Allow self and enemy weapons to disarm own Stickybombs
+---@param mo mobj_t
+---@param inflictor mobj_t
+---@param source mobj_t
+---@param damagetype integer
+addHook("MobjDamage", function(mo, inflictor, source, damage, damagetype)
+	if not (Valid(mo) and Valid(inflictor)) then return end
+
+	if inflictor.rsrProjectile then -- The inflictor is an RSR-registered projectile
+		if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB then -- Stickybombs always detonate other Stickybombs!
+			mo.fuse = 0
+		else -- We multiply "damage" to Stickybombs by 4 to make this actually worth doing
+			mo.fuse = $ - damage * 4
+		end
+	else return end
+ end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+--- This makes bombs Sticky
 ---@param mo mobj_t
 addHook("MobjMoveBlocked", function(mo, _, line)
 	if not Valid(mo) then return end
