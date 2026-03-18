@@ -362,10 +362,12 @@ addHook("MobjDamage", function(mo, inflictor, source, damage, damagetype)
 	if not (Valid(mo) and Valid(inflictor)) then return end
 
 	if inflictor.rsrProjectile then -- The inflictor is an RSR-registered projectile
+		if Valid(mo.target.player) and Valid(source.player) and RSR.PlayersAreTeammates(mo.target.player, source.player) then return end -- Don't lose fuse from ally damage
 		if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB then -- Stickybombs always detonate other Stickybombs!
 			mo.fuse = 0
 		else -- We multiply "damage" to Stickybombs by 4 to make this actually worth doing
-			mo.fuse = $ - damage * 4
+			if Valid(mo.target) and (mo.target == source) then return end -- Don't lose fuse from your own bullets
+			mo.fuse = $ - (damage * 4)
 		end
 	else return end
  end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
