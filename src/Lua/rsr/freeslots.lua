@@ -367,7 +367,9 @@ sfxinfo[sfx_stikbp].caption = "Stickybomb nearby"
 sfxinfo[sfx_stikbp].flags = SF_X2AWAYSOUND -- Easier to detect nearby Stickybombs
 sfxinfo[sfx_stikht].caption = "Stickybomb damaged"
 sfxinfo[sfx_gratrd].caption = "Stickybomb activated"
+sfxinfo[sfx_gratrd].singular = true
 sfxinfo[sfx_stikbm].caption = "Stickybomb explosion"
+sfxinfo[sfx_stikbm].singular = true
 sfxinfo[sfx_stikbm].flags = SF_X2AWAYSOUND -- Make the Stickybomb's explosion heard from further away
 
 -- Bounce Ring

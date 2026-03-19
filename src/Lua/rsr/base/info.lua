@@ -268,7 +268,7 @@ RSR.MOBJ_INFO[MT_CORK] = {
 	killfeedIcon = "RSRGUN",
 	killfeedName = "popgun",
 	killfeedObituary = {
-		attacker = "$a's $rpopgun shot $v.",
+		attacker = "$a shot $v with a $rpopgun.",
 		solo = "$v was shot by a $rpopgun cork."
 	}
 }
