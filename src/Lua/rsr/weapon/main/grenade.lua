@@ -99,7 +99,8 @@ addHook("MobjThinker", function(mo)
 
 	if mo.threshold < 3 then
 		if (hitFloor and P_MobjFlip(mo) == 1)
-		or (hitCeiling and P_MobjFlip(mo) == -1) then
+		or (hitCeiling and P_MobjFlip(mo) == -1)
+		or (Valid(mo.standingslope)) then -- Temporary fix for certain slope angles until 2.2.16 comes out
 			mo.threshold = $+1
 			RSR.GrenadeActivate(mo)
 			mo.momx = 3*$/5
@@ -188,6 +189,20 @@ RSR.GrenadeStickyBombActivate = function(mo)
 	S_StartSound(mo, sfx_gratrm) -- Play arming sound
 end
 
+--- Detonates the Stickybomb.
+---@param mo mobj_t
+RSR.GrenadeStickybombDetonate = function(mo)
+	if not Valid(mo) then return end
+	S_StartSound(mo, sfx_gratrd)
+	mo.flags = $ & ~MF_MISSILE
+	mo.fuse = 0 -- Just in case
+	if mo.state == S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_ARMED then
+		mo.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE
+	else
+		mo.state = mo.info.xdeathstate
+	end
+end
+
 addHook("MobjSpawn", function(mo)
 	if not Valid(mo) then return end
 	mo.cusval = 0
@@ -206,16 +221,7 @@ addHook("MobjThinker", function(mo)
 	-- Only do the proximity check when stuck to a wall and armed
 	if not (mo.flags & MF_STICKY) then
 		if mo.cusval then
-			RSR.ProximityDetonate(mo, 96*FRACUNIT, function(missile)
-				S_StartSound(missile, sfx_gratrd)
-				missile.health = 0
-				missile.fuse = 0
-				if missile.state == S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_ARMED then
-					missile.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE
-				else
-					missile.state = missile.info.xdeathstate
-				end
-			end)
+			RSR.ProximityDetonate(mo, 96*FRACUNIT, RSR.GrenadeStickybombDetonate)
 		end
 	else
 		RSR.ProjectileTravelSound(mo) -- Travelling sound
@@ -296,13 +302,7 @@ addHook("MobjFuse", function(mo)
 		return true
 	end
 
-	S_StartSound(mo, sfx_gratrd)
-	mo.health = 0
-	if mo.state == S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_ARMED then
-		mo.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE
-	else
-		mo.state = mo.info.xdeathstate
-	end
+	RSR.GrenadeStickybombDetonate(mo)
 	return true
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
 
@@ -329,18 +329,24 @@ end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
 ---@param damagetype integer
 addHook("ShouldDamage", function(target, inflictor, source, damage, damagetype)
 	if not (Valid(target) and Valid(inflictor)) then return end
+	if (target.flags2 & MF2_DEBRIS) then return false end -- Don't explode if we've already exploded!
 	if not (inflictor.rsrProjectile or (inflictor.flags2 & MF2_DEBRIS)) then return false end -- Only take damage from RSR-registered projectiles or explosions!
 
 	-- Stickybombs always detonate other Stickybombs!
 	if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB and not (inflictor.flags & MF_STICKY) then
 		if Valid(source) and RSR.PlayersAreTeammates(target.target.player, source.player) and (target.target ~= source) and not (RSR.CheckFriendlyFire()) then return false end -- Don't detonate due to non-self ally Stickybombs
-		target.fuse = 1
+		if not (target.flags & MF_MISSILE) then
+			target.tics = 6 -- Cause a chain reaction if the Stickybomb has already been detonated
+		else
+			RSR.GrenadeStickybombDetonate(target)
+		end
+		return false
 	else
-		if Valid(source) then
-			if Valid(target.target) then
-				if RSR.PlayersAreTeammates(target.target.player, source.player) and not RSR.CheckFriendlyFire() then return false end -- Don't lose fuse from ally damage
-				if target.target == source then return false end -- Don't lose fuse from your own bullets
-			end
+		if not (target.flags & MF_MISSILE) then return false end -- Don't cause further damage if the Stickybomb has already been detonated
+
+		if Valid(source) and Valid(target.target) then
+			if RSR.PlayersAreTeammates(target.target.player, source.player) and not RSR.CheckFriendlyFire() then return false end -- Don't lose fuse from ally damage
+			if target.target == source then return false end -- Don't lose fuse from your own bullets
 		end
 		local damageInfo = RSR.GetInflictorDamage(target, inflictor, source, damage, damagetype)
 		if damageInfo then damage = damageInfo.damage end
