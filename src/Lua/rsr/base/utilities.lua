@@ -176,6 +176,7 @@ end
 ---@param speed fixed_t|integer|nil Sets the speed of the missile (default is missileType's Speed property).
 ---@param sound integer|nil Determines what sound to use for the spawned missile (uses sfx_* constants).
 ---@param noPlayerSpeed boolean|nil If true, this prevents the player's speed from being accounted for.
+---@param lowAmmoSound integer|nil Determines what sound to use for the low ammo warning (uses sfx_* constants).
 RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, speed, sound, noPlayerSpeed, lowAmmoSound)
 	if not Valid(source) then return end
 	missileType = $ or MT_JETTBULLET
@@ -192,7 +193,7 @@ RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, 
 	if Valid(rsrinfo.readyWeapon) and Valid(rsrinfo.ammo[ammotype]) then
 		if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammotype < RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].lowammo then
 			local lowVol = ((RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].lowammo - RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammotype)/(RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].lowammo - 1)) * 255
-			S_StartSoundAtVolume(source, lowAmmoSound, lowVol)
+			S_StartSoundAtVolume(source, lowAmmoSound, lowVol, player)
 		end
 	end
 
