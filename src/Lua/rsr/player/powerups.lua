@@ -20,7 +20,7 @@ RSR.HasPowerup = function(player, powerup)
 		if not power then continue end
 
 		if power.powerup == powerup then
-			return true, key
+			return true, key, power.tics
 		end
 	end
 
