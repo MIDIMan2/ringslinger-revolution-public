@@ -176,8 +176,7 @@ end
 ---@param speed fixed_t|integer|nil Sets the speed of the missile (default is missileType's Speed property).
 ---@param sound integer|nil Determines what sound to use for the spawned missile (uses sfx_* constants).
 ---@param noPlayerSpeed boolean|nil If true, this prevents the player's speed from being accounted for.
----@param lowAmmoSound integer|nil Determines what sound to use for the low ammo warning (uses sfx_* constants).
-RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, speed, sound, noPlayerSpeed, lowAmmoSound)
+RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, speed, sound, noPlayerSpeed)
 	if not Valid(source) then return end
 	missileType = $ or MT_JETTBULLET
 	angle = $ or source.angle
