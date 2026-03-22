@@ -490,7 +490,7 @@ pspractions.A_GrenadeAttackAlt = function(player, args)
 		player.rsrinfo.stickyCharge = max($ - decrement, 0)
 	end
 
-	if not (player.cmd.buttons & BT_FIRENORMAL) or not (RSR.PlayerHasEmerald(player, EMERALD5) or player.powers[pw_super]) then
+	if not (player.cmd.buttons & RSR.GetAttackButton(true)) or not RSR.CanUseAttack(player, EMERALD7, true) then
 		S_StopSoundByID(player.mo, sfx_gratch)
 		RSR.SetWeaponDelay(player, nil, nil, true)
 		RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
