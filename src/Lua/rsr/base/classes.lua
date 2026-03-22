@@ -11,9 +11,9 @@
 ---@field armor integer Current amount of armor for the player.
 ---@field armorPercent fixed_t Determines the percentage of damage taken to armor.
 ---@field damagePercent fixed_t Determines the percentage of overall damage taken.
----@field hurtByEnemy tic_t|integer Timer for damage taken by enemies/Object-based hazards.
----@field hurtByMelee tic_t|integer Timer for damage taken by player melee.
----@field hurtByMap tic_t|integer Timer for damage taken by level geometry.
+---@field hurtByEnemy tic_t Timer for damage taken by enemies/Object-based hazards.
+---@field hurtByMelee tic_t Timer for damage taken by player melee.
+---@field hurtByMap tic_t Timer for damage taken by level geometry.
 ---@field attackKnockback boolean Whether the player was hurt while attempting to melee another player.
 ---@field hitSound integer Plays a hitsound using RSR.HITSOUND_* constants.
 ---@field deathFlags integer Hack for MobjDeath (uses RSR.DEATH_* constants).
@@ -40,7 +40,8 @@
 ---@field basicChargeDontTakeAmmo boolean|nil Determines if the Charged Shot shouldn't take ammo.
 ---@field scatterFlak mobj_t|nil A reference to the player's last Mass Scrambler ring fired.
 ---@field bounceMega mobj_t|nil A reference to the player's last Goldburster ring fired.
----@field waspTime integer|nil Timer for the Homing Ring's altfire.
+---@field stickyCharge tic_t|nil Timer for the Grenade Ring's altfire.
+---@field waspTime tic_t|nil Timer for the Homing Ring's altfire.
 ---@field lastbuttons UINT16 Buttons (BT_* constants) held on the last game tic.
 ---@field lastexiting tic_t Value of player.exiting on the last game tic.
 ---@field lastemeralds UINT16 Value of player.powers[pw_emeralds] on the last game tic.
@@ -57,7 +58,7 @@
 ---@field damage integer Damage dealt to the player on contact.
 ---@field knockback fixed_t Knockback scale dealt to the player on contact.
 ---@field nothomable boolean Makes the mobj not homable.
----@field fulldamage integer Maximum damage dealt to the player from splash damage.
+---@field fulldist integer Determines the radius of maximum damage dealt to the player from splash damage.
 ---@field thrustdamage integer Knockback dealt to the player from splash damage.
 ---@field aimthrust boolean Makes splash damage thrust the source mobj in the direction they're facing.
 ---@field dontreflect boolean Makes the projectile non-reflectable by the Force shields.
@@ -103,6 +104,10 @@
 ---@field delayaltspeed integer Recovery time for the weapon's altfire while the player has super sneakers.
 ---@field emerald integer Constant for emerald that gives this weapon an altfire (EMERALD1 = Green, EMERALD2 = Pink, etc.).
 ---@field icon string Graphic to use for the weapon bar on the HUD.
+---@field lowammo integer Determines when to play the weapon's lowammosound.
+---@field lowammoalt integer Determines when to player the weapon's lowammosoundalt.
+---@field lowammosound soundnum_t Sound to play when the weapon's primary fire ammo is low.
+---@field lowammosoundalt soundnum_t Sound to player when the weapon's alternate fire ammo is low.
 ---@field name string Name of the weapon.
 ---@field namealt string Name of the weapon's altfire.
 ---@field pickup mobjtype_t Pickup object for the weapon.
@@ -116,13 +121,13 @@
 
 ---@class rsrpowerup_t
 ---@field powerup integer Powerup in the player's inventory (uses POWERUP_* constants).
----@field tics integer Timer for the powerup.
+---@field tics tic_t Timer for the powerup.
 ---@field penalty tic_t Time in tics to subtract from the time bonus when addTics is used in RSR.GivePowerup.
 
 ---@class rsrpowerupinfo_t
 ---@field icon string Icon for the powerup.
 ---@field power integer Power to set for player_t.powers (uses pw_* constants).
----@field tics integer Time limit for the powerup.
+---@field tics tic_t Time limit for the powerup.
 
 ---@class rsrstarpostdata_t
 ---@field ammo integer[] An array containing ammo amounts of each type in the player's inventory when they passed the last starpost.

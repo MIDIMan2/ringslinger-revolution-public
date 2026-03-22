@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-fields
 -- Ringslinger Revolution - Weapons
 
 local folder = "rsr/weapon"
@@ -145,8 +146,32 @@ RSR.TakeAmmo = function(player, amount, ammoType, ignoreInfinity)
 	amount = $ or 0
 
 	local rsrinfo = player.rsrinfo
-
 	rsrinfo.ammo[ammoType] = max(0, $ - amount)
+end
+
+--- Plays the low ammo sound for the given weapon.
+---@param player player_t
+---@param weaponType integer|nil Weapon to play the low ammo sound for. If set to nil, this is the player's readyWeapon.
+---@param useAlt boolean|nil Determines whether to play the alternate low ammo sound for the given weapon.
+RSR.PlayLowAmmoSound = function(player, weaponType, useAlt)
+	if not (Valid(player) and player.rsrinfo) then return end
+	if RSR.HasPowerup(player, RSR.POWERUP_INFINITY) then return end -- Don't run this function if the player has the infinity powerup
+	local rsrinfo = player.rsrinfo
+	if not weaponType then weaponType = rsrinfo.readyWeapon end
+	if not RSR.WEAPON_INFO[weaponType] then return end
+	local lowAmmoSound = RSR.WEAPON_INFO[weaponType].lowammosound
+	if useAlt then lowAmmoSound = RSR.WEAPON_INFO[weaponType].lowammosoundalt end
+
+	if lowAmmoSound then
+		local lowAmmo = RSR.WEAPON_INFO[weaponType].lowammo
+		if useAlt and RSR.WEAPON_INFO[weaponType].lowammoalt then lowAmmo = RSR.WEAPON_INFO[weaponType].lowammoalt end
+		local curAmmo = rsrinfo.ammo[RSR.WEAPON_INFO[rsrinfo.readyWeapon].ammotype]
+		if lowAmmo and (curAmmo < lowAmmo) then
+			local lowVol = FixedMul(255, FixedDiv(lowAmmo - curAmmo, lowAmmo))
+			-- local lowVol = ((RSR.WEAPON_INFO[rsrinfo.readyWeapon].lowammo - RSR.WEAPON_INFO[rsrinfo.readyWeapon].ammotype)/(RSR.WEAPON_INFO[rsrinfo.readyWeapon].lowammo - 1)) * 255
+			S_StartSoundAtVolume(nil, lowAmmoSound, lowVol, player)
+		end
+	end
 end
 
 --- Calls RSR.TakeAmmo using the player's weapon's ammo type.
@@ -279,9 +304,9 @@ RSR.ProjectileMoveCollide = function(tmthing, thing)
 
 	if Valid(tmthing.target) then
 		-- Don't hit the source of the projectile
-		if thing == tmthing.target then
-			return
-		end
+		if thing == tmthing.target then return end
+		-- Don't hit the source's projectiles either
+		if (thing.flags & MF_MISSILE) and Valid(thing.target) and thing.target == tmthing.target then return false end
 	end
 
 	-- Go through players (unless friendlyfire is on) and bots
@@ -303,7 +328,24 @@ RSR.ProjectileMoveCollide = function(tmthing, thing)
 
 	if not (thing.flags & MF_SHOOTABLE) then return end
 
-	-- Consider using a hook here in the future
+	local hookEvent, hookName = RSR.findEvent("ProjectileMoveCollide")
+	if hookEvent then
+		for i, v in ipairs(hookEvent) do
+			if hookEvent.typefor ~= nil then
+				if not v.typedef then
+					if not v.errored then
+						print("\x85".."ERROR:\x80 \"ProjectileMoveCollide\" hook requires an object type for its third parameter!")
+						S_StartSound(nil, sfx_lose)
+						v.errored = true
+					end
+					continue
+				end
+				if hookEvent.typefor(tmthing, v.typedef) == false then continue end
+			end
+			local result = RSR.tryRunHook(hookName, v, tmthing, thing)
+			if result then return false end
+		end
+	end
 
 	local damage = tmthing.info.damage
 	if tmthing.rsrDamage then damage = tmthing.rsrDamage end

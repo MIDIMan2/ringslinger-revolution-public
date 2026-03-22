@@ -215,7 +215,7 @@ mobjinfo[MT_RSR_HEALTH_SMALL] = {
 	spawnstate = S_RSR_HEALTH_SMALL,
 	deathstate = S_RSR_ITEM_DEATH,
 	deathsound = sfx_ncitem,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 24*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -242,7 +242,7 @@ mobjinfo[MT_RSR_HEALTH] = {
 	spawnstate = S_RSR_HEALTH,
 	deathstate = S_RSR_ITEM_DEATH,
 	deathsound = sfx_ncitem,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 24*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -269,7 +269,7 @@ mobjinfo[MT_RSR_HEALTH_BIG] = {
 	spawnstate = S_RSR_HEALTH_BIG,
 	deathstate = S_RSR_ITEM_DEATH,
 	deathsound = sfx_ncitem,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 24*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -296,7 +296,7 @@ mobjinfo[MT_RSR_ARMOR_SMALL] = {
 	spawnstate = S_RSR_ARMOR_SMALL,
 	deathstate = S_RSR_ITEM_DEATH,
 	deathsound = sfx_shield,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 24*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -323,7 +323,7 @@ mobjinfo[MT_RSR_ARMOR] = {
 	spawnstate = S_RSR_ARMOR,
 	deathstate = S_RSR_ITEM_DEATH,
 	deathsound = sfx_shield,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 24*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -350,7 +350,7 @@ mobjinfo[MT_RSR_ARMOR_BIG] = {
 	spawnstate = S_RSR_ARMOR_BIG,
 	deathstate = S_RSR_ITEM_DEATH,
 	deathsound = sfx_shield,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 24*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }

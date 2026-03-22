@@ -49,6 +49,7 @@ mobjinfo[MT_RSR_PROJECTILE_RAIL] = {
 
 states[S_RSR_PROJECTILE_RAIL] =	{SPR_RSWS,	FF_FULLBRIGHT,	-1,	nil,	0,	0,	S_NULL}
 
+-- Rail Ring spawn code
 ---@param mo mobj_t
 addHook("MobjSpawn", function(mo)
 	if not Valid(mo) then return end
@@ -57,56 +58,29 @@ addHook("MobjSpawn", function(mo)
 	mo.rsrRailHitList = {}
 	mo.rsrRailHitCount = 0
 end, MT_RSR_PROJECTILE_RAIL)
+
+addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_RAIL)
+
+-- Rail Ring object piercing code
 ---@param tmthing mobj_t
 ---@param thing mobj_t
-addHook("MobjMoveCollide", function(tmthing, thing)
+RSR.addHook("ProjectileMoveCollide", function(tmthing, thing)
 	if not (Valid(tmthing) and Valid(thing)) then return end
-	if not (tmthing.flags & MF_MISSILE) then return end
-
-	-- Don't run collision code if the projectile flew over or under the target
-	if tmthing.z > thing.z + thing.height
-	or thing.z > tmthing.z + tmthing.height then
-		return
-	end
-
-	if Valid(tmthing.target) then
-		-- Don't hit the source of the projectile
-		if thing == tmthing.target then
-			return
-		end
-	end
-
-	-- Go through players (unless friendlyfire is on) and bots
-	if Valid(thing.player) then
-		if Valid(tmthing.target) and Valid(tmthing.target.player) and RSR.PlayersAreTeammates(tmthing.target.player, thing.player)
-		and not RSR.CheckFriendlyFire() then
-			return false
-		end
-
-		if thing.player.bot then
-			local bot = thing.player.bot
-
-			-- Pass through 2-player bots
-			if bot == BOT_2PAI or bot == BOT_2PHUMAN then
-				return false
-			end
-		end
-	end
-
-	if not (thing.flags & MF_SHOOTABLE) then return end
 
 	if not tmthing.rsrRailHitList[thing] then
 		S_StartSound(thing, tmthing.info.activesound) -- Play the rail hit sound to signify the rail actually hit something
 		P_DamageMobj(thing, tmthing, tmthing.target, tmthing.info.damage)
-		if not (Valid(tmthing) and Valid(thing)) then return false end
+		if not (Valid(tmthing) and Valid(thing)) then return true end
 		tmthing.rsrRailHitList[thing] = true
 		if Valid(tmthing.target) and Valid(tmthing.target.player) and Valid(thing.player)
 		and not RSR.PlayersAreTeammates(tmthing.target.player, thing.player) then -- Only add Machina sound effects if the target is an enemy player!
 			tmthing.rsrRailHitCount = $ + 1
 		end
 	end
-	return false
+	return true
 end, MT_RSR_PROJECTILE_RAIL)
+
+-- Rail Ring wall impact code
 ---@param mo mobj_t
 ---@param line line_t
 addHook("MobjMoveBlocked", function(mo, _, line)
@@ -114,6 +88,8 @@ addHook("MobjMoveBlocked", function(mo, _, line)
 	mo.cusval = 1 -- Use this to check whether the rail ring hit a wall or not
 	mo.angle = R_PointToAngle2(0, 0, line.dx, line.dy) - ANGLE_90
 end, MT_RSR_PROJECTILE_RAIL)
+
+-- Reset the Rail Ring's hitcount every game tick
 ---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
@@ -149,7 +125,7 @@ mobjinfo[MT_RSR_PICKUP_RAIL] = {
 	spawnstate = S_RSR_PICKUP_RAIL,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 28*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -172,6 +148,9 @@ end, MT_RSR_PICKUP_RAIL)
 -- ACTIONS & STATES
 -- --------------------------------
 
+-- Rail Ring WeaponReady code
+---@param player player_t
+---@param weaponInfo rsrweaponinfo_t
 RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
 

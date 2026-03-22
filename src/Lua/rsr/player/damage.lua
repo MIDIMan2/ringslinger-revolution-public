@@ -856,8 +856,6 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 		return
 	end
 
-	if G_TagGametype() and leveltime <= CV_FindVar("hidetime").value * TICRATE then return end
-
 	local shield = player.powers[pw_shield]
 	if damagetype == DMG_FIRE and (shield & SH_PROTECTFIRE) then return end
 	if damagetype == DMG_WATER and (shield & SH_PROTECTWATER) then return end
@@ -869,6 +867,12 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 		and not Valid(inflictor.player) then -- This code was meant for enemies only
 			P_DamageMobj(inflictor, target, target, 1)
 		end
+		return false
+	end
+
+	-- Prevent damage from opposing players when "hiding" in Tag or H&S
+	if G_TagGametype() and leveltime <= CV_FindVar("hidetime").value * TICRATE
+	and Valid(source) and Valid(source.player) then
 		return false
 	end
 
@@ -1132,18 +1136,20 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			-- Only run this if a player is the source of this kill
 			RSR.PlayerReplenishPowerups(sourcePlayer)
 
+			-- Deprecated code that used to handle Attraction armour gain on kill
+
 			-- Melee attacks always have the player object be the inflictor
-			if Valid(inflictor) and Valid(inflictor.player) and inflictor.player.rsrinfo then
-				if (inflictor.player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT -- Player has an Attraction Shield
-				and (inflictor.player.pflags & PF_SHIELDABILITY) -- Player is using the Attraction Shield
-				and inflictor.player.rsrinfo.homing -- Player is homing
-				and (Valid(inflictor.tracer) and inflictor.tracer == target) then -- Player is targeting us
-					RSR.GiveArmor(inflictor.player, 100)
-					-- Give the player an indicator that they just got armor
-					RSR.BonusFade(inflictor.player)
-					S_StartSound(nil, sfx_attrsg, inflictor.player)
-				end
-			end
+			-- if Valid(inflictor) and Valid(inflictor.player) and inflictor.player.rsrinfo then
+			-- 	if (inflictor.player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT -- Player has an Attraction Shield
+			-- 	and (inflictor.player.pflags & PF_SHIELDABILITY) -- Player is using the Attraction Shield
+			-- 	and inflictor.player.rsrinfo.homing -- Player is homing
+			-- 	and (Valid(inflictor.tracer) and inflictor.tracer == target) then -- Player is targeting us
+			-- 		RSR.GiveArmor(inflictor.player, 100)
+			-- 		-- Give the player an indicator that they just got armor
+			-- 		RSR.BonusFade(inflictor.player)
+			-- 		S_StartSound(nil, sfx_attrsg, inflictor.player)
+			-- 	end
+			-- end
 
 			local wasHiding = (G_TagGametype() and (gametyperules & GTR_HIDEFROZEN) and not (player.pflags & PF_GAMETYPEOVER))
 

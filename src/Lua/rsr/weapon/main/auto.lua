@@ -11,6 +11,10 @@ RSR.AddWeapon("AUTO", {
 	ammotype = RSR.AMMO_AUTO,
 	ammoamount = 80,
 	ammoalt = 3,
+	lowammo = 21,
+	lowammoalt = 45,
+	lowammosound = sfx_autola,
+	lowammosoundalt = sfx_atatla,
 	class = 3,
 	delay = 2,
 	delayspeed = 1,
@@ -98,7 +102,7 @@ mobjinfo[MT_RSR_PICKUP_AUTO] = {
 	seestate = S_RSR_PICKUP_AUTO_PANEL,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 28*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -127,6 +131,7 @@ pspractions.A_AutoAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_AUTO, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
@@ -139,6 +144,7 @@ pspractions.A_AutoAttackAlt = function(player, args)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
 	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+	RSR.PlayLowAmmoSound(player, nil, true)
 
 	local angle = player.mo.angle
 	local pitch = player.cmd.aiming<<16

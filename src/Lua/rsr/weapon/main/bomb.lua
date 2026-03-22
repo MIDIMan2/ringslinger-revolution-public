@@ -11,6 +11,10 @@ RSR.AddWeapon("BOMB", {
 	ammotype = RSR.AMMO_BOMB,
 	ammoamount = 10,
 	ammoalt = 3,
+	lowammo = 4,
+	lowammoalt = 7,
+	lowammosound = sfx_bombla,
+	lowammosoundalt = sfx_boatla,
 	class = 4,
 	delay = 36,
 	delayspeed = 18,
@@ -67,6 +71,8 @@ mobjinfo[MT_RSR_PROJECTILE_BOMB_MISSILEFORM] = {
 states[S_RSR_PROJECTILE_BOMB] =	{SPR_RSWE,	FF_ANIMATE|FF_FULLBRIGHT,	-1,	nil,	15,	1,	S_NULL}
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_BOMB)
+-- Explosion Ring thinker code
+---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 	if mo.health <= 0 then return end
@@ -82,6 +88,8 @@ addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOMB)
 -- --------------------------------
 
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_BOMB_MISSILEFORM)
+-- Self-Propel thinker code
+---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 	if mo.health <= 0 then return end
@@ -115,7 +123,7 @@ mobjinfo[MT_RSR_PICKUP_BOMB] = {
 	seestate = S_RSR_PICKUP_BOMB_PANEL,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 28*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -144,6 +152,7 @@ pspractions.A_BombAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOMB, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
@@ -156,6 +165,7 @@ pspractions.A_BombAttackAlt = function(player, args)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
 	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+	RSR.PlayLowAmmoSound(player, nil, true)
 
 	local bomb = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOMB_MISSILEFORM, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(bomb) then P_ExplodeMissile(bomb) end

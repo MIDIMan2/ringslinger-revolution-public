@@ -11,6 +11,10 @@ RSR.AddWeapon("BASIC", {
 	ammotype = RSR.AMMO_BASIC,
 	ammoamount = 40,
 	ammoalt = 1,
+	lowammo = 16,
+	lowammoalt = 16,
+	lowammosound = sfx_redlwa,
+	lowammosoundalt = sfx_rdatla,
 	canbepanel = false,
 	class = 1,
 	classpriority = 1,
@@ -73,58 +77,36 @@ mobjinfo[MT_RSR_PROJECTILE_BASIC_CHARGED] = {
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY
 }
 
+-- Charged Shot spawn code
+---@param mo mobj_t
 addHook("MobjSpawn", function(mo)
 	if not Valid(mo) then return end
 
 	RSR.ProjectileSpawn(mo)
 	mo.rsrChargeHitList = {}
 end, MT_RSR_PROJECTILE_BASIC_CHARGED)
+
+-- Charged Shot thinker code
+---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 
 	if mo.rsrChargeTravelSound then RSR.ProjectileTravelSound(mo) end
 	RSR.ProjectileGhostTimer(mo)
-	if (leveltime & 1) then
+	if (leveltime & 1) then -- Make the Charged Shot "blink"
 		mo.color = SKINCOLOR_SALMON
 	else
 		mo.color = SKINCOLOR_RED
 	end
 end, MT_RSR_PROJECTILE_BASIC_CHARGED)
-addHook("MobjMoveCollide", function(tmthing, thing)
+
+addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BASIC_CHARGED)
+
+-- Charged Shot object collision code
+---@param tmthing mobj_t
+---@param thing mobj_t
+RSR.addHook("ProjectileMoveCollide", function(tmthing, thing)
 	if not (Valid(tmthing) and Valid(thing)) then return end
-	if not (tmthing.flags & MF_MISSILE) then return end
-
-	-- Don't run collision code if the projectile flew over or under the target
-	if tmthing.z > thing.z + thing.height
-	or thing.z > tmthing.z + tmthing.height then
-		return
-	end
-
-	if Valid(tmthing.target) then
-		-- Don't hit the source of the projectile
-		if thing == tmthing.target then
-			return
-		end
-	end
-
-	-- Go through players (unless friendlyfire is on) and bots
-	if Valid(thing.player) then
-		if Valid(tmthing.target) and Valid(tmthing.target.player) and RSR.PlayersAreTeammates(tmthing.target.player, thing.player)
-		and not RSR.CheckFriendlyFire() then
-			return false
-		end
-
-		if thing.player.bot then
-			local bot = thing.player.bot
-
-			-- Pass through 2-player bots
-			if bot == BOT_2PAI or bot == BOT_2PHUMAN then
-				return false
-			end
-		end
-	end
-
-	if not (thing.flags & MF_SHOOTABLE) then return end
 
 	if not tmthing.rsrChargeHitList[thing] then
 		S_StartSound(tmthing, tmthing.info.activesound) -- Play the charged ring hit sound to signify the charged ring actually hit something
@@ -132,7 +114,7 @@ addHook("MobjMoveCollide", function(tmthing, thing)
 		if not (Valid(tmthing) and Valid(thing)) then return false end
 		tmthing.rsrChargeHitList[thing] = true
 	end
-	return false
+	return true
 end, MT_RSR_PROJECTILE_BASIC_CHARGED)
 
 -- --------------------------------
@@ -154,7 +136,7 @@ mobjinfo[MT_RSR_PICKUP_BASIC] = {
 	spawnstate = S_RSR_PICKUP_BASIC,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 28*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -220,6 +202,7 @@ pspractions.A_BasicAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BASIC, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) and not (missile.color or missile.translation) then
@@ -271,6 +254,7 @@ pspractions.A_BasicAttackAlt = function(player, args)
 	if playSound then
 		if prevSound then S_StopSoundByID(player.mo, prevSound) end
 		S_StartSound(player.mo, chargeSound)
+		RSR.PlayLowAmmoSound(player, nil, true)
 	end
 
 	if player.powers[pw_sneakers] or player.powers[pw_super] then -- Super sneakers and super makes charge rings charge faster
@@ -315,6 +299,7 @@ pspractions.A_BasicAttackAlt = function(player, args)
 
 	if forceFire or not (player.cmd.buttons & BT_FIRENORMAL) then
 		RSR.SetWeaponDelay(player, nil, nil, true)
+		-- RSR.PlayLowAmmoSound(player, nil, true)
 
 		RSR.SpawnBasicAlt(player, rsrinfo, chargeSound)
 

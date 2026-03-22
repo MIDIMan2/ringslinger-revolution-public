@@ -184,6 +184,8 @@ RSR.MOBJ_INFO[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB] = {
 	sparklestate = S_RSR_NIGHTSPARKLE_GRENADE,
 	travelsound = sfx_gratab,
 	traveltimer = 67,
+	nosplashthrust = true,
+	nothomable = true,
 	killfeedIcon = "RSRGRALI",
 	killfeedName = "Stickybomb",
 	killfeedObituary = {
@@ -266,7 +268,7 @@ RSR.MOBJ_INFO[MT_CORK] = {
 	killfeedIcon = "RSRGUN",
 	killfeedName = "popgun",
 	killfeedObituary = {
-		attacker = "$a's $rpopgun shot $v.",
+		attacker = "$a shot $v with a $rpopgun.",
 		solo = "$v was shot by a $rpopgun cork."
 	}
 }
