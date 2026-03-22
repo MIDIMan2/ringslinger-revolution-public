@@ -12,6 +12,10 @@ RSR.AddWeapon("BOUNCE", {
 	ammotype = RSR.AMMO_BOUNCE,
 	ammoamount = 16,
 	ammoalt = 3,
+	lowammo = 16,
+	lowammoalt = 10,
+	lowammosound = sfx_boncla,
+	lowammosoundalt = sfx_bcatla,
 	class = 6,
 	delay = 7,
 	delayspeed = 4,
@@ -41,6 +45,7 @@ mobjinfo[MT_RSR_PROJECTILE_BOUNCE] = {
 	seesound = sfx_boncfr,
 -- 	reactiontime = 2*TICRATE,
 	painchance = 9,
+	painsound = sfx_boncla,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
 	speed = 90*FRACUNIT,
@@ -168,59 +173,23 @@ RSR.BounceThinker = function(mo)
 	mo.rsrPrevMomZ = mo.momz
 end
 
---- MobjMoveCollide hook code for the Bounce Ring.
+-- Bounce Ring object impact code
 ---@param tmthing mobj_t
 ---@param thing mobj_t
-RSR.BounceMoveCollide = function(tmthing, thing)
+RSR.addHook("ProjectileMoveCollide", function(tmthing, thing)
 	if not (Valid(tmthing) and Valid(thing)) then return end
-	if not (tmthing.flags & MF_MISSILE) then return end
 
-	-- Don't run collision code if the projectile flew over or under the target
-	if tmthing.z > thing.z + thing.height
-	or thing.z > tmthing.z + tmthing.height then
-		return
-	end
-
-	if Valid(tmthing.target) then
-		-- Don't hit the source of the projectile
-		if thing == tmthing.target then
-			return
-		end
-	end
-
-	-- Go through players (unless friendlyfire is on) and bots
-	if Valid(thing.player) then
-		if Valid(tmthing.target) and Valid(tmthing.target.player) and RSR.PlayersAreTeammates(tmthing.target.player, thing.player)
-		and not RSR.CheckFriendlyFire() then
-			return false
-		end
-
-		if thing.player.bot then
-			local bot = thing.player.bot
-
-			-- Pass through 2-player bots
-			if bot == BOT_2PAI or bot == BOT_2PHUMAN then
-				return false
-			end
-		end
-	end
-
-	if not (thing.flags & MF_SHOOTABLE) then return end
-
-	if tmthing.rsrBounced then
-		return false
-	end
+	if tmthing.rsrBounced then return true end
 
 	P_DamageMobj(thing, tmthing, tmthing.target, tmthing.rsrDamage)
 	tmthing.momx = -$
 	tmthing.momy = -$
 	tmthing.rsrBounced = 4 -- Add a timer so the bounce ring doesn't get stuck on an object
-
 	RSR.BounceIncrementCount(tmthing)
-	return false
-end
+	return true
+end, MT_RSR_PROJECTILE_BOUNCE)
 
---- MobjMoveBlocked hook code for the Bounce Ring.
+--- Bounce Ring wall impact code
 ---@param mo mobj_t
 ---@param line line_t
 RSR.BounceMoveBlocked = function(mo, _, line)
@@ -251,11 +220,11 @@ end
 
 addHook("MobjSpawn", RSR.BounceSpawn, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjThinker", RSR.BounceThinker, MT_RSR_PROJECTILE_BOUNCE)
-addHook("MobjMoveCollide", RSR.BounceMoveCollide, MT_RSR_PROJECTILE_BOUNCE)
+addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjMoveBlocked", RSR.BounceMoveBlocked, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjSpawn", RSR.BounceSpawn, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 addHook("MobjThinker", RSR.BounceThinker, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
-addHook("MobjMoveCollide", RSR.BounceMoveCollide, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
+addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 addHook("MobjMoveBlocked", RSR.BounceMoveBlocked, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 
 -- --------------------------------
@@ -305,7 +274,7 @@ mobjinfo[MT_RSR_PICKUP_BOUNCE] = {
 	seestate = S_RSR_PICKUP_BOUNCE_PANEL,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 28*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -361,6 +330,7 @@ pspractions.A_BounceAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOUNCE, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
@@ -376,6 +346,7 @@ pspractions.A_BounceAttackAlt = function(player, args)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
 	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+	RSR.PlayLowAmmoSound(player, nil, true)
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then
 		missile.rsrOrigScale = missile.scale

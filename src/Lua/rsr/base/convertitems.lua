@@ -94,6 +94,7 @@ RSR.RSMOBJ_TO_RSRMOBJ = {
 	},
 	[MT_RECYCLER_BOX] = {
 		srmtype = MT_1UP_BOX,
+		hidetype = MT_SNEAKERS_BOX,
 		dontremove = true
 	},
 	[MT_WHIRLWIND_BOX] = {
@@ -102,6 +103,7 @@ RSR.RSMOBJ_TO_RSRMOBJ = {
 	},
 	[MT_MIXUP_BOX] = {
 		srmtype = MT_INVULN_BOX,
+		hidetype = MT_SNEAKERS_BOX,
 		dontremove = true
 	},
 	[MT_ELEMENTAL_BOX] = {
@@ -242,6 +244,10 @@ RSR.ConvertItemsMapLoad = function()
 		for mo in mobjs.iterate() do
 			if not Valid(mo) then continue end
 			if not RSR.RSMOBJ_TO_RSRMOBJ[mo.type] then continue end
+			if RSR.RSMOBJ_TO_RSRMOBJ[mo.type].hidetype and G_TagGametype() and (gametyperules & GTR_HIDEFROZEN) then
+				RSR.ConvertMapItem(mo, nil, "hidetype")
+				continue
+			end
 			-- TODO: The second part of this if statement only works in 2.2.16+
 			if RSR.RSMOBJ_TO_RSRMOBJ[mo.type].dontremove then
 			-- and not (Valid(mo.spawnpoint) and mo.spawnpoint.customargs and mo.spawnpoint.customargs.rsrremove) then
@@ -262,7 +268,13 @@ RSR.ConvertItemsMapLoad = function()
 			continue
 		end
 		local typeVar = nil -- Defaults to motype when passed into RSR.ConvertMapItem
-		if (mo.flags & MF_MONITOR) and (mo.flags2 & MF2_STRONGBOX) then typeVar = "srmtype" end
+		if (mo.flags & MF_MONITOR) then
+			if (mo.flags2 & MF2_STRONGBOX) then -- Use srmtype if the monitor is an SRM
+				typeVar = "srmtype"
+			elseif G_TagGametype() and (gametyperules & GTR_HIDEFROZEN) then -- Use hidetype if the gametype is H&S
+				typeVar = "hidetype"
+			end
+		end
 		RSR.ConvertMapItem(mo, nil, typeVar)
 	end
 

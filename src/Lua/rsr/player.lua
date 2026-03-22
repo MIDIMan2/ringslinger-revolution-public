@@ -91,6 +91,7 @@ RSR.PlayerInit = function(player)
 	rsrinfo.basicChargeDontTakeAmmo = false -- Used for the Red Ring's altfire; See weapon/basic.lua for more information
 	rsrinfo.scatterFlak = nil -- Used for the Scatter Ring's altfire; See weapon/scatter.lua for more information
 	rsrinfo.bounceMega = nil -- Used for the Bounce Ring's altfire; See weapon/bounce.lua for more information
+	rsrinfo.stickyCharge = RSR.STICKYBOMB_CHARGE_MAX -- Used for the Grenade Ring's altfire; See weapon/grenade.lua for more information
 	rsrinfo.waspTime = RSR.HOMING_WASP_MAX -- Used for the Homing Ring's altfire; See weapon/homing.lua for more information
 
 	rsrinfo.useZoom = false

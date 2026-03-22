@@ -2,6 +2,9 @@
 -- Ringslinger Revolution - Grenade Weapon
 -- TODO: Use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
 
+RSR.GRENADE_FUSE = TICRATE
+RSR.STICKYBOMB_CHARGE_MAX = 3*TICRATE/2
+
 RSR.AddAmmo("GRENADE", {
 	amount = 10,
 	maxamount = 50,
@@ -11,12 +14,16 @@ RSR.AddAmmo("GRENADE", {
 RSR.AddWeapon("GRENADE", {
 	ammotype = RSR.AMMO_GRENADE,
 	ammoamount = 10,
-	ammoalt = 2,
+	ammoalt = 1,
+	lowammo = 6,
+	lowammoalt = 6,
+	lowammosound = sfx_grndla,
+	lowammosoundalt = sfx_gratla,
 	class = 5,
 	delay = 10,
 	delayspeed = 5,
-	delayalt = 35,
-	delayaltspeed = 18,
+	delayalt = 27,
+	delayaltspeed = 19,
 	emerald = EMERALD5,
 	icon = "RSRGRNDI",
 	name = "Grenade Ring",
@@ -27,7 +34,7 @@ RSR.AddWeapon("GRENADE", {
 		ready = "S_GRENADE_READY",
 		holster = "S_GRENADE_HOSLTER",
 		attack = "S_GRENADE_ATTACK",
-		attackalt = "S_GRENADE_ATTACKALT"
+		attackalt = "S_GRENADE_ATTACKALT_SOUND"
 	}
 })
 
@@ -55,7 +62,18 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE] = {
 
 states[S_RSR_PROJECTILE_GRENADE] =	{SPR_RSBG,	FF_ANIMATE|FF_FULLBRIGHT,	-1,	nil,	17,	2,	S_NULL}
 
+--- Activates the Grenade Ring's fuse.
+RSR.GrenadeActivate = function(mo)
+	if not Valid(mo) then return end
+	if mo.fuse then return end -- Don't activate again!
+	mo.fuse = RSR.GRENADE_FUSE
+	S_StartSound(mo, mo.info.attacksound)
+end
+
+-- Initialise the Grenade
 addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_GRENADE)
+
+-- Grenade thinker
 ---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
@@ -65,12 +83,14 @@ addHook("MobjThinker", function(mo)
 	RSR.ProjectileTravelSound(mo) -- Travelling sound
 	RSR.ProjectileGhostTimer(mo, MT_SMOKE) -- Smoke particles
 
-	if mo.fuse % TICRATE == 0 then
-		S_StartSound(mo, mo.info.attacksound)
-	end
+	-- if mo.fuse % TICRATE == 0 then
+	-- 	S_StartSound(mo, mo.info.attacksound)
+	-- end
 
 	local hitFloor = mo.z + mo.momz <= mo.floorz
+	if P_MobjFlip(mo) == 1 and (Valid(mo.standingslope)) then hitFloor = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
 	local hitCeiling = mo.z + mo.height + mo.momz >= mo.ceilingz
+	if P_MobjFlip(mo) == -1 and (Valid(mo.standingslope)) then hitCeiling = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
 
 	if hitFloor or hitCeiling then
 		if Valid(mo.subsector) and Valid(mo.subsector.sector) then
@@ -87,7 +107,7 @@ addHook("MobjThinker", function(mo)
 		if (hitFloor and P_MobjFlip(mo) == 1)
 		or (hitCeiling and P_MobjFlip(mo) == -1) then
 			mo.threshold = $+1
-
+			RSR.GrenadeActivate(mo)
 			mo.momx = 3*$/5
 			mo.momy = 3*$/5
 -- 			mo.momz = -2*$/3
@@ -102,14 +122,19 @@ addHook("MobjThinker", function(mo)
 		return
 	end
 end, MT_RSR_PROJECTILE_GRENADE)
+
+-- Explode the Grenade 1 second after impacting a surface
 ---@param mo mobj_t
 addHook("MobjFuse", function(mo)
 	if not Valid(mo) then return end
-
 	P_ExplodeMissile(mo)
 	return true
 end, MT_RSR_PROJECTILE_GRENADE)
+
+-- Grenade impact handler
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_GRENADE)
+
+-- Grenade anti-sky-bounce checker and wall impact handler
 ---@param mo mobj_t
 ---@param line line_t
 addHook("MobjMoveBlocked", function(mo, _, line)
@@ -120,6 +145,8 @@ addHook("MobjMoveBlocked", function(mo, _, line)
 		P_RemoveMobj(mo)
 		return true
 	end
+
+	RSR.GrenadeActivate(mo)
 end, MT_RSR_PROJECTILE_GRENADE)
 
 -- --------------------------------
@@ -132,10 +159,10 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB] = {
 	seesound = sfx_gratfr,
 	seestate = S_RSR_PROJECTILE_GRENADE_STICKYBOMB,
 -- 	reactiontime = 2*TICRATE + 2,
-	reactiontime = 128,
+	reactiontime = 48,
 	attacksound = sfx_stikbp,
 	painchance = 320*FRACUNIT,
-	deathstate = S_RSR_RINGEXPLODE,
+	deathstate = S_RSR_RINGEXPLODEULTRALOW,
 	deathsound = sfx_stikbm,
 	xdeathstate = S_RSR_PROJECTILE_GRENADE_STICKYBOMB_DETONATE,
 	speed = 45*FRACUNIT,
@@ -146,59 +173,72 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB] = {
 	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_BOUNCE|MF_GRENADEBOUNCE|MF_STICKY
 }
 
-states[S_RSR_PROJECTILE_GRENADE_STICKYBOMB] =			{SPR_RSBG,	S|FF_FULLBRIGHT,	-1,	nil,	0,	0,	S_NULL}
-states[S_RSR_PROJECTILE_GRENADE_STICKYBOMB_DETONATE] =	{SPR_RSBG,	T|FF_FULLBRIGHT,	7,	nil,	0,	0,	S_RSR_RINGEXPLODE}
-states[S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND] =				{SPR_RSBG,	U|FF_FULLBRIGHT,	-1,	nil,	0,	0,	S_NULL}
-states[S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE] =	{SPR_RSBG,	V|FF_FULLBRIGHT,	7,	nil,	0,	0,	S_RSR_RINGEXPLODE}
+states[S_RSR_PROJECTILE_GRENADE_STICKYBOMB] =					{SPR_RSBG,	S|FF_FULLBRIGHT,	-1,	nil,	0,	0,	S_NULL}
+states[S_RSR_PROJECTILE_GRENADE_STICKYBOMB_ARMED] =				{SPR_RSBG,	T|FF_FULLBRIGHT,	-1,	nil,	0,	0,	S_NULL}
+states[S_RSR_PROJECTILE_GRENADE_STICKYBOMB_DETONATE] =			{SPR_RSBG,	U|FF_FULLBRIGHT,	7,	nil,	0,	0,	S_RSR_RINGEXPLODEULTRALOW}
+states[S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND] =				{SPR_RSBG,	V|FF_FULLBRIGHT,	-1,	nil,	0,	0,	S_NULL}
+states[S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_ARMED] =		{SPR_RSBG,	W|FF_FULLBRIGHT,	-1,	nil,	0,	0,	S_NULL}
+states[S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE] =	{SPR_RSBG,	X|FF_FULLBRIGHT,	7,	nil,	0,	0,	S_RSR_RINGEXPLODEULTRALOW}
 
---- Activates the sticky bomb altfire of the Grenade ring.
+--- Starts the arming process of the Stickybomb.
 ---@param mo mobj_t
 RSR.GrenadeStickyBombActivate = function(mo)
 	if not Valid(mo) then return end
 
 	S_StartSound(mo, mo.info.activesound)
 	mo.momx, mo.momy, mo.momz = 0, 0, 0 -- Full stop!
-	mo.flags = $|MF_NOGRAVITY|MF_NOCLIP|MF_NOCLIPHEIGHT -- Stay there!
+	mo.flags = $|MF_NOGRAVITY|MF_NOCLIPHEIGHT -- Stay there!
 	mo.flags = $ & ~MF_STICKY -- Don't check again!
-	S_StartSound(mo, sfx_gratrm)
+	S_StartSound(mo, sfx_stikrm) -- Play the "stick" sound
+	mo.fuse = 18 -- Arming fuse (roughly 0.5 seconds)
+	S_StartSound(mo, sfx_gratrm) -- Play arming sound
 end
 
-addHook("MobjSpawn", RSR.ProjectileSpawn, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+--- Detonates the Stickybomb.
+---@param mo mobj_t
+RSR.GrenadeStickybombDetonate = function(mo)
+	if not Valid(mo) then return end
+	if not (mo.flags & MF_MISSILE) then return end
+	S_StartSound(mo, sfx_gratrd)
+	mo.flags = $ & ~MF_MISSILE
+	mo.fuse = 0 -- Just in case
+	if mo.state == S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_ARMED then
+		mo.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE
+	else
+		mo.state = mo.info.xdeathstate
+	end
+end
+
+addHook("MobjSpawn", function(mo)
+	if not Valid(mo) then return end
+	mo.cusval = 0
+	RSR.ProjectileSpawn(mo)
+end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+-- Stickybomb thinker
 ---@param mo mobj_t
 addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 	if mo.health <= 0 then return end
 	if not (mo.flags & MF_MISSILE) then return end
 
-	if mo.rsrBounced then
-		mo.rsrBounced = $-1
-	end
+	if mo.rsrBounced then mo.rsrBounced = $-1 end
 
-	-- Only do the proximity check when stuck to a wall
+	-- Only do the proximity check when stuck to a wall and armed
 	if not (mo.flags & MF_STICKY) then
-		RSR.ProximityDetonate(mo, 96*FRACUNIT, function(missile)
-			S_StartSound(missile, sfx_gratrd)
-			missile.health = 0
-			missile.fuse = 0
-			if missile.state == S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND then
-				missile.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE
-			else
-				missile.state = missile.info.xdeathstate
-			end
-		end)
+		if mo.cusval then
+			RSR.ProximityDetonate(mo, 96*FRACUNIT, RSR.GrenadeStickybombDetonate)
+		end
 	else
 		RSR.ProjectileTravelSound(mo) -- Travelling sound
 		RSR.ProjectileGhostTimer(mo) -- Ghost trail
 	end
 
-	if mo.fuse % 50 == 0 then
-		--- Stickybomb beeps
-		S_StartSound(mo, mo.info.attacksound)
-	end
-	if mo.fuse % 3 == 0 then
-		--- Flings smoke, only do this when stuck to a wall
-		if not (mo.flags & MF_STICKY) then
-        	local spark = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SMOKE)
+	-- Make the Stickybomb beep and fling smoke when armed
+	if mo.cusval then
+		if mo.fuse % 50 == 0 then S_StartSound(mo, mo.info.attacksound) end
+		if mo.fuse % 3 then
+			local spark = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SMOKE)
 			if Valid(spark) then
 				-- Randomize the smoke's momentum
 				spark.momx = RSR.RandomFixedRange(spark.scale, 3*spark.scale)
@@ -216,7 +256,9 @@ addHook("MobjThinker", function(mo)
 	end
 
 	local hitFloor = mo.z + mo.momz <= mo.floorz
+	if P_MobjFlip(mo) == 1 and (Valid(mo.standingslope)) then hitFloor = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
 	local hitCeiling = mo.z + mo.height + mo.momz >= mo.ceilingz
+	if P_MobjFlip(mo) == -1 and (Valid(mo.standingslope)) then hitCeiling = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
 
 	if (mo.flags & MF_STICKY) and (hitFloor or hitCeiling) then
 		if Valid(mo.subsector) and Valid(mo.subsector.sector) then
@@ -247,66 +289,97 @@ addHook("MobjThinker", function(mo)
 		end
 	end
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+-- Function that arms/detonates Stickybombs when fuse runs out
 ---@param mo mobj_t
 addHook("MobjFuse", function(mo)
 	if not Valid(mo) then return end
 
-	S_StartSound(mo, sfx_gratrd)
-	mo.health = 0
-	if mo.state == S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND then
-		mo.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_DETONATE
-	else
-		mo.state = mo.info.xdeathstate
+	if not mo.cusval then
+		mo.cusval = 1
+		-- Reaction time is being used for splash damage
+		mo.fuse = 10*TICRATE + 2
+		S_StopSoundByID(mo, sfx_stikrm) -- Stop the arming sound
+		S_StartSound(mo, sfx_stikrn) -- Armed sound
+		if mo.state == S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND then
+			mo.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND_ARMED
+		else
+			mo.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMB_ARMED
+		end
+		mo.flags = ($ & ~MF_NOBLOCKMAP)|MF_SHOOTABLE -- Used for disarming Stickybombs
+		return true
 	end
+
+	RSR.GrenadeStickybombDetonate(mo)
 	return true
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
-addHook("MobjMoveCollide", function(tmthing, thing)
+
+addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+-- Stickybomb object impact code
+---@param tmthing mobj_t
+---@param thing mobj_t
+RSR.addHook("ProjectileMoveCollide", function(tmthing, thing)
 	if not (Valid(tmthing) and Valid(thing)) then return end
-	if not (tmthing.flags & MF_MISSILE) then return end
 
-	-- Don't run collision code if the projectile flew over or under the target
-	if tmthing.z > thing.z + thing.height
-	or thing.z > tmthing.z + tmthing.height then
-		return
-	end
-
-	if Valid(tmthing.target) then
-		-- Don't hit the source of the projectile
-		if thing == tmthing.target then
-			return
-		end
-	end
-
-	-- Go through players (unless friendlyfire is on) and bots
-	if Valid(thing.player) then
-		if Valid(tmthing.target) and Valid(tmthing.target.player) and RSR.PlayersAreTeammates(tmthing.target.player, thing.player)
-		and not RSR.CheckFriendlyFire() then
-			return false
-		end
-
-		if thing.player.bot then
-			local bot = thing.player.bot
-
-			-- Pass through 2-player bots
-			if bot == BOT_2PAI or bot == BOT_2PHUMAN then
-				return false
-			end
-		end
-	end
-
-	if not (thing.flags & MF_SHOOTABLE) then return end
-
-	if tmthing.rsrBounced then
-		return false
-	end
-
+	if tmthing.rsrBounced then return true end
 	P_DamageMobj(thing, tmthing, tmthing.target, tmthing.info.damage)
 	tmthing.momx = -$
 	tmthing.momy = -$
 	tmthing.rsrBounced = 4 -- Add a timer so the stickybomb doesn't get stuck on an object
-
-	return false
+	return true
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+--- Allow self and enemy weapons to disarm own Stickybombs
+---@param target mobj_t
+---@param inflictor mobj_t
+---@param source mobj_t
+---@param damagetype integer
+addHook("ShouldDamage", function(target, inflictor, source, damage, damagetype)
+	if not (Valid(target) and Valid(inflictor)) then return end
+	if (target.flags2 & MF2_DEBRIS) then return false end -- Don't explode if we've already exploded!
+	if not (inflictor.rsrProjectile or (inflictor.flags2 & MF2_DEBRIS)) then return false end -- Only take damage from RSR-registered projectiles or explosions!
+
+	-- Stickybombs always detonate other Stickybombs!
+	if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB and not (inflictor.flags & MF_STICKY) then
+		if Valid(source) and RSR.PlayersAreTeammates(target.target.player, source.player) and (target.target ~= source) and not (RSR.CheckFriendlyFire()) then return false end -- Don't detonate due to non-self ally Stickybombs
+		if not (target.flags & MF_MISSILE) and not (inflictor.flags & MF_MISSILE) then
+			target.tics = 6 -- Cause a chain reaction if the Stickybomb has already been detonated
+		else
+			RSR.GrenadeStickybombDetonate(target)
+		end
+		return false
+	else
+		if not (target.flags & MF_MISSILE) then return false end -- Don't cause further damage if the Stickybomb has already been detonated
+
+		if Valid(source) and Valid(target.target) then
+			if RSR.PlayersAreTeammates(target.target.player, source.player) and not RSR.CheckFriendlyFire() then return false end -- Don't lose fuse from ally damage
+			if target.target == source then return false end -- Don't lose fuse from your own bullets
+		end
+		local damageInfo = RSR.GetInflictorDamage(target, inflictor, source, damage, damagetype)
+		if damageInfo then damage = damageInfo.damage end
+		S_StartSound(target, sfx_stikht)
+		target.fuse = max(1, $ - damage * 4)
+
+		return false
+	end
+end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+-- addHook("MobjDamage", function(mo, inflictor, source, damage, damagetype)
+-- 	if not (Valid(mo) and Valid(inflictor)) then return end
+
+-- 	if inflictor.rsrProjectile then -- The inflictor is an RSR-registered projectile
+-- 		if Valid(mo.target) and Valid(mo.target.player) and Valid(source.player) and RSR.PlayersAreTeammates(mo.target.player, source.player) then return end -- Don't lose fuse from ally damage
+-- 		if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB then -- Stickybombs always detonate other Stickybombs!
+-- 			mo.fuse = 0
+-- 		else -- We multiply "damage" to Stickybombs by 4 to make this actually worth doing
+-- 			if Valid(mo.target) and (mo.target == source) then return end -- Don't lose fuse from your own bullets
+-- 			mo.fuse = max(1, $ - (damage * 4))
+-- 		end
+-- 	else return end
+--  end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+--- This makes bombs Sticky
 ---@param mo mobj_t
 addHook("MobjMoveBlocked", function(mo, _, line)
 	if not Valid(mo) then return end
@@ -357,7 +430,7 @@ mobjinfo[MT_RSR_PICKUP_GRENADE] = {
 	seestate = S_RSR_PICKUP_GRENADE_PANEL,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 28*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -386,32 +459,65 @@ pspractions.A_GrenadeAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_GRENADE, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then
 		P_SetObjectMomZ(missile, FRACUNIT, true)
-		-- Reaction time is being used for splash damage
-		missile.fuse = 2*TICRATE + 2
 	end
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
 end
 
 --- Fires a Proximity Grenade ring from the player.
+---@param player player_t
 pspractions.A_GrenadeAttackAlt = function(player, args)
 	if not (Valid(player) and Valid(player.mo)) then return end
 
-	RSR.SetWeaponDelay(player, nil, nil, true)
-	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
-
-	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB, player.mo.angle, player.cmd.aiming<<16)
-	if Valid(missile) then
-		P_SetObjectMomZ(missile, FRACUNIT, true)
-		-- Reaction time is being used for splash damage
-		missile.fuse = 10*TICRATE + 2
+	if RSR.CheckPendingWeapon(player) then
+		player.rsrinfo.stickyCharge = RSR.STICKYBOMB_CHARGE_MAX -- Reset stickyCharge here to prevent weirdness
+		return
 	end
 
-	if pspractions.A_RSRCheckAmmo(player, {}) then return end
+	pspractions.A_LayerOffset(player, args)
+	if player.rsrinfo.stickyCharge > 0 then
+		local decrement = 1
+		-- Decrement waspTime faster if the player has speed shoes, is super, or has an Attraction Shield
+		if player.powers[pw_sneakers] or player.powers[pw_super]
+		or ((player.powers[pw_shield] & SH_NOSTACK == SH_ATTRACT) and (leveltime & 1)) then
+			decrement = 2
+		end
+		player.rsrinfo.stickyCharge = max($ - decrement, 0)
+	end
+
+	if not (player.cmd.buttons & BT_FIRENORMAL) or not (RSR.PlayerHasEmerald(player, EMERALD5) or player.powers[pw_super]) then
+		S_StopSoundByID(player.mo, sfx_gratch)
+		RSR.SetWeaponDelay(player, nil, nil, true)
+		RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+		RSR.PlayLowAmmoSound(player, nil, true)
+
+		local throwScale = FixedDiv(min((RSR.STICKYBOMB_CHARGE_MAX - player.rsrinfo.stickyCharge) / (RSR.STICKYBOMB_CHARGE_MAX/5) + 1, 5), 5)
+		local noPlayerSpeed = false
+		if throwScale < FRACUNIT/2 then noPlayerSpeed = true end
+
+		local missile = RSR.SpawnPlayerMissile(
+			player.mo,
+			MT_RSR_PROJECTILE_GRENADE_STICKYBOMB,
+			player.mo.angle,
+			player.cmd.aiming<<16,
+			nil,
+			FixedMul(mobjinfo[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB].speed, 3*throwScale/2),
+			nil,
+			noPlayerSpeed
+		)
+		if Valid(missile) then
+			P_SetObjectMomZ(missile, throwScale, true)
+		end
+		player.rsrinfo.stickyCharge = RSR.STICKYBOMB_CHARGE_MAX
+
+		if pspractions.A_RSRCheckAmmo(player, {}) then return end
+		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, "S_GRENADE_RECOVER")
+	end
 end
 
 local psprstates = PSprites.STATES
@@ -425,6 +531,8 @@ psprstates["S_GRENADE_READY"] =	{"RSRGRND",	"A",	1,	"A_RSRWeaponReady",	{},	"S_G
 -- Attack
 psprstates["S_GRENADE_ATTACK"] =	{"RSRGRND",	"A",	0,	"A_GrenadeAttack",	{},	"S_GRENADE_RECOVER"}
 -- Attack Alt
-psprstates["S_GRENADE_ATTACKALT"] =	{"RSRGRND",	"A",	0,	"A_GrenadeAttackAlt",	{},	"S_GRENADE_RECOVER"}
+psprstates["S_GRENADE_ATTACKALT_SOUND"] =	{"RSRGRND",	"A",	0,	"A_StartSound",			{sfx_gratch},	"S_GRENADE_ATTACKALT_LOWER"} -- TODO: Replace the sound?
+psprstates["S_GRENADE_ATTACKALT_LOWER"] =	{"RSRGRND",	"AAAA",	1,	"A_GrenadeAttackAlt",	{PSprites.PSPR_WEAPON,	0,	8*FRACUNIT,	true},	"S_GRENADE_ATTACKALT"}
+psprstates["S_GRENADE_ATTACKALT"] =			{"RSRGRND",	"A",	1,	"A_GrenadeAttackAlt",	{},	"S_GRENADE_ATTACKALT"}
 -- Recover
 psprstates["S_GRENADE_RECOVER"] =	{"RSRGRND",	"A",	1,	"A_RSRWeaponRecover",	{},	"S_GRENADE_RECOVER"}

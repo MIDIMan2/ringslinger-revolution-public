@@ -22,8 +22,10 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 
 	bombDist = FixedMul($, moScale)
 	thrustDist = FixedMul($, moScale)
-	fullDist = FixedMul($, moScale)
+	fullDist = min(FixedMul($, moScale), bombDist) -- Make sure fullDist doesn't go above bombDist
+	local checkDist = max(bombDist, thrustDist) -- Make sure thrustDist always works
 
+	mo.flags2 = $|MF2_DEBRIS -- The Explosion Ring does this in vanilla, so why not do it here too? (Makes it so Stickybombs can blow each other up)
 	mo.rsrProjectile = nil
 	mo.rsrRealDamage = true
 	mo.rsrDontThrust = true -- The damage thrust code conflicts with the explosion thrust code, so disable it
@@ -98,7 +100,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 
 			enemy.momz = $ + FixedMul(thrust, sin(pitch))
 		end
-	end, mo, mo.x - bombDist, mo.x + bombDist, mo.y - bombDist, mo.y + bombDist)
+	end, mo, mo.x - checkDist, mo.x + checkDist, mo.y - checkDist, mo.y + checkDist)
 
 	P_StartQuake(bombDamage*FRACUNIT, 12, {x = mo.x, y = mo.y, z = mo.z + mo.height/2}, thrustDist)
 -- 	P_StartQuake(bombDamage*FRACUNIT, 12, nil, nil)
@@ -190,7 +192,7 @@ A_RSRRingExplode = function(mo, var1, var2)
 
 	if RSR.MOBJ_INFO[mo.type] then
 		local rsrMobjInfo = RSR.MOBJ_INFO[mo.type]
-		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime, rsrMobjInfo.fulldamage, rsrMobjInfo.thrustdamage, rsrMobjInfo.aimthrust)
+		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime, rsrMobjInfo.fulldist, rsrMobjInfo.thrustdamage, rsrMobjInfo.aimthrust)
 	else
 		RSR.Explode(mo, mo.info.painchance, nil, mo.info.reactiontime)
 	end

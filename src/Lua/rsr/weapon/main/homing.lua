@@ -13,6 +13,10 @@ RSR.AddWeapon("HOMING", {
 	ammotype = RSR.AMMO_HOMING,
 	ammoamount = 10,
 	ammoalt = 4,
+	lowammo = 6,
+	lowammoalt = 9,
+	lowammosound = sfx_homila,
+	lowammosoundalt = sfx_hoatla,
 	class = 7,
 	delay = 12,
 	delayspeed = 6,
@@ -191,6 +195,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	mo.momz = FixedMul(sin(mo.pitch), curSpeed)
 end
 
+-- Homing Ring spawn code
 ---@param mo mobj_t
 addHook("MobjSpawn", function(mo)
 	if not Valid(mo) then return end
@@ -228,6 +233,7 @@ mobjinfo[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 
 states[S_RSR_PROJECTILE_HOMING_BOMB] =	{SPR_RSBH,	H|FF_ANIMATE|FF_FULLBRIGHT,	-1,	nil,	6,	1,	S_NULL}
 
+-- Router RPB spawn code
 ---@param mo mobj_t
 addHook("MobjSpawn", function(mo)
 	if not Valid(mo) then return end
@@ -269,7 +275,7 @@ mobjinfo[MT_RSR_PICKUP_HOMING] = {
 	seestate = S_RSR_PICKUP_HOMING_PANEL,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	radius = 16*FRACUNIT,
+	radius = 24*FRACUNIT,
 	height = 28*FRACUNIT,
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_NOCLIPHEIGHT
 }
@@ -298,6 +304,7 @@ pspractions.A_HomingAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
@@ -323,9 +330,17 @@ pspractions.A_HomingAttackAlt = function(player, args)
 			visual.drawonlyforplayer = player
 			visual.alpha = FixedDiv(RSR.HOMING_WASP_MAX - player.rsrinfo.waspTime, RSR.HOMING_WASP_MAX)
 		end
-		player.rsrinfo.waspTime = $ - 1
-		if (player.rsrinfo.waspTime == 0) then
-			S_StartSound(lockOn, sfx_hoatpt)
+		if player.rsrinfo.waspTime > 0 then
+			local decrement = 1
+			-- Decrement waspTime faster if the player has speed shoes, is super, or has an Attraction Shield
+			if player.powers[pw_sneakers] or player.powers[pw_super]
+			or ((player.powers[pw_shield] & SH_NOSTACK == SH_ATTRACT) and (leveltime & 1)) then
+				decrement = 2
+			end
+			player.rsrinfo.waspTime = max($ - decrement, 0)
+			if (player.rsrinfo.waspTime == 0) then
+				S_StartSound(lockOn, sfx_hoatpt)
+			end
 		end
 	end
 
@@ -334,6 +349,7 @@ pspractions.A_HomingAttackAlt = function(player, args)
 		if Valid(lockOn) and (player.rsrinfo.waspTime < 1) then
 			RSR.SetWeaponDelay(player)
 			RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+			RSR.PlayLowAmmoSound(player, nil, true)
 			local homing = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING_BOMB, player.mo.angle, player.cmd.aiming<<16)
 			if Valid(homing) then
 				homing.tracer = lockOn

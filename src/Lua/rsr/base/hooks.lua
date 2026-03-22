@@ -169,6 +169,11 @@ events["WeaponReady"] = {
 	typefor = typefor_weapon
 }
 
+events["ProjectileMoveCollide"] = {
+	handler = handler_snaptrue;
+	typefor = typefor_mobj
+}
+
 events["KillfeedMsg"] = {
 	handler = handler_snaptrue;
 	typefor = typefor_mobj
