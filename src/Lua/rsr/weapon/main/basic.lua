@@ -254,6 +254,7 @@ pspractions.A_BasicAttackAlt = function(player, args)
 	if playSound then
 		if prevSound then S_StopSoundByID(player.mo, prevSound) end
 		S_StartSound(player.mo, chargeSound)
+		RSR.PlayLowAmmoSound(player, nil, true)
 	end
 
 	if player.powers[pw_sneakers] or player.powers[pw_super] then -- Super sneakers and super makes charge rings charge faster
@@ -298,7 +299,7 @@ pspractions.A_BasicAttackAlt = function(player, args)
 
 	if forceFire or not (player.cmd.buttons & BT_FIRENORMAL) then
 		RSR.SetWeaponDelay(player, nil, nil, true)
-		RSR.PlayLowAmmoSound(player, nil, true)
+		-- RSR.PlayLowAmmoSound(player, nil, true)
 
 		RSR.SpawnBasicAlt(player, rsrinfo, chargeSound)
 
