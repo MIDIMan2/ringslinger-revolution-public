@@ -165,7 +165,7 @@ RSR.PlayLowAmmoSound = function(player, weaponType, useAlt)
 		local lowAmmo = RSR.WEAPON_INFO[weaponType].lowammo
 		if useAlt and RSR.WEAPON_INFO[weaponType].lowammoalt then lowAmmo = RSR.WEAPON_INFO[weaponType].lowammoalt end
 		local curAmmo = rsrinfo.ammo[RSR.WEAPON_INFO[rsrinfo.readyWeapon].ammotype]
-		if lowAmmo and curAmmo < lowAmmo then
+		if lowAmmo and (curAmmo < lowAmmo) and (not RSR.HasPowerup(player, RSR.POWERUP_INFINITY)) then
 			local lowVol = FixedMul(255, FixedDiv(lowAmmo - curAmmo, lowAmmo))
 			-- local lowVol = ((RSR.WEAPON_INFO[rsrinfo.readyWeapon].lowammo - RSR.WEAPON_INFO[rsrinfo.readyWeapon].ammotype)/(RSR.WEAPON_INFO[rsrinfo.readyWeapon].lowammo - 1)) * 255
 			S_StartSoundAtVolume(nil, lowAmmoSound, lowVol, player)
