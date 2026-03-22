@@ -1136,18 +1136,20 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 			-- Only run this if a player is the source of this kill
 			RSR.PlayerReplenishPowerups(sourcePlayer)
 
+			-- Deprecated code that used to handle Attraction armour gain on kill
+
 			-- Melee attacks always have the player object be the inflictor
-			if Valid(inflictor) and Valid(inflictor.player) and inflictor.player.rsrinfo then
-				if (inflictor.player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT -- Player has an Attraction Shield
-				and (inflictor.player.pflags & PF_SHIELDABILITY) -- Player is using the Attraction Shield
-				and inflictor.player.rsrinfo.homing -- Player is homing
-				and (Valid(inflictor.tracer) and inflictor.tracer == target) then -- Player is targeting us
-					RSR.GiveArmor(inflictor.player, 100)
-					-- Give the player an indicator that they just got armor
-					RSR.BonusFade(inflictor.player)
-					S_StartSound(nil, sfx_attrsg, inflictor.player)
-				end
-			end
+			-- if Valid(inflictor) and Valid(inflictor.player) and inflictor.player.rsrinfo then
+			-- 	if (inflictor.player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT -- Player has an Attraction Shield
+			-- 	and (inflictor.player.pflags & PF_SHIELDABILITY) -- Player is using the Attraction Shield
+			-- 	and inflictor.player.rsrinfo.homing -- Player is homing
+			-- 	and (Valid(inflictor.tracer) and inflictor.tracer == target) then -- Player is targeting us
+			-- 		RSR.GiveArmor(inflictor.player, 100)
+			-- 		-- Give the player an indicator that they just got armor
+			-- 		RSR.BonusFade(inflictor.player)
+			-- 		S_StartSound(nil, sfx_attrsg, inflictor.player)
+			-- 	end
+			-- end
 
 			local wasHiding = (G_TagGametype() and (gametyperules & GTR_HIDEFROZEN) and not (player.pflags & PF_GAMETYPEOVER))
 
