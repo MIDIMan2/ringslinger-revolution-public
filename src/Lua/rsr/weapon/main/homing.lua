@@ -15,6 +15,8 @@ RSR.AddWeapon("HOMING", {
 	ammoalt = 4,
 	lowammo = 6,
 	lowammoalt = 9,
+	lowammosound = sfx_homila,
+	lowammosoundalt = sfx_hoatla,
 	class = 7,
 	delay = 12,
 	delayspeed = 6,
@@ -44,7 +46,6 @@ mobjinfo[MT_RSR_PROJECTILE_HOMING] = {
 	seesound = sfx_homifr,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	painsound = sfx_homila,
 	speed = 90*FRACUNIT,
 	radius = 19*FRACUNIT,
 	height = 19*FRACUNIT,
@@ -220,7 +221,6 @@ mobjinfo[MT_RSR_PROJECTILE_HOMING_BOMB] = {
 	seesound = sfx_hoatfr,
 	reactiontime = 77,
 	painchance = 256*FRACUNIT,
-	painsound = sfx_hoatla,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
 	speed = 75*FRACUNIT,
@@ -304,6 +304,7 @@ pspractions.A_HomingAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
@@ -348,6 +349,7 @@ pspractions.A_HomingAttackAlt = function(player, args)
 		if Valid(lockOn) and (player.rsrinfo.waspTime < 1) then
 			RSR.SetWeaponDelay(player)
 			RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+			RSR.PlayLowAmmoSound(player, nil, true)
 			local homing = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING_BOMB, player.mo.angle, player.cmd.aiming<<16)
 			if Valid(homing) then
 				homing.tracer = lockOn

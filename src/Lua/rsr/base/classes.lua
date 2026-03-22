@@ -104,6 +104,10 @@
 ---@field delayaltspeed integer Recovery time for the weapon's altfire while the player has super sneakers.
 ---@field emerald integer Constant for emerald that gives this weapon an altfire (EMERALD1 = Green, EMERALD2 = Pink, etc.).
 ---@field icon string Graphic to use for the weapon bar on the HUD.
+---@field lowammo integer Determines when to play the weapon's lowammosound.
+---@field lowammoalt integer Determines when to player the weapon's lowammosoundalt.
+---@field lowammosound soundnum_t Sound to play when the weapon's primary fire ammo is low.
+---@field lowammosoundalt soundnum_t Sound to player when the weapon's alternate fire ammo is low.
 ---@field name string Name of the weapon.
 ---@field namealt string Name of the weapon's altfire.
 ---@field pickup mobjtype_t Pickup object for the weapon.

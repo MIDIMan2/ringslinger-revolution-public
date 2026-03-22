@@ -14,6 +14,8 @@ RSR.AddWeapon("BOUNCE", {
 	ammoalt = 3,
 	lowammo = 9,
 	lowammoalt = 7,
+	lowammosound = sfx_boncla,
+	lowammosoundalt = sfx_bcatla,
 	class = 6,
 	delay = 7,
 	delayspeed = 4,
@@ -235,7 +237,6 @@ mobjinfo[MT_RSR_PROJECTILE_BOUNCE_MEGABOMB] = {
 	seesound = sfx_bcatfr,
 	deathstate = S_RSR_PROJECTILE_BOUNCE_MEGABOMB,
 	deathsound = sfx_bcmega,
-	painsound = sfx_bcatla,
 	speed = 60*FRACUNIT,
 	radius = 22*FRACUNIT,
 	height = 22*FRACUNIT,
@@ -329,6 +330,7 @@ pspractions.A_BounceAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOUNCE, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
@@ -344,6 +346,7 @@ pspractions.A_BounceAttackAlt = function(player, args)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
 	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+	RSR.PlayLowAmmoSound(player, nil, true)
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then
 		missile.rsrOrigScale = missile.scale

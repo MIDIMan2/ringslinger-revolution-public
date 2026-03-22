@@ -13,6 +13,8 @@ RSR.AddWeapon("BOMB", {
 	ammoalt = 3,
 	lowammo = 4,
 	lowammoalt = 7,
+	lowammosound = sfx_bombla,
+	lowammosoundalt = sfx_boatla,
 	class = 4,
 	delay = 36,
 	delayspeed = 18,
@@ -44,7 +46,6 @@ mobjinfo[MT_RSR_PROJECTILE_BOMB] = {
 	painchance = 224*FRACUNIT,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
-	painsound = sfx_bombla,
 	speed = 60*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
@@ -58,7 +59,6 @@ mobjinfo[MT_RSR_PROJECTILE_BOMB_MISSILEFORM] = {
 	seesound = sfx_boatfr,
 	reactiontime = 37,
 	painchance = 256*FRACUNIT,
-	painsound = sfx_boatla,
 	deathstate = S_RSR_RINGEXPLODE,
 	deathsound = sfx_pop,
 	speed = 60*FRACUNIT,
@@ -152,6 +152,7 @@ pspractions.A_BombAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOMB, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
@@ -164,6 +165,7 @@ pspractions.A_BombAttackAlt = function(player, args)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
 	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+	RSR.PlayLowAmmoSound(player, nil, true)
 
 	local bomb = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BOMB_MISSILEFORM, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(bomb) then P_ExplodeMissile(bomb) end

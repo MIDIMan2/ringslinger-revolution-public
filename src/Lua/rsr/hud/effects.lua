@@ -11,10 +11,10 @@ RSR.HUDEffects = function(v, player)
     if RSR.HasPowerup(player, RSR.POWERUP_SPEED) then
 		local scale = FixedDiv(v.height(), 200)
 		local xOffset = min(0, (v.width()*FRACUNIT - 320*scale)/2) -- Make sure the graphics don't overlap each other, but also don't display a gap from the edge of the screen on non-green resolutions
-		local frame = ((leveltime/2) % 4)
-		v.drawScaled(xOffset, 0, scale, v.cachePatch("RSRSPED"..tostring(frame + 1)), V_PERPLAYER|V_SNAPTOLEFT|V_NOSCALESTART|V_NOSCALEPATCH|V_HUDTRANS)
+		local frame = ((leveltime/3) % 4)
+		v.drawScaled(xOffset, 0, scale, v.cachePatch("RSRSPED"..tostring(frame + 1)), V_PERPLAYER|V_SNAPTOLEFT|V_NOSCALESTART|V_NOSCALEPATCH|V_ADD|V_HUDTRANSHALF)
 		frame = ($ + 2) % 4
-		v.drawScaled(v.width()*FRACUNIT - xOffset, 0, scale, v.cachePatch("RSRSPED"..tostring(frame + 1)), V_PERPLAYER|V_SNAPTOLEFT|V_NOSCALESTART|V_NOSCALEPATCH|V_HUDTRANS|V_FLIP)
+		v.drawScaled(v.width()*FRACUNIT - xOffset, 0, scale, v.cachePatch("RSRSPED"..tostring(frame + 1)), V_PERPLAYER|V_SNAPTOLEFT|V_NOSCALESTART|V_NOSCALEPATCH|V_FLIP|V_ADD|V_HUDTRANSHALF)
 	end
 
     -- Sparkles for the "Invincibility" powerup (TODO: Replace with a different effect)

@@ -17,6 +17,8 @@ RSR.AddWeapon("GRENADE", {
 	ammoalt = 1,
 	lowammo = 6,
 	lowammoalt = 4,
+	lowammosound = sfx_grndla,
+	lowammosoundalt = sfx_gratla,
 	class = 5,
 	delay = 10,
 	delayspeed = 5,
@@ -48,7 +50,6 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE] = {
 	reactiontime = 50,
 	attacksound = sfx_gbeep,
 	painchance = 192*FRACUNIT,
-	painsound = sfx_grndla,
 	deathstate = S_RSR_RINGEXPLODELOW,
 	deathsound = sfx_pop,
 	speed = 50*FRACUNIT,
@@ -160,7 +161,6 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE_STICKYBOMB] = {
 	reactiontime = 48,
 	attacksound = sfx_stikbp,
 	painchance = 320*FRACUNIT,
-	painsound = sfx_gratla,
 	deathstate = S_RSR_RINGEXPLODEULTRALOW,
 	deathsound = sfx_stikbm,
 	xdeathstate = S_RSR_PROJECTILE_GRENADE_STICKYBOMB_DETONATE,
@@ -455,6 +455,7 @@ pspractions.A_GrenadeAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_GRENADE, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then
@@ -489,6 +490,7 @@ pspractions.A_GrenadeAttackAlt = function(player, args)
 		S_StopSoundByID(player.mo, sfx_gratch)
 		RSR.SetWeaponDelay(player, nil, nil, true)
 		RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+		RSR.PlayLowAmmoSound(player, nil, true)
 
 		local throwScale = FixedDiv(min((RSR.STICKYBOMB_CHARGE_MAX - player.rsrinfo.stickyCharge) / (RSR.STICKYBOMB_CHARGE_MAX/5) + 1, 5), 5)
 		local noPlayerSpeed = false

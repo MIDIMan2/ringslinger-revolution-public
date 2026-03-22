@@ -13,6 +13,8 @@ RSR.AddWeapon("AUTO", {
 	ammoalt = 3,
 	lowammo = 21,
 	lowammoalt = 45,
+	lowammosound = sfx_autola,
+	lowammosoundalt = sfx_atatla,
 	class = 3,
 	delay = 2,
 	delayspeed = 1,
@@ -42,7 +44,6 @@ mobjinfo[MT_RSR_PROJECTILE_AUTO] = {
 	seesound = sfx_autofr,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	painsound = sfx_autola,
 	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
@@ -64,7 +65,6 @@ mobjinfo[MT_RSR_PROJECTILE_AUTO_SNP] = {
 	seesound = sfx_atatfr,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	painsound = atatla,
 	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
@@ -131,6 +131,7 @@ pspractions.A_AutoAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 	RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_AUTO, player.mo.angle, player.cmd.aiming<<16)
 
 	if pspractions.A_RSRCheckAmmo(player, {}) then return end
@@ -143,6 +144,7 @@ pspractions.A_AutoAttackAlt = function(player, args)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
 	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+	RSR.PlayLowAmmoSound(player, nil, true)
 
 	local angle = player.mo.angle
 	local pitch = player.cmd.aiming<<16

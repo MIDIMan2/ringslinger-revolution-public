@@ -14,6 +14,8 @@ RSR.AddWeapon("SCATTER", {
 	ammoalt = 4,
 	lowammo = 4,
 	lowammoalt = 9,
+	lowammosound = sfx_sctrla,
+	lowammosoundalt = sfx_scatla,
 	class = 2,
 	delay = 31,
 	delayspeed = 16,
@@ -43,7 +45,6 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER] = {
 	seesound = sfx_sctrfr,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	painsound = sfx_sctrla,
 	speed = 90*FRACUNIT,
 	radius = 22*FRACUNIT,
 	height = 22*FRACUNIT,
@@ -202,7 +203,6 @@ mobjinfo[MT_RSR_PROJECTILE_SCATTER_FLAKCANNON] = {
 	seesound = sfx_scatfr,
 	deathstate = S_RSR_PROJECTILE_SCATTER_FLAKCANNON,
 	deathsound = sfx_scatxp,
-	painsound = sfx_scatla,
 	speed = 80*FRACUNIT,
 	radius = 22*FRACUNIT,
 	height = 22*FRACUNIT,
@@ -345,6 +345,7 @@ pspractions.A_ScatterAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 
 	local angle = player.mo.angle
 	local pitch = player.cmd.aiming<<16
@@ -371,6 +372,7 @@ pspractions.A_ScatterAttackAlt = function(player, args)
 
 	RSR.SetWeaponDelay(player, nil, nil, true)
 	RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
+	RSR.PlayLowAmmoSound(player, nil, true)
 
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) then

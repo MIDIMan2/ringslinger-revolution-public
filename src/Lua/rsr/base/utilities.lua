@@ -183,19 +183,11 @@ RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, 
 	angle = $ or source.angle
 	slope = $ or 0
 
-	local rsrinfo = player.rsrinfo
 	local spawnHeight = 41*FixedDiv(source.height, source.scale)/48 - (mobjinfo[missileType].height/2)
 	local missile = P_SpawnMobjFromMobj(source, 0, 0, spawnHeight, missileType)
 	if not Valid(missile) then return end
 	if not sound and missile.info.seesound then sound = missile.info.seesound end
 	if sound then S_StartSound(source, sound) end
-	if not lowAmmoSound and missile.info.painsound then lowAmmoSound = missile.info.painsound end
-	if Valid(rsrinfo.readyWeapon) and Valid(rsrinfo.ammo[ammotype]) then
-		if RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammotype < RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].lowammo then
-			local lowVol = ((RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].lowammo - RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammotype)/(RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].lowammo - 1)) * 255
-			S_StartSoundAtVolume(source, lowAmmoSound, lowVol, player)
-		end
-	end
 
 	missile.target = source
 	if Valid(reflected) then

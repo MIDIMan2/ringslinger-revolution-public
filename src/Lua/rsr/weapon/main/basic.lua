@@ -13,6 +13,8 @@ RSR.AddWeapon("BASIC", {
 	ammoalt = 1,
 	lowammo = 9,
 	lowammoalt = 16,
+	lowammosound = sfx_redlwa,
+	lowammosoundalt = sfx_redlwa,
 	canbepanel = false,
 	class = 1,
 	classpriority = 1,
@@ -44,7 +46,6 @@ mobjinfo[MT_RSR_PROJECTILE_BASIC] = {
 	seesound = sfx_redfir,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	painsound = sfx_redlwa,
 	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
@@ -201,6 +202,7 @@ pspractions.A_BasicAttack = function(player, args)
 
 	RSR.SetWeaponDelay(player)
 	RSR.TakeAmmoFromReadyWeapon(player, 1)
+	RSR.PlayLowAmmoSound(player, nil, nil)
 
 	local missile = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_BASIC, player.mo.angle, player.cmd.aiming<<16)
 	if Valid(missile) and not (missile.color or missile.translation) then
@@ -296,6 +298,7 @@ pspractions.A_BasicAttackAlt = function(player, args)
 
 	if forceFire or not (player.cmd.buttons & BT_FIRENORMAL) then
 		RSR.SetWeaponDelay(player, nil, nil, true)
+		RSR.PlayLowAmmoSound(player, nil, true)
 
 		RSR.SpawnBasicAlt(player, rsrinfo, chargeSound)
 
