@@ -88,7 +88,9 @@ addHook("MobjThinker", function(mo)
 	-- end
 
 	local hitFloor = mo.z + mo.momz <= mo.floorz
+	if P_MobjFlip(mo) == 1 and (Valid(mo.standingslope)) then hitFloor = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
 	local hitCeiling = mo.z + mo.height + mo.momz >= mo.ceilingz
+	if P_MobjFlip(mo) == -1 and (Valid(mo.standingslope)) then hitCeiling = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
 
 	if hitFloor or hitCeiling then
 		if Valid(mo.subsector) and Valid(mo.subsector.sector) then
@@ -103,8 +105,7 @@ addHook("MobjThinker", function(mo)
 
 	if mo.threshold < 3 then
 		if (hitFloor and P_MobjFlip(mo) == 1)
-		or (hitCeiling and P_MobjFlip(mo) == -1)
-		or (Valid(mo.standingslope)) then -- Temporary fix for certain slope angles until 2.2.16 comes out
+		or (hitCeiling and P_MobjFlip(mo) == -1) then
 			mo.threshold = $+1
 			RSR.GrenadeActivate(mo)
 			mo.momx = 3*$/5
@@ -197,6 +198,7 @@ end
 ---@param mo mobj_t
 RSR.GrenadeStickybombDetonate = function(mo)
 	if not Valid(mo) then return end
+	if not (mo.flags & MF_MISSILE) then return end
 	S_StartSound(mo, sfx_gratrd)
 	mo.flags = $ & ~MF_MISSILE
 	mo.fuse = 0 -- Just in case
@@ -254,7 +256,9 @@ addHook("MobjThinker", function(mo)
 	end
 
 	local hitFloor = mo.z + mo.momz <= mo.floorz
+	if P_MobjFlip(mo) == 1 and (Valid(mo.standingslope)) then hitFloor = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
 	local hitCeiling = mo.z + mo.height + mo.momz >= mo.ceilingz
+	if P_MobjFlip(mo) == -1 and (Valid(mo.standingslope)) then hitCeiling = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
 
 	if (mo.flags & MF_STICKY) and (hitFloor or hitCeiling) then
 		if Valid(mo.subsector) and Valid(mo.subsector.sector) then
@@ -339,7 +343,7 @@ addHook("ShouldDamage", function(target, inflictor, source, damage, damagetype)
 	-- Stickybombs always detonate other Stickybombs!
 	if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB and not (inflictor.flags & MF_STICKY) then
 		if Valid(source) and RSR.PlayersAreTeammates(target.target.player, source.player) and (target.target ~= source) and not (RSR.CheckFriendlyFire()) then return false end -- Don't detonate due to non-self ally Stickybombs
-		if not (target.flags & MF_MISSILE) then
+		if not (target.flags & MF_MISSILE) and not (inflictor.flags & MF_MISSILE) then
 			target.tics = 6 -- Cause a chain reaction if the Stickybomb has already been detonated
 		else
 			RSR.GrenadeStickybombDetonate(target)

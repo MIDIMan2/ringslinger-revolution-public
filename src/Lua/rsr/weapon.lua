@@ -155,6 +155,7 @@ end
 ---@param useAlt boolean|nil Determines whether to play the alternate low ammo sound for the given weapon.
 RSR.PlayLowAmmoSound = function(player, weaponType, useAlt)
 	if not (Valid(player) and player.rsrinfo) then return end
+	if RSR.HasPowerup(player, RSR.POWERUP_INFINITY) then return end -- Don't run this function if the player has the infinity powerup
 	local rsrinfo = player.rsrinfo
 	if not weaponType then weaponType = rsrinfo.readyWeapon end
 	if not RSR.WEAPON_INFO[weaponType] then return end
@@ -165,7 +166,7 @@ RSR.PlayLowAmmoSound = function(player, weaponType, useAlt)
 		local lowAmmo = RSR.WEAPON_INFO[weaponType].lowammo
 		if useAlt and RSR.WEAPON_INFO[weaponType].lowammoalt then lowAmmo = RSR.WEAPON_INFO[weaponType].lowammoalt end
 		local curAmmo = rsrinfo.ammo[RSR.WEAPON_INFO[rsrinfo.readyWeapon].ammotype]
-		if lowAmmo and (curAmmo < lowAmmo) and (not RSR.HasPowerup(player, RSR.POWERUP_INFINITY)) then
+		if lowAmmo and (curAmmo < lowAmmo) then
 			local lowVol = FixedMul(255, FixedDiv(lowAmmo - curAmmo, lowAmmo))
 			-- local lowVol = ((RSR.WEAPON_INFO[rsrinfo.readyWeapon].lowammo - RSR.WEAPON_INFO[rsrinfo.readyWeapon].ammotype)/(RSR.WEAPON_INFO[rsrinfo.readyWeapon].lowammo - 1)) * 255
 			S_StartSoundAtVolume(nil, lowAmmoSound, lowVol, player)

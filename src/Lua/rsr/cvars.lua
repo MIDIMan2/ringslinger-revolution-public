@@ -53,6 +53,14 @@ RSR.CV_Killfeed = CV_RegisterVar({
 	}
 })
 
+-- Lets the player disable screen effects (for accessibility).
+RSR.CV_ScreenEffects = CV_RegisterVar({
+	name = "rsr_screeneffects",
+	defaultvalue = "On",
+	flags = CV_SAVE,
+	PossibleValue = CV_OnOff
+})
+
 -- --------------------------------
 -- SERVER CVARS
 -- --------------------------------
