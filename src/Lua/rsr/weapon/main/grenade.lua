@@ -16,7 +16,7 @@ RSR.AddWeapon("GRENADE", {
 	ammoamount = 10,
 	ammoalt = 1,
 	lowammo = 6,
-	lowammoalt = 4,
+	lowammoalt = 6,
 	lowammosound = sfx_grndla,
 	lowammosoundalt = sfx_gratla,
 	class = 5,
