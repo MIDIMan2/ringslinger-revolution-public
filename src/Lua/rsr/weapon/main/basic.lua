@@ -30,7 +30,7 @@ RSR.AddWeapon("BASIC", {
 	states = {
 		draw = "S_BASIC_DRAW",
 		ready = "S_BASIC_READY",
-		holster = "S_BASIC_HOSLTER",
+		holster = "S_BASIC_HOLSTER",
 		attack = "S_BASIC_ATTACK",
 		attackalt = "S_BASIC_ATTACKALT_CHOOSE"
 	}

@@ -28,7 +28,7 @@ RSR.AddWeapon("BOMB", {
 	states = {
 		draw = "S_BOMB_DRAW",
 		ready = "S_BOMB_READY",
-		holster = "S_BOMB_HOSLTER",
+		holster = "S_BOMB_HOLSTER",
 		attack = "S_BOMB_ATTACK",
 		attackalt = "S_BOMB_ATTACKALT"
 	}

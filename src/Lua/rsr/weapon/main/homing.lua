@@ -30,7 +30,7 @@ RSR.AddWeapon("HOMING", {
 	states = {
 		draw = "S_HOMING_DRAW",
 		ready = "S_HOMING_READY",
-		holster = "S_HOMING_HOSLTER",
+		holster = "S_HOMING_HOLSTER",
 		attack = "S_HOMING_ATTACK",
 		attackalt = "S_HOMING_ATTACKALT_SOUND"
 	}

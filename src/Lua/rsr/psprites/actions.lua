@@ -95,9 +95,7 @@ RSR.CheckPendingWeapon = function(player)
 
 	if player.rsrinfo.pendingWeapon ~= -1 then
 		local psprite = PSprites.GetPSprite(player, PSprites.PSPR_WEAPON)
-		if psprite then
-			psprite.y = RSR.LOWER_OFFSET
-		end
+		if psprite then psprite.y = RSR.LOWER_OFFSET end
 
 		player.rsrinfo.readyWeapon = player.rsrinfo.pendingWeapon
 		RSR.DrawWeapon(player)

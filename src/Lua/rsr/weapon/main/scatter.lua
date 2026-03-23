@@ -29,7 +29,7 @@ RSR.AddWeapon("SCATTER", {
 	states = {
 		draw = "S_SCATTER_DRAW",
 		ready = "S_SCATTER_READY",
-		holster = "S_SCATTER_HOSLTER",
+		holster = "S_SCATTER_HOLSTER",
 		attack = "S_SCATTER_ATTACK",
 		attackalt = "S_SCATTER_ATTACKALT"
 	}

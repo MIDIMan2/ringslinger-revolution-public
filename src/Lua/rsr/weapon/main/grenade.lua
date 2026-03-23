@@ -32,7 +32,7 @@ RSR.AddWeapon("GRENADE", {
 	states = {
 		draw = "S_GRENADE_DRAW",
 		ready = "S_GRENADE_READY",
-		holster = "S_GRENADE_HOSLTER",
+		holster = "S_GRENADE_HOLSTER",
 		attack = "S_GRENADE_ATTACK",
 		attackalt = "S_GRENADE_ATTACKALT_SOUND"
 	}

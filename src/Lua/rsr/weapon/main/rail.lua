@@ -24,7 +24,7 @@ RSR.AddWeapon("RAIL", {
 	states = {
 		draw = "S_RAIL_DRAW",
 		ready = "S_RAIL_READY",
-		holster = "S_RAIL_HOSLTER",
+		holster = "S_RAIL_HOLSTER",
 		attack = "S_RAIL_ATTACK"
 	}
 })

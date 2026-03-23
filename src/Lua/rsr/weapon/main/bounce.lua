@@ -29,7 +29,7 @@ RSR.AddWeapon("BOUNCE", {
 	states = {
 		draw = "S_BOUNCE_DRAW",
 		ready = "S_BOUNCE_READY",
-		holster = "S_BOUNCE_HOSLTER",
+		holster = "S_BOUNCE_HOLSTER",
 		attack = "S_BOUNCE_ATTACK",
 		attackalt = "S_BOUNCE_ATTACKALT"
 	}
