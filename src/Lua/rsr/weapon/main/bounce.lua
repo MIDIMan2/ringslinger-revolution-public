@@ -39,6 +39,13 @@ RSR.AddWeapon("BOUNCE", {
 -- PROJECTILE
 -- --------------------------------
 
+
+
+-- IF YOU CHANGE THE SPEED, RADIUS, HEIGHT, DAMAGE, OR ACTIVESOUND OF EITHER OF THESE MAKE SURE TO CHANGE THE OTHER ONE TOO! We unfortunately need to use two objects for the killfeed!
+-- -orbitalviolet
+
+
+
 mobjinfo[MT_RSR_PROJECTILE_BOUNCE] = {
 	doomednum = -1,
 	spawnstate = S_RSR_PROJECTILE_BOUNCE,
