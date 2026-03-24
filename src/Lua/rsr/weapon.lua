@@ -380,7 +380,7 @@ end
 
 --- Makes the projectile emit a sound as it travels.
 ---@param mo mobj_t The projectile.
----@param repeatTime integer|nil Tics between repeats of the sound effect. Default is 6 if there is no traveltimer defined in MOBJ_INFO.
+---@param repeatTime tic_t|nil Tics between repeats of the sound effect. Default is 6 if there is no traveltimer defined in MOBJ_INFO.
 ---@param sound soundnum_t|nil The sound to play as the projectile travels. Default is sfx_alarm if there is not travelsound defined in .
 RSR.ProjectileTravelSound = function(mo, repeatTime, sound)
 	if not Valid(mo) then return end
@@ -401,7 +401,7 @@ end
 --- Makes the projectile emit a sound as it follows a player.
 ---@param mo mobj_t The projectile.
 ---@param player player_t Player that the projectile is targetting.
----@param repeatTime integer|nil Tics between repeats of the sound effect. Default is 6 if there is no alerttimer defined in MOBJ_INFO.
+---@param repeatTime tic_t|nil Tics between repeats of the sound effect. Default is 6 if there is no alerttimer defined in MOBJ_INFO.
 ---@param sound soundnum_t|nil The sound to play as the projectile travels. Default is sfx_alarm if there is no alertsound defined in MOBJ_INFO.
 RSR.ProjectileAlertSound = function(mo, player, repeatTime, sound)
 	if not (Valid(mo) and Valid(player)) then return end

@@ -37,8 +37,8 @@ end
 -- Used to be P_RandomFixedRange, changed when I found out this is already a function in other mods...
 
 --- Returns a random fixed-point number between a and b.
----@param a fixed_t|integer
----@param b fixed_t|integer
+---@param a fixed_t
+---@param b fixed_t
 RSR.RandomFixedRange = function(a, b)
 	local diff = b - a
 	local result = FixedMul(diff, P_RandomFixed()) + a
@@ -173,7 +173,7 @@ end
 ---@param angle angle_t|nil Angle of the spawned missile.
 ---@param slope angle_t|nil Pitch of the spawned missile.
 ---@param reflected mobj_t|nil If set to an Object, this makes the spawned missile act as a reflected version using this Object's properties.
----@param speed fixed_t|integer|nil Sets the speed of the missile (default is missileType's Speed property).
+---@param speed fixed_t|nil Sets the speed of the missile (default is missileType's Speed property).
 ---@param sound integer|nil Determines what sound to use for the spawned missile (uses sfx_* constants).
 ---@param noPlayerSpeed boolean|nil If true, this prevents the player's speed from being accounted for.
 RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, speed, sound, noPlayerSpeed)
@@ -345,7 +345,7 @@ end
 --- Causes a missile to explode when an enemy comes within a certain radius of it.
 ---@param mo mobj_t
 ---@param proxDist fixed_t Maximum distance to check for detonation if enemy walks within.
----@param proxCallback function Callback function to run when the radius check succeeds.
+---@param proxCallback function Callback function to run when the radius check succeeds. Must have two parameters: One for the "missile", and one for the "enemy".
 RSR.ProximityDetonate = function(mo, proxDist, proxCallback)
 	if not Valid(mo) then return end
 	if proxDist == nil then proxDist = 96*FRACUNIT end

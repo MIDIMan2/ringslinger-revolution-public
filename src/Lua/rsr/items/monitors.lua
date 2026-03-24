@@ -185,9 +185,9 @@ end
 
 --- Adds the given Object type to the list of monitors in RSR, automatically applying the necessary hooks to them. Must be called in an AddonLoaded hook.
 ---@param monitorType mobjtype_t
-RSR.AddMonitorType = function(monitorType)
+RSR.AddMonitorHooks = function(monitorType)
 	if RSR.MONITOR_TYPES[monitorType] then
-		print("\x82WARNING:\x80 Monitor type "..monitorType.." has already been added to RSR's list!")
+		-- print("\x82WARNING:\x80 Monitor type "..monitorType.." has already been added to RSR's list!")
 		return
 	end
 
@@ -199,25 +199,27 @@ RSR.AddMonitorType = function(monitorType)
 	RSR.MONITOR_TYPES[monitorType] = true
 end
 
-RSR.AddMonitorType(MT_RING_BOX)
-RSR.AddMonitorType(MT_PITY_BOX)
-RSR.AddMonitorType(MT_ATTRACT_BOX)
-RSR.AddMonitorType(MT_FORCE_BOX)
-RSR.AddMonitorType(MT_ARMAGEDDON_BOX)
-RSR.AddMonitorType(MT_WHIRLWIND_BOX)
-RSR.AddMonitorType(MT_ELEMENTAL_BOX)
-RSR.AddMonitorType(MT_SNEAKERS_BOX)
-RSR.AddMonitorType(MT_INVULN_BOX)
-RSR.AddMonitorType(MT_1UP_BOX)
-RSR.AddMonitorType(MT_EGGMAN_BOX)
-RSR.AddMonitorType(MT_MIXUP_BOX)
-RSR.AddMonitorType(MT_MYSTERY_BOX)
-RSR.AddMonitorType(MT_GRAVITY_BOX)
-RSR.AddMonitorType(MT_RECYCLER_BOX)
-RSR.AddMonitorType(MT_SCORE1K_BOX)
-RSR.AddMonitorType(MT_SCORE10K_BOX)
-RSR.AddMonitorType(MT_FLAMEAURA_BOX)
-RSR.AddMonitorType(MT_BUBBLEWRAP_BOX)
-RSR.AddMonitorType(MT_THUNDERCOIN_BOX)
+addHook("AddonLoaded", function()
+	RSR.AddMonitorHooks(MT_RING_BOX)
+	RSR.AddMonitorHooks(MT_PITY_BOX)
+	RSR.AddMonitorHooks(MT_ATTRACT_BOX)
+	RSR.AddMonitorHooks(MT_FORCE_BOX)
+	RSR.AddMonitorHooks(MT_ARMAGEDDON_BOX)
+	RSR.AddMonitorHooks(MT_WHIRLWIND_BOX)
+	RSR.AddMonitorHooks(MT_ELEMENTAL_BOX)
+	RSR.AddMonitorHooks(MT_SNEAKERS_BOX)
+	RSR.AddMonitorHooks(MT_INVULN_BOX)
+	RSR.AddMonitorHooks(MT_1UP_BOX)
+	RSR.AddMonitorHooks(MT_EGGMAN_BOX)
+	RSR.AddMonitorHooks(MT_MIXUP_BOX)
+	RSR.AddMonitorHooks(MT_MYSTERY_BOX)
+	RSR.AddMonitorHooks(MT_GRAVITY_BOX)
+	RSR.AddMonitorHooks(MT_RECYCLER_BOX)
+	RSR.AddMonitorHooks(MT_SCORE1K_BOX)
+	RSR.AddMonitorHooks(MT_SCORE10K_BOX)
+	RSR.AddMonitorHooks(MT_FLAMEAURA_BOX)
+	RSR.AddMonitorHooks(MT_BUBBLEWRAP_BOX)
+	RSR.AddMonitorHooks(MT_THUNDERCOIN_BOX)
+end)
 
 -- Developer note: To add your own monitor types to RSR's list, use this function in an AddonLoaded hook.

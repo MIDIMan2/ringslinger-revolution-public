@@ -241,6 +241,7 @@ end
 ---@param target mobj_t
 ---@param inflictor mobj_t
 ---@param source mobj_t
+---@param damage integer
 ---@param damagetype integer
 RSR.GetInflictorDamage = function(target, inflictor, source, damage, damagetype)
 	if not (Valid(target) and Valid(inflictor)) then return end
@@ -430,8 +431,8 @@ end
 ---@param damage integer
 ---@return integer damage Damage leftover after taking away armor.
 ---@return boolean hadArmor If true, the player had armor before this function.
----@return integer clientHurtSound Hurt sound to play for the local player.
----@return integer serverHurtSound Hurt sound to play for the rest of the server.
+---@return soundnum_t clientHurtSound Hurt sound to play for the local player.
+---@return soundnum_t serverHurtSound Hurt sound to play for the rest of the server.
 RSR.PlayerArmorDamage = function(player, inflictor, damage)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return 1, false, sfx_rsrhrt, sfx_rsrpmp end
 	local rsrinfo = player.rsrinfo
@@ -506,8 +507,8 @@ end
 ---@param inflictor mobj_t|nil
 ---@param infInfo rsrmobjinfo_t|nil
 ---@param knockbackScale fixed_t
----@param hurtSound integer
----@param serverHurtSound integer
+---@param hurtSound soundnum_t
+---@param serverHurtSound soundnum_t
 RSR.PlayerShieldDamage = function(player, inflictor, infInfo, knockbackScale, hurtSound, serverHurtSound)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo and (player.powers[pw_shield] & SH_NOSTACK)) then return knockbackScale, hurtSound, serverHurtSound end
 	local rsrinfo = player.rsrinfo
