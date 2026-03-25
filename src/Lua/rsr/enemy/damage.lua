@@ -21,7 +21,7 @@ end
 ---@return integer healthScale Default is 30.
 RSR.GetEnemyHealthScale = function(moType)
 	local healthScale = 30
-	if moType and RSR.MOBJ_INFO[moType] and RSR.MOBJ_INFO[moType].health then
+	if moType and RSR.MOBJ_INFO[moType] and RSR.MOBJ_INFO[moType].health and mobjinfo[moType].spawnhealth > 0 then -- Make sure the enemy's spawnhealth is greater than 0
 		healthScale = (RSR.MOBJ_INFO[moType].health / mobjinfo[moType].spawnhealth)
 	end
 	return healthScale

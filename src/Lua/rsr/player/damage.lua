@@ -643,7 +643,9 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	damage, hadArmor, hurtSound, serverHurtSound = RSR.PlayerArmorDamage(player, inflictor, damage)
 
 	RSR.PlayerDamageRewards(player, source, damage, damagetype)
-	rsrinfo.health = max($ - damage, 0) -- Make sure health doesn't go below 0
+	if not (player.bot == BOT_2PAI or player.bot == BOT_2PHUMAN) then -- TODO: Make bots fling backward like a melee attack eventually
+		rsrinfo.health = max($ - damage, 0) -- Make sure health doesn't go below 0
+	end
 
 	-- Tiered damage fades based on severity of damage taken
 	if damage < 16 then -- Hit by "standard" ring/melee attack
@@ -745,7 +747,7 @@ RSR.PlayerSourceShouldDamage = function(player, inflictor, source, damage, damag
 
 	if Valid(source.player) and RSR.PlayersAreTeammates(player, source.player) then
 		if (player == source.player and not (damagetype & DMG_CANHURTSELF)) -- If the player is not damaging themselves and friendly fire is disabled, don't deal damage
-		or (player ~= source.player and not RSR.CheckFriendlyFire()) then
+		or (player ~= source.player and not RSR.CheckFriendlyFire(player, source.player)) then
 			return false
 		else -- Otherwise, force damage and (possibly) death
 			return true
@@ -881,7 +883,7 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 		if not (inflictor.rsrProjectile or inflictor.rsrRealDamage or Valid(inflictor.player)) and rsrinfo.hurtByEnemy then return false end
 		if Valid(inflictor.player) then
 			if rsrinfo.hurtByMelee then return false end
-			if RSR.PlayersAreTeammates(player, inflictor.player) and not RSR.CheckFriendlyFire() then return false end
+			if RSR.PlayersAreTeammates(player, inflictor.player) and not RSR.CheckFriendlyFire(player, inflictor.player) then return false end
 		end
 		if inflictor.rsrEnemyBlink then return false end
 		return RSR.PlayerSourceShouldDamage(player, inflictor, source, damage, damagetype)
@@ -1257,7 +1259,7 @@ RSR.PlayerMelee = function(pmo, pmo2)
 	---@type player_t
 	local player2 = pmo2.player
 
-	if RSR.PlayersAreTeammates(player, player2) and not RSR.CheckFriendlyFire() then return end -- Don't hurt teammates unless friendlyfire is on
+	if RSR.PlayersAreTeammates(player, player2) and not RSR.CheckFriendlyFire(player, player2) then return end -- Don't hurt teammates unless friendlyfire is on
 
 	-- Height check
 	if not (pmo.z <= pmo2.z + pmo2.height

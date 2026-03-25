@@ -283,9 +283,18 @@ RSR.SpawnReflectedMissile = function(source, missile)
 end
 
 --- Checks if friendlyfire is on or not.
+---@param player player_t
+---@param player2 player_t
 ---@return boolean
-RSR.CheckFriendlyFire = function()
-	if CV_FindVar("friendlyfire").value or (gametyperules & GTR_FRIENDLYFIRE) then return true end
+RSR.CheckFriendlyFire = function(player, player2)
+	if CV_FindVar("friendlyfire").value or (gametyperules & GTR_FRIENDLYFIRE) then
+		-- Don't let 2P bots harm each other or human players
+		if Valid(player) and Valid(player2) then
+			if player.bot == BOT_2PAI or player.bot == BOT_2PHUMAN then return false end
+			if player2.bot == BOT_2PAI or player2.bot == BOT_2PHUMAN then return false end
+		end
+		return true
+	end
 	return false
 end
 

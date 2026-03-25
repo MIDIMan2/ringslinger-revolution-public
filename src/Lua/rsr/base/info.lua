@@ -30,7 +30,7 @@ RSR.MOBJ_INFO[MT_EGGGUARD] = {health = 15, damage = 25}
 RSR.MOBJ_INFO[MT_VULTURE] = {health = 75, damage = 25}
 RSR.MOBJ_INFO[MT_GSNAPPER] = {health = 125, damage = 20}
 RSR.MOBJ_INFO[MT_MINUS] = {health = 40, damage = 30}
-RSR.MOBJ_INFO[MT_CANARIVORE] = {health = 125, damage = 10}
+RSR.MOBJ_INFO[MT_CANARIVORE] = {health = 125, damage = 10, nosplashthrust = true}
 RSR.MOBJ_INFO[MT_UNIDUS] = {health = 117, damage = 10}
 RSR.MOBJ_INFO[MT_PTERABYTE] = {health = 55, damage = 15}
 RSR.MOBJ_INFO[MT_PYREFLY] = {health = 125, damage = 25}
@@ -45,7 +45,7 @@ RSR.MOBJ_INFO[MT_CRAWLACOMMANDER] = {health = 195, damage = 15}
 RSR.MOBJ_INFO[MT_SPINBOBERT] = {health = 1, damage = 10}
 RSR.MOBJ_INFO[MT_CACOLANTERN] = {health = 145, damage = 30}
 RSR.MOBJ_INFO[MT_HANGSTER] = {health = 55, damage = 40}
-RSR.MOBJ_INFO[MT_HIVEELEMENTAL] = {health = 240, damage = 10}
+RSR.MOBJ_INFO[MT_HIVEELEMENTAL] = {health = 240, damage = 10, nosplashthrust = true}
 RSR.MOBJ_INFO[MT_BUMBLEBORE] = {health = 1, damage = 35}
 RSR.MOBJ_INFO[MT_BUGGLE] = {health = 85, damage = 20}
 RSR.MOBJ_INFO[MT_POINTY] = {health = 125, damage = 25}

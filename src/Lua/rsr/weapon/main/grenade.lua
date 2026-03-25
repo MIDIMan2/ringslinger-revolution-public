@@ -342,7 +342,7 @@ addHook("ShouldDamage", function(target, inflictor, source, damage, damagetype)
 
 	-- Stickybombs always detonate other Stickybombs!
 	if inflictor.type == MT_RSR_PROJECTILE_GRENADE_STICKYBOMB and not (inflictor.flags & MF_STICKY) then
-		if Valid(source) and RSR.PlayersAreTeammates(target.target.player, source.player) and (target.target ~= source) and not (RSR.CheckFriendlyFire()) then return false end -- Don't detonate due to non-self ally Stickybombs
+		if Valid(source) and RSR.PlayersAreTeammates(target.target.player, source.player) and (target.target ~= source) and not (RSR.CheckFriendlyFire(target.target.player, source.player)) then return false end -- Don't detonate due to non-self ally Stickybombs
 		if not (target.flags & MF_MISSILE) and not (inflictor.flags & MF_MISSILE) then
 			target.tics = 6 -- Cause a chain reaction if the Stickybomb has already been detonated
 		else
@@ -353,7 +353,7 @@ addHook("ShouldDamage", function(target, inflictor, source, damage, damagetype)
 		if not (target.flags & MF_MISSILE) then return false end -- Don't cause further damage if the Stickybomb has already been detonated
 
 		if Valid(source) and Valid(target.target) then
-			if RSR.PlayersAreTeammates(target.target.player, source.player) and not RSR.CheckFriendlyFire() then return false end -- Don't lose fuse from ally damage
+			if RSR.PlayersAreTeammates(target.target.player, source.player) and not RSR.CheckFriendlyFire(target.target.player, source.player) then return false end -- Don't lose fuse from ally damage
 			if target.target == source then return false end -- Don't lose fuse from your own bullets
 		end
 		local damageInfo = RSR.GetInflictorDamage(target, inflictor, source, damage, damagetype)
