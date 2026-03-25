@@ -121,7 +121,7 @@ events["PlayerKnockback"] = {
 }
 
 events["PlayerShouldDamage"] = {
-    handler = handler_snapany;
+    handler = handler_snaptrue;
     typefor = typefor_skin
 }
 
@@ -148,12 +148,12 @@ events["PlayerDeathFling"] = {
 -- Enemies
 
 events["EnemyTouchSpecial"] = {
-	handler = handler_snapany;
+	handler = handler_snaptrue;
 	typefor = typefor_mobj
 }
 
 events["EnemyShouldDamage"] = {
-	handler = handler_snapany;
+	handler = handler_snaptrue;
 	typefor = typefor_mobj
 }
 

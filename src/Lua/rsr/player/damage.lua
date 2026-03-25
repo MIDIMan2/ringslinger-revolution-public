@@ -793,7 +793,7 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 				if hookEvent.typefor(player, v.typedef) == false then continue end
 			end
 			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
-			if result ~= nil then return end
+			if result then return end
 		end
 	end
 

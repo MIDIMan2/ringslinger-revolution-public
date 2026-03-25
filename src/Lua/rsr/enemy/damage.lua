@@ -158,7 +158,7 @@ RSR.EnemyShouldDamage = function(target, inflictor, source, damage, damagetype)
 				if hookEvent.typefor(target, v.typedef) == false then continue end
 			end
 			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
-			if result ~= nil then return end
+			if result then return end
 		end
 	end
 
@@ -219,7 +219,7 @@ RSR.EnemyTouchSpecial = function(special, toucher)
 				if hookEvent.typefor(special, v.typedef) == false then continue end
 			end
 			local result = RSR.tryRunHook(hookName, v, special, toucher)
-			if result ~= nil then return end
+			if result then return end
 		end
 	end
 
