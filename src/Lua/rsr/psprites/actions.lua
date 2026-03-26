@@ -41,6 +41,7 @@ RSR.DrawWeapon = function(player, weapon, force)
 	if weapon == nil then weapon = player.rsrinfo.pendingWeapon end
 	newstate = RSR.WEAPON_INFO[weapon].states.draw
 
+	player.rsrinfo.canHoldFire = false
 	player.rsrinfo.pendingWeapon = -1
 	psprite.y = RSR.LOWER_OFFSET
 
@@ -246,10 +247,11 @@ pspractions.A_RSRWeaponRecover = function(player, args)
 	if not psprite then return end
 
 	local rsrinfo = player.rsrinfo
+	rsrinfo.canHoldFire = true
 
-	if player.rsrinfo.weaponDelay <= 0 then
-		player.rsrinfo.weaponDelay = 0
-		player.rsrinfo.weaponDelayOrig = 0
+	if rsrinfo.weaponDelay <= 0 then
+		rsrinfo.weaponDelay = 0
+		rsrinfo.weaponDelayOrig = 0
 		psprite.y = RSR.UPPER_OFFSET
 		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.ready)
 		return

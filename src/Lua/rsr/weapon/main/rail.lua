@@ -170,7 +170,7 @@ RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 		rsrinfo.useZoom = false
 	end
 
-	if (player.cmd.buttons & BT_ATTACK) and not (rsrinfo.lastbuttons & BT_ATTACK) then
+	if (player.cmd.buttons & BT_ATTACK) and (not (rsrinfo.lastbuttons & BT_ATTACK) or rsrinfo.canHoldFire) then
 		RSR.FireWeapon(player)
 		return true
 	end

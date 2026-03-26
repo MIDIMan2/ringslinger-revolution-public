@@ -40,7 +40,7 @@ RSR.MOBJ_INFO[MT_JETTGUNNER] = {health = 50, damage = 15}
 RSR.MOBJ_INFO[MT_SPINCUSHION] = {health = 70, damage = 10}
 RSR.MOBJ_INFO[MT_SNAILER] = {health = 125, damage = 10}
 RSR.MOBJ_INFO[MT_PENGUINATOR] = {health = 55, damage = 20}
-RSR.MOBJ_INFO[MT_POPHAT] = {health = 65, damage = 10}
+RSR.MOBJ_INFO[MT_POPHAT] = {health = 65, damage = 10, nosplashthrust = true}
 RSR.MOBJ_INFO[MT_CRAWLACOMMANDER] = {health = 195, damage = 15}
 RSR.MOBJ_INFO[MT_SPINBOBERT] = {health = 1, damage = 10}
 RSR.MOBJ_INFO[MT_CACOLANTERN] = {health = 145, damage = 30}

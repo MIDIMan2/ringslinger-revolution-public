@@ -44,6 +44,8 @@ RSR.PlayerWeaponsInit = function(player)
 
 	rsrinfo.weaponDelay = 0
 	rsrinfo.weaponDelayOrig = 0
+
+	rsrinfo.canHoldFire = false
 end
 
 --- Initializes the player's variables for RSR.

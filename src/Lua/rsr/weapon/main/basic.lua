@@ -163,7 +163,7 @@ RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 
 	local rsrinfo = player.rsrinfo
 
-	if (player.cmd.buttons & BT_FIRENORMAL) and not (rsrinfo.lastbuttons & BT_FIRENORMAL) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
+	if (player.cmd.buttons & BT_FIRENORMAL) and (not (rsrinfo.lastbuttons & BT_FIRENORMAL) or rsrinfo.canHoldFire) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
 		if RSR.FireWeaponAlt(player) then return true end
 		-- Make sure the player has an a altfire attack state and ammo at all before making the sound
 		if not (rsrinfo.lastbuttons & BT_FIRENORMAL) and RSR.CheckAmmo(player) and weaponInfo.states.attackalt then

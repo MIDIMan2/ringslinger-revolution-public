@@ -35,6 +35,7 @@
 ---@field screenFade rsrscreenfade_t Determines the current properties of the player's screen fade.
 ---@field homing integer Equivalent of player.homing, except for other players.
 ---@field homingThreshold integer The player's homing threshold before they are knocked out of a homing attack.
+---@field canHoldFire boolean Determines whether the player can hold either of the fire buttons to use their weapon.
 ---@field basicCharge integer|nil Determines the current "charge" of the Red Ring's altfire.
 ---@field basicChargeSound integer|nil Counter for the Red Ring's altfire's "charge" sound.
 ---@field basicChargeDontTakeAmmo boolean|nil Determines if the Charged Shot shouldn't take ammo.

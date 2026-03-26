@@ -143,6 +143,30 @@ addHook("MobjThinker", RSR.WeaponPickupThinker, MT_RSR_PICKUP_BOMB)
 -- ACTIONS & STATES
 -- --------------------------------
 
+-- Explosion Ring WeaponReady code
+---@param player player_t
+---@param weaponInfo rsrweaponinfo_t
+RSR.addHook("WeaponReady", function(player, weaponInfo, args)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
+
+	local rsrinfo = player.rsrinfo
+
+	if (player.cmd.buttons & BT_FIRENORMAL) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
+		if RSR.FireWeaponAlt(player) then return true end
+		-- Make sure the player has an a altfire attack state and ammo at all before making the sound
+		if not (rsrinfo.lastbuttons & BT_FIRENORMAL) and RSR.CheckAmmo(player) and weaponInfo.states.attackalt then
+			S_StartSound(nil, sfx_noammo, player)
+		end
+	end
+
+	if (player.cmd.buttons & BT_ATTACK) and (not (rsrinfo.lastbuttons & BT_ATTACK) or rsrinfo.canHoldFire) then
+		RSR.FireWeapon(player)
+		return true
+	end
+
+	return true
+end, RSR.WEAPON_BOMB)
+
 local pspractions = PSprites.ACTIONS
 
 --- Fires an Explosion ring from the player.

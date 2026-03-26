@@ -1,6 +1,7 @@
 -- Ringslinger Revolution - Enemy Damage
 
 RSR.ENEMY_LIST = {}
+RSR.ENEMY_WEAK_HP = 66
 
 --- Sets the enemy's blink timer and adds it to RSR.ENEMY_THINKERS.
 ---@param mo mobj_t Enemy to set the blink timer for.
@@ -240,6 +241,9 @@ RSR.EnemyTouchSpecial = function(special, toucher)
 		player.homing = 0 -- Make the Attraction Shield not constantly lock on to the enemy
 
 		if special.info.spawnhealth < 2 then
+			P_DamageMobj(special, toucher, toucher, 1, 0)
+			-- Pierce through the enemy if its spawnhealth is less than RSR.ENEMY_WEAK_HP
+			if Valid(special) and special.rsrKilled and special.rsrSpawnHealth <= RSR.ENEMY_WEAK_HP then return end
 			toucher.momx = -$
 			toucher.momy = -$
 			if player.charability == CA_FLY and player.panim == PA_ABILITY then
@@ -251,12 +255,12 @@ RSR.EnemyTouchSpecial = function(special, toucher)
 				toucher.momx = 7*$/8
 				toucher.momy = 7*$/8
 				-- Hack to prevent the gliding player from getting hurt when hitting the enemy at certain angles
-				P_DamageMobj(special, toucher, toucher, 1, 0)
+				-- P_DamageMobj(special, toucher, toucher, 1, 0)
 				player.powers[pw_flashing] = 1
 			elseif player.powers[pw_strong] & STR_DASH and player.panim == PA_DASH then
 				P_DoPlayerPain(player, special, special)
 				-- Hack to prevent the dashing player from not dealing damage at all
-				P_DamageMobj(special, toucher, toucher, 1, 0)
+				-- P_DamageMobj(special, toucher, toucher, 1, 0)
 			end
 		end
 	end
