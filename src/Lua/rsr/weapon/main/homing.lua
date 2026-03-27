@@ -347,7 +347,7 @@ pspractions.A_HomingAttackAlt = function(player, args)
 	if not (player.cmd.buttons & BT_FIRENORMAL) or not RSR.CanUseAttack(player, EMERALD7, true) then
 		S_StopSoundByID(player.mo, sfx_hoatsk)
 		if Valid(lockOn) and (player.rsrinfo.waspTime < 1) then
-			RSR.SetWeaponDelay(player)
+			RSR.SetWeaponDelay(player, nil, nil, true)
 			RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
 			RSR.PlayLowAmmoSound(player, nil, true)
 			local homing = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING_BOMB, player.mo.angle, player.cmd.aiming<<16)
