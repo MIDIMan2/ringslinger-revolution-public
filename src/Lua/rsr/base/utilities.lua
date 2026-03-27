@@ -351,6 +351,20 @@ RSR.PlayerHasEmerald = function(player, emerald)
 	return (emeralds & emerald)
 end
 
+--- Returns true if players can turn super in the current level and/or gametype.
+RSR.PlayersCanTurnSuper = function()
+	if RSR.GAMETYPE_INFO[gametype] and RSR.GAMETYPE_INFO[gametype].nosuper then return false end
+	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrnosuper then return false end
+	return true
+end
+
+--- Returns true if players can use their weapon altfires in the current level and/or gametype.
+RSR.PlayersCanUseAltfires = function()
+	if RSR.GAMETYPE_INFO[gametype] and RSR.GAMETYPE_INFO[gametype].noaltfires then return false end
+	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrnoaltfires then return false end
+	return true
+end
+
 --- Causes a missile to explode when an enemy comes within a certain radius of it.
 ---@param mo mobj_t
 ---@param proxDist fixed_t Maximum distance to check for detonation if enemy walks within.

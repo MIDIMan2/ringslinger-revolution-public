@@ -201,6 +201,24 @@ RSR.CanUseWeapons = function(player, skipSkinCheck)
 	return true
 end
 
+--- Checks if the player can use their primary or secondary fire.
+---@param player player_t
+---@param emerald integer
+---@param altFire boolean|nil If true, check if the player can use their altfire.
+RSR.CanUseAttack = function(player, emerald, altFire)
+	if not (Valid(player) and emerald) then return false end
+
+	-- TODO: Rework this function when the altfires are separated from the emeralds
+
+	if not altFire then
+		-- Player can always use their primary fire
+		return true
+	else
+		-- Player can only use the secondary fire if they have the given emerald
+		if RSR.PlayersCanUseAltfires() and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, emerald)) then return true end
+	end
+end
+
 --- Gives a weapon to the player.
 ---@param player player_t
 ---@param weapon integer Weapon to give the player (RSR.WEAPON_* constant).

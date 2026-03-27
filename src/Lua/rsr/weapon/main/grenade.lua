@@ -450,6 +450,30 @@ addHook("MobjThinker", RSR.WeaponPickupThinker, MT_RSR_PICKUP_GRENADE)
 -- ACTIONS & STATES
 -- --------------------------------
 
+-- Grenade Ring WeaponReady code
+---@param player player_t
+---@param weaponInfo rsrweaponinfo_t
+RSR.addHook("WeaponReady", function(player, weaponInfo, args)
+	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return end
+
+	local rsrinfo = player.rsrinfo
+
+	if (player.cmd.buttons & BT_FIRENORMAL) and (not (rsrinfo.lastbuttons & BT_FIRENORMAL) or rsrinfo.canHoldFire) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
+		if RSR.FireWeaponAlt(player) then return true end
+		-- Make sure the player has an a altfire attack state and ammo at all before making the sound
+		if not (rsrinfo.lastbuttons & BT_FIRENORMAL) and RSR.CheckAmmo(player) and weaponInfo.states.attackalt then
+			S_StartSound(nil, sfx_noammo, player)
+		end
+	end
+
+	if (player.cmd.buttons & BT_ATTACK) and (not (rsrinfo.lastbuttons & BT_ATTACK) or rsrinfo.canHoldFire) then
+		RSR.FireWeapon(player)
+		return true
+	end
+
+	return true
+end, RSR.WEAPON_GRENADE)
+
 local pspractions = PSprites.ACTIONS
 
 --- Fires a Grenade ring from the player.
@@ -490,7 +514,7 @@ pspractions.A_GrenadeAttackAlt = function(player, args)
 		player.rsrinfo.stickyCharge = max($ - decrement, 0)
 	end
 
-	if not (player.cmd.buttons & BT_FIRENORMAL) or not (RSR.PlayerHasEmerald(player, EMERALD5) or player.powers[pw_super]) then
+	if not (player.cmd.buttons & BT_FIRENORMAL) or not RSR.CanUseAttack(player, EMERALD5, true) then
 		S_StopSoundByID(player.mo, sfx_gratch)
 		RSR.SetWeaponDelay(player, nil, nil, true)
 		RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)

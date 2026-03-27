@@ -318,7 +318,7 @@ RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 	if not (Valid(player) and player.rsrinfo and weaponInfo) then return end
 	local rsrinfo = player.rsrinfo
 
-	if (player.cmd.buttons & BT_FIRENORMAL) and not (rsrinfo.lastbuttons & BT_FIRENORMAL) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
+	if (player.cmd.buttons & BT_FIRENORMAL) and not (rsrinfo.lastbuttons & BT_FIRENORMAL) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
 		if Valid(rsrinfo.scatterFlak) and (rsrinfo.scatterFlak.flags & MF_MISSILE) then
 			P_ExplodeMissile(rsrinfo.scatterFlak)
 			return true

@@ -163,7 +163,7 @@ RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 
 	local rsrinfo = player.rsrinfo
 
-	if (player.cmd.buttons & BT_FIRENORMAL) and (not (rsrinfo.lastbuttons & BT_FIRENORMAL) or rsrinfo.canHoldFire) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
+	if (player.cmd.buttons & BT_FIRENORMAL) and (not (rsrinfo.lastbuttons & BT_FIRENORMAL) or rsrinfo.canHoldFire) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
 		if RSR.FireWeaponAlt(player) then return true end
 		-- Make sure the player has an a altfire attack state and ammo at all before making the sound
 		if not (rsrinfo.lastbuttons & BT_FIRENORMAL) and RSR.CheckAmmo(player) and weaponInfo.states.attackalt then
@@ -319,7 +319,7 @@ pspractions.A_BasicAttackAlt = function(player, args)
 	end
 
 	-- Force the player to fire a Charged Shot ring if they no longer have the super powerup or the green emerald.
-	if not (RSR.PlayerHasEmerald(player, EMERALD1) or player.powers[pw_super]) then forceFire = true end
+	if not RSR.CanUseAttack(player, EMERALD1, true) then forceFire = true end
 
 	if forceFire or not (player.cmd.buttons & BT_FIRENORMAL) then
 		RSR.SetWeaponDelay(player, nil, nil, true)

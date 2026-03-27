@@ -344,7 +344,7 @@ pspractions.A_HomingAttackAlt = function(player, args)
 		end
 	end
 
-	if not (player.cmd.buttons & BT_FIRENORMAL) or not (RSR.PlayerHasEmerald(player, EMERALD7) or player.powers[pw_super]) then
+	if not (player.cmd.buttons & BT_FIRENORMAL) or not RSR.CanUseAttack(player, EMERALD7, true) then
 		S_StopSoundByID(player.mo, sfx_hoatsk)
 		if Valid(lockOn) and (player.rsrinfo.waspTime < 1) then
 			RSR.SetWeaponDelay(player)
