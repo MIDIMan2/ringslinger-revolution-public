@@ -81,7 +81,7 @@ end
 --- MobjThinker hook code for the Homing Ring.
 ---@param mo mobj_t
 ---@param radius fixed_t|nil Search radius for the Homing Ring. Default is 640.
----@param noPlayerSpeed boolean|nil If true, always use the projectile's speed instead of the targetted player's normalspeed.
+---@param noPlayerSpeed boolean|nil If true, always use the projectile's speed instead of the targeted player's normalspeed.
 RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if not Valid(mo) then return end
 	if not (mo.flags & MF_MISSILE) then return end
@@ -161,7 +161,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 
 	local angleTurn = ANGLE_22h
 	if Valid(player) then
-		-- Alert the player that they're being targetted by a homing ring
+		-- Alert the player that they're being targeted by a homing ring
 		if not mo.rsrLockOnSound then
 			S_StartSound(mo.tracer, sfx_homiwn, player)
 			mo.rsrLockOnSound = true
@@ -185,7 +185,10 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	end
 	if noPlayerSpeed then
 		RSR.ProjectileTravelSound(mo) -- Router RPB travelling sound
-		RSR.ProximityDetonate(mo, 160*FRACUNIT, function(missile)
+		RSR.ProximityDetonate(mo, 192*FRACUNIT, function(missile)
+			if Valid(mo.tracer.player) then
+				S_StopSoundByID(mo.tracer, sfx_hoatct)
+			end
 			P_ExplodeMissile(missile)
 		end)
 		if not (mo.flags & MF_MISSILE) then return end -- Don't move further if the RPB has exploded
