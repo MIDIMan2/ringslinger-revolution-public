@@ -318,7 +318,7 @@ RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 	if not (Valid(player) and player.rsrinfo and weaponInfo) then return end
 	local rsrinfo = player.rsrinfo
 
-	if (player.cmd.buttons & BT_FIRENORMAL) and (not (rsrinfo.lastbuttons & BT_FIRENORMAL) or rsrinfo.canHoldFire) 	and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
+	if (player.cmd.buttons & BT_FIRENORMAL) and not (rsrinfo.lastbuttons & BT_FIRENORMAL) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
 		if Valid(rsrinfo.scatterFlak) and (rsrinfo.scatterFlak.flags & MF_MISSILE) then
 			P_ExplodeMissile(rsrinfo.scatterFlak)
 			return true
@@ -394,12 +394,13 @@ pspractions.A_ScatterRecover = function(player, args)
 	if not psprite then return end
 
 	local rsrinfo = player.rsrinfo
+	rsrinfo.canHoldFire = true
 
-	if player.rsrinfo.weaponDelay <= 0 then
-		player.rsrinfo.weaponDelay = 0
-		player.rsrinfo.weaponDelayOrig = 0
+	if rsrinfo.weaponDelay <= 0 then
+		rsrinfo.weaponDelay = 0
+		rsrinfo.weaponDelayOrig = 0
 		psprite.y = RSR.UPPER_OFFSET
-		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.ready)
+		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[rsrinfo.readyWeapon].states.ready)
 		return
 	end
 
@@ -409,7 +410,7 @@ pspractions.A_ScatterRecover = function(player, args)
 	else
 		psprite.y = RSR.UPPER_OFFSET + 128 * ease.inquad(rsrinfo.weaponDelay*FRACUNIT/rsrinfo.weaponDelayOrig)
 	end
-	player.rsrinfo.weaponDelay = $-1
+	rsrinfo.weaponDelay = $-1
 
 	if Valid(rsrinfo.scatterFlak) and (rsrinfo.scatterFlak.flags & MF_MISSILE) and (player.cmd.buttons & BT_FIRENORMAL) and not (rsrinfo.lastbuttons & BT_FIRENORMAL) then
 		P_ExplodeMissile(rsrinfo.scatterFlak)

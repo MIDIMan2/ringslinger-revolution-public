@@ -303,6 +303,7 @@ addHook("MobjThinker", RSR.WeaponPickupThinker, MT_RSR_PICKUP_BOUNCE)
 
 local pspractions = PSprites.ACTIONS
 
+-- Bounce Ring WeaponReady code
 ---@param player player_t
 ---@param weaponInfo rsrweaponinfo_t
 ---@param args table
@@ -374,12 +375,13 @@ pspractions.A_BounceRecover = function(player, args)
 	if not psprite then return end
 
 	local rsrinfo = player.rsrinfo
+	rsrinfo.canHoldFire = true
 
-	if player.rsrinfo.weaponDelay <= 0 then
-		player.rsrinfo.weaponDelay = 0
-		player.rsrinfo.weaponDelayOrig = 0
+	if rsrinfo.weaponDelay <= 0 then
+		rsrinfo.weaponDelay = 0
+		rsrinfo.weaponDelayOrig = 0
 		psprite.y = RSR.UPPER_OFFSET
-		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.ready)
+		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[rsrinfo.readyWeapon].states.ready)
 		return
 	end
 
