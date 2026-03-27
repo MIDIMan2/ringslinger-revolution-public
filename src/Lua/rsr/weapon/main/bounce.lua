@@ -29,7 +29,7 @@ RSR.AddWeapon("BOUNCE", {
 	states = {
 		draw = "S_BOUNCE_DRAW",
 		ready = "S_BOUNCE_READY",
-		holster = "S_BOUNCE_HOSLTER",
+		holster = "S_BOUNCE_HOLSTER",
 		attack = "S_BOUNCE_ATTACK",
 		attackalt = "S_BOUNCE_ATTACKALT"
 	}
@@ -38,6 +38,13 @@ RSR.AddWeapon("BOUNCE", {
 -- --------------------------------
 -- PROJECTILE
 -- --------------------------------
+
+
+
+-- IF YOU CHANGE THE SPEED, RADIUS, HEIGHT, DAMAGE, OR ACTIVESOUND OF EITHER OF THESE MAKE SURE TO CHANGE THE OTHER ONE TOO! We unfortunately need to use two objects for the killfeed!
+-- -orbitalviolet
+
+
 
 mobjinfo[MT_RSR_PROJECTILE_BOUNCE] = {
 	doomednum = -1,
@@ -64,7 +71,7 @@ mobjinfo[MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION] = {
 	painchance = 9,
 	deathstate = S_RSR_SPARK,
 	deathsound = sfx_itemup,
-	speed = 60*FRACUNIT,
+	speed = 90*FRACUNIT,
 	radius = 25*FRACUNIT,
 	height = 25*FRACUNIT,
 	damage = 17,
@@ -237,7 +244,7 @@ mobjinfo[MT_RSR_PROJECTILE_BOUNCE_MEGABOMB] = {
 	seesound = sfx_bcatfr,
 	deathstate = S_RSR_PROJECTILE_BOUNCE_MEGABOMB,
 	deathsound = sfx_bcmega,
-	speed = 60*FRACUNIT,
+	speed = 75*FRACUNIT,
 	radius = 22*FRACUNIT,
 	height = 22*FRACUNIT,
 	damage = 35,
@@ -296,6 +303,7 @@ addHook("MobjThinker", RSR.WeaponPickupThinker, MT_RSR_PICKUP_BOUNCE)
 
 local pspractions = PSprites.ACTIONS
 
+-- Bounce Ring WeaponReady code
 ---@param player player_t
 ---@param weaponInfo rsrweaponinfo_t
 ---@param args table
@@ -303,7 +311,7 @@ RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 	if not (Valid(player) and player.rsrinfo and weaponInfo) then return end
 	local rsrinfo = player.rsrinfo
 
-	if (player.cmd.buttons & BT_FIRENORMAL) and not (rsrinfo.lastbuttons & BT_FIRENORMAL) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
+	if (player.cmd.buttons & BT_FIRENORMAL) and not (rsrinfo.lastbuttons & BT_FIRENORMAL) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
 		if Valid(rsrinfo.bounceMega) and (rsrinfo.bounceMega.flags & MF_MISSILE) then
 			P_ExplodeMissile(rsrinfo.bounceMega)
 			return true
@@ -367,12 +375,13 @@ pspractions.A_BounceRecover = function(player, args)
 	if not psprite then return end
 
 	local rsrinfo = player.rsrinfo
+	rsrinfo.canHoldFire = true
 
-	if player.rsrinfo.weaponDelay <= 0 then
-		player.rsrinfo.weaponDelay = 0
-		player.rsrinfo.weaponDelayOrig = 0
+	if rsrinfo.weaponDelay <= 0 then
+		rsrinfo.weaponDelay = 0
+		rsrinfo.weaponDelayOrig = 0
 		psprite.y = RSR.UPPER_OFFSET
-		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.ready)
+		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[rsrinfo.readyWeapon].states.ready)
 		return
 	end
 

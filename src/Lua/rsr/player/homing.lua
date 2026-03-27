@@ -31,7 +31,7 @@ RSR.PlayerLookForEnemies = function(player, maxDist, searchEnemies, searchSpecta
 		if enemy == pmo then return end
 
 		if Valid(enemy.player) then
-			if RSR.PlayersAreTeammates(player, enemy.player) and not RSR.CheckFriendlyFire() then return end -- Is a teammate
+			if RSR.PlayersAreTeammates(player, enemy.player) and not RSR.CheckFriendlyFire(player, enemy.player) then return end -- Is a teammate
 			if homingThok and RSR.PlayerHasPurpleDebuff(player) then -- Is attempting to use homing thok and has the purple debuff (has flag in CTF, or is a hider in Tag gametypes)
 				if not (RSR.CV_LaserTag.value and not (gametyperules & GTR_HIDEFROZEN)) then return end -- LaserTag is disabled in Tag, or the player is using their homingThok
 			end

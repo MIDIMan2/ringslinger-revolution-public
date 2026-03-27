@@ -41,6 +41,7 @@ RSR.DrawWeapon = function(player, weapon, force)
 	if weapon == nil then weapon = player.rsrinfo.pendingWeapon end
 	newstate = RSR.WEAPON_INFO[weapon].states.draw
 
+	player.rsrinfo.canHoldFire = false
 	player.rsrinfo.pendingWeapon = -1
 	psprite.y = RSR.LOWER_OFFSET
 
@@ -95,9 +96,7 @@ RSR.CheckPendingWeapon = function(player)
 
 	if player.rsrinfo.pendingWeapon ~= -1 then
 		local psprite = PSprites.GetPSprite(player, PSprites.PSPR_WEAPON)
-		if psprite then
-			psprite.y = RSR.LOWER_OFFSET
-		end
+		if psprite then psprite.y = RSR.LOWER_OFFSET end
 
 		player.rsrinfo.readyWeapon = player.rsrinfo.pendingWeapon
 		RSR.DrawWeapon(player)
@@ -219,7 +218,7 @@ pspractions.A_RSRWeaponReady = function(player, args)
 		end
 	end
 
-	if (player.cmd.buttons & BT_FIRENORMAL) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
+	if (player.cmd.buttons & BT_FIRENORMAL) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
 		if weaponInfo.altzoom and RSR.CheckAmmo(player) then
 			rsrinfo.useZoom = true
 		else
@@ -248,17 +247,18 @@ pspractions.A_RSRWeaponRecover = function(player, args)
 	if not psprite then return end
 
 	local rsrinfo = player.rsrinfo
+	rsrinfo.canHoldFire = true
 
-	if player.rsrinfo.weaponDelay <= 0 then
-		player.rsrinfo.weaponDelay = 0
-		player.rsrinfo.weaponDelayOrig = 0
+	if rsrinfo.weaponDelay <= 0 then
+		rsrinfo.weaponDelay = 0
+		rsrinfo.weaponDelayOrig = 0
 		psprite.y = RSR.UPPER_OFFSET
 		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].states.ready)
 		return
 	end
 
 	local weaponInfo = RSR.WEAPON_INFO[player.rsrinfo.readyWeapon]
-	if (player.cmd.buttons & BT_FIRENORMAL) and weaponInfo.altzoom and RSR.CheckAmmo(player) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
+	if (player.cmd.buttons & BT_FIRENORMAL) and weaponInfo.altzoom and RSR.CheckAmmo(player) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
 		rsrinfo.useZoom = true
 	elseif weaponInfo.altzoom and rsrinfo.useZoom then
 		rsrinfo.useZoom = false

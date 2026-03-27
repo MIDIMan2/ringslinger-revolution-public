@@ -20,8 +20,8 @@ RSR.AddWeapon("HOMING", {
 	class = 7,
 	delay = 12,
 	delayspeed = 6,
-	delayalt = 60,
-	delayaltspeed = 30,
+	delayalt = 77,
+	delayaltspeed = 44,
 	emerald = EMERALD7,
 	icon = "RSRHOMGI",
 	name = "Homing Ring",
@@ -30,7 +30,7 @@ RSR.AddWeapon("HOMING", {
 	states = {
 		draw = "S_HOMING_DRAW",
 		ready = "S_HOMING_READY",
-		holster = "S_HOMING_HOSLTER",
+		holster = "S_HOMING_HOLSTER",
 		attack = "S_HOMING_ATTACK",
 		attackalt = "S_HOMING_ATTACKALT_SOUND"
 	}
@@ -81,7 +81,7 @@ end
 --- MobjThinker hook code for the Homing Ring.
 ---@param mo mobj_t
 ---@param radius fixed_t|nil Search radius for the Homing Ring. Default is 640.
----@param noPlayerSpeed boolean|nil If true, always use the projectile's speed instead of the targetted player's normalspeed.
+---@param noPlayerSpeed boolean|nil If true, always use the projectile's speed instead of the targeted player's normalspeed.
 RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if not Valid(mo) then return end
 	if not (mo.flags & MF_MISSILE) then return end
@@ -161,7 +161,7 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 
 	local angleTurn = ANGLE_22h
 	if Valid(player) then
-		-- Alert the player that they're being targetted by a homing ring
+		-- Alert the player that they're being targeted by a homing ring
 		if not mo.rsrLockOnSound then
 			S_StartSound(mo.tracer, sfx_homiwn, player)
 			mo.rsrLockOnSound = true
@@ -185,7 +185,10 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	end
 	if noPlayerSpeed then
 		RSR.ProjectileTravelSound(mo) -- Router RPB travelling sound
-		RSR.ProximityDetonate(mo, 128*FRACUNIT, function(missile)
+		RSR.ProximityDetonate(mo, 192*FRACUNIT, function(missile)
+			if Valid(missile.tracer) and Valid(missile.tracer.player) then
+				S_StopSoundByID(missile, sfx_hoatct)
+			end
 			P_ExplodeMissile(missile)
 		end)
 		if not (mo.flags & MF_MISSILE) then return end -- Don't move further if the RPB has exploded
@@ -344,10 +347,10 @@ pspractions.A_HomingAttackAlt = function(player, args)
 		end
 	end
 
-	if not (player.cmd.buttons & BT_FIRENORMAL) or not (RSR.PlayerHasEmerald(player, EMERALD7) or player.powers[pw_super]) then
+	if not (player.cmd.buttons & BT_FIRENORMAL) or not RSR.CanUseAttack(player, EMERALD7, true) then
 		S_StopSoundByID(player.mo, sfx_hoatsk)
 		if Valid(lockOn) and (player.rsrinfo.waspTime < 1) then
-			RSR.SetWeaponDelay(player)
+			RSR.SetWeaponDelay(player, nil, nil, true)
 			RSR.TakeAmmoFromReadyWeapon(player, RSR.WEAPON_INFO[player.rsrinfo.readyWeapon].ammoalt)
 			RSR.PlayLowAmmoSound(player, nil, true)
 			local homing = RSR.SpawnPlayerMissile(player.mo, MT_RSR_PROJECTILE_HOMING_BOMB, player.mo.angle, player.cmd.aiming<<16)

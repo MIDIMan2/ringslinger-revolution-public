@@ -3,10 +3,10 @@
 
 --- Deals splash damage from the center of an Object with a given radius.
 ---@param mo mobj_t Object to deal splash damage from.
----@param bombDist integer|fixed_t|nil Radius of the splash damage (Default is 128*FRACUNIT).
----@param thrustDist integer|fixed_t|nil Radius of the splash damage to thrust Objects from (Default is 1.2x the bombDist).
+---@param bombDist fixed_t|nil Radius of the splash damage (Default is 128*FRACUNIT).
+---@param thrustDist fixed_t|nil Radius of the splash damage to thrust Objects from (Default is 1.2x the bombDist).
 ---@param bombDamage integer|nil Maximum damage dealt to the Object from splash damage (Default is 90).
----@param fullDist integer|fixed_t|nil Maximum radius from the splash center to deal full damage (Default is 0.375x the bombDist).
+---@param fullDist fixed_t|nil Maximum radius from the splash center to deal full damage (Default is 0.375x the bombDist).
 ---@param thrustDamage integer|nil Maximum thrust dealt to the Object from splash damage (Default is 20).
 ---@param aimThrust boolean|nil Makes mo's target get thrusted in the direction its aiming (used for the Explosion ring's altfire).
 RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDamage, aimThrust)

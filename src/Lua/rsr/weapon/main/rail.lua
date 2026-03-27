@@ -24,7 +24,7 @@ RSR.AddWeapon("RAIL", {
 	states = {
 		draw = "S_RAIL_DRAW",
 		ready = "S_RAIL_READY",
-		holster = "S_RAIL_HOSLTER",
+		holster = "S_RAIL_HOLSTER",
 		attack = "S_RAIL_ATTACK"
 	}
 })
@@ -156,8 +156,8 @@ RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 
 	local rsrinfo = player.rsrinfo
 
-	if (player.cmd.buttons & BT_FIRENORMAL) and (player.powers[pw_super] or RSR.PlayerHasEmerald(player, weaponInfo.emerald)) then
-		if weaponInfo.altzoom and RSR.CheckAmmo(player) then
+	if (player.cmd.buttons & BT_FIRENORMAL) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
+		if weaponInfo.altzoom and RSR.CheckAmmo(player) then -- TODO: Consider removing altzoom since we have a "WeaponReady" hook now
 			rsrinfo.useZoom = true
 		else
 			if RSR.FireWeaponAlt(player) then return true end
@@ -170,7 +170,7 @@ RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 		rsrinfo.useZoom = false
 	end
 
-	if (player.cmd.buttons & BT_ATTACK) and not (rsrinfo.lastbuttons & BT_ATTACK) then
+	if (player.cmd.buttons & BT_ATTACK) and (not (rsrinfo.lastbuttons & BT_ATTACK) or rsrinfo.canHoldFire) then
 		RSR.FireWeapon(player)
 		return true
 	end

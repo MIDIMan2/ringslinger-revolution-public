@@ -44,8 +44,8 @@ RSR.AddPowerup("INVINCIBILITY", {
 --- Gives a powerup to the player.
 ---@param player player_t
 ---@param powerup integer Powerup to give the player (RSR.POWERUP_* constant).
----@param addTics integer|nil Amount of tics to add to the powerup if it exists in the player's powerup table.
----@param addPenalty integer|nil Amount of tics to add to the powerup's penalty if it exists in the player's powerup table.
+---@param addTics tic_t|nil Amount of tics to add to the powerup if it exists in the player's powerup table.
+---@param addPenalty tic_t|nil Amount of tics to add to the powerup's penalty if it exists in the player's powerup table.
 RSR.GivePowerup = function(player, powerup, addTics, addPenalty)
 	if not (Valid(player) and player.rsrinfo and player.rsrinfo.powerups and powerup) then return end
 

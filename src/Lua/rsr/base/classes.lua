@@ -35,6 +35,7 @@
 ---@field screenFade rsrscreenfade_t Determines the current properties of the player's screen fade.
 ---@field homing integer Equivalent of player.homing, except for other players.
 ---@field homingThreshold integer The player's homing threshold before they are knocked out of a homing attack.
+---@field canHoldFire boolean Determines whether the player can hold either of the fire buttons to use their weapon.
 ---@field basicCharge integer|nil Determines the current "charge" of the Red Ring's altfire.
 ---@field basicChargeSound integer|nil Counter for the Red Ring's altfire's "charge" sound.
 ---@field basicChargeDontTakeAmmo boolean|nil Determines if the Charged Shot shouldn't take ammo.
@@ -164,6 +165,7 @@
 
 ---@class rsrgametypeinfo_t
 ---@field rsrrules boolean Makes the gametype use RSR rules.
+---@field noaltfires boolean Disables weapon altfires for this gametype.
 ---@field nosuper boolean Disables super forms for this gametype.
 
 ---@class rsrobituaryinfo_t
@@ -229,6 +231,8 @@
 ---@field rsrkeepinv string If true, players will keep their weapons across levels in co-op.
 ---@field rsrweaponstart string Determines what weapons the player starts with and how much ammo each weapon has.
 ---@field rsrloseinvondeath string If true, players will lose their weapons upon death.
+---@field rsrnoaltfires string If true, players will not be able to use their altfires.
+---@field rsrnosuper string If true, players will not be able to turn super.
 ---@field rsrwaves string If true, the map is a "Waves" map.
 ---@field rsrwavestags string Determines what linedef tags are executed in specific waves in a "Waves" map.
 ---@field rsrwavescount string Determines how many waves are in the "Waves" map. Default is 3.

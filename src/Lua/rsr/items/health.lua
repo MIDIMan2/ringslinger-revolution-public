@@ -111,7 +111,7 @@ RSR.GiveHype = function(player, hype)
 		end
 	end
 
-	if not (emeralds == 127 or player.powers[pw_emeralds] == 127) then return false end -- Don't give hype if the player doesn't have all the emeralds.
+	if not RSR.PlayerHasAllEmeralds(player) then return false end -- Don't give hype if the player doesn't have all the emeralds.
 	if hype == nil then hype = 1 end
 
 	if player.rsrinfo.hype >= RSR.MAX_HYPE then return false end
