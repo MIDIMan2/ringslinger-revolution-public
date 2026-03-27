@@ -186,8 +186,8 @@ RSR.HomingRingThinker = function(mo, radius, noPlayerSpeed)
 	if noPlayerSpeed then
 		RSR.ProjectileTravelSound(mo) -- Router RPB travelling sound
 		RSR.ProximityDetonate(mo, 192*FRACUNIT, function(missile)
-			if Valid(mo.tracer.player) then
-				S_StopSoundByID(mo.tracer, sfx_hoatct)
+			if Valid(missile.tracer) and Valid(missile.tracer.player) then
+				S_StopSoundByID(missile, sfx_hoatct)
 			end
 			P_ExplodeMissile(missile)
 		end)
