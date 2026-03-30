@@ -143,7 +143,7 @@ RSR.ReflectMissile = function(source, oldMissile, newMissile)
 	newMissile.pitch = InvAngle(oldMissile.pitch)
 	-- Angle and pitch are already handled in SpawnPlayerMissile and SpawnRailRing
 	if Valid(oldMissile.target) and (Valid(oldMissile.tracer) and oldMissile.tracer ~= oldMissile.target) then
-		oldMissile.tracer = oldMissile.target
+		newMissile.tracer = oldMissile.target
 	end
 	newMissile.color = oldMissile.color
 	newMissile.colorized = oldMissile.colorized
