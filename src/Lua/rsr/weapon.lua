@@ -226,14 +226,14 @@ RSR.CanUseAttack = function(player, emerald, altFire)
 	if RSR.CV_StrangerRings.value then
 		if not altFire then
 			if RSR.PlayerHasEmerald(player, emerald) or player.powers[pw_super] then return true end
-		else
+		elseif RSR.PlayersCanUseAltfires() then
 			return true
 		end
 	else
 		if not altFire then
 			-- Player can always use their primary fire
 			return true
-		else
+		elseif RSR.PlayersCanUseAltfires() then
 			-- Player can only use the secondary fire if they have the given emerald
 			if RSR.PlayerHasEmerald(player, emerald) or player.powers[pw_super] then return true end
 		end

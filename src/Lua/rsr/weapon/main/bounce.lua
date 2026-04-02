@@ -323,7 +323,7 @@ RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 		end
 	end
 
-	if (player.cmd.buttons & RSR.GetAttackButton()) and RSR.CanUseAttack(player, weaponInfo.emerald) then
+	if (player.cmd.buttons & RSR.GetAttackButton()) and RSR.CanUseAttack(player, weaponInfo.emerald) and RSR.CanUseAttack(player, weaponInfo.emerald) then
 		RSR.FireWeapon(player)
 		return true
 	end

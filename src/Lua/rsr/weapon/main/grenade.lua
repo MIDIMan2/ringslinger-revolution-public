@@ -458,15 +458,15 @@ RSR.addHook("WeaponReady", function(player, weaponInfo, args)
 
 	local rsrinfo = player.rsrinfo
 
-	if (player.cmd.buttons & BT_FIRENORMAL) and (not (rsrinfo.lastbuttons & BT_FIRENORMAL) or rsrinfo.canHoldFire) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
+	if (player.cmd.buttons & RSR.GetAttackButton(true)) and (not (rsrinfo.lastbuttons & RSR.GetAttackButton(true)) or rsrinfo.canHoldFire) and RSR.CanUseAttack(player, weaponInfo.emerald, true) then
 		if RSR.FireWeaponAlt(player) then return true end
 		-- Make sure the player has an a altfire attack state and ammo at all before making the sound
-		if not (rsrinfo.lastbuttons & BT_FIRENORMAL) and RSR.CheckAmmo(player) and weaponInfo.states.attackalt then
+		if not (rsrinfo.lastbuttons & RSR.GetAttackButton(true)) and RSR.CheckAmmo(player) and weaponInfo.states.attackalt then
 			S_StartSound(nil, sfx_noammo, player)
 		end
 	end
 
-	if (player.cmd.buttons & BT_ATTACK) and (not (rsrinfo.lastbuttons & BT_ATTACK) or rsrinfo.canHoldFire) then
+	if (player.cmd.buttons & RSR.GetAttackButton()) and (not (rsrinfo.lastbuttons & RSR.GetAttackButton()) or rsrinfo.canHoldFire) and RSR.CanUseAttack(player, weaponInfo.emerald) then
 		RSR.FireWeapon(player)
 		return true
 	end
