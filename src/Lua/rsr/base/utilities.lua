@@ -37,8 +37,8 @@ end
 -- Used to be P_RandomFixedRange, changed when I found out this is already a function in other mods...
 
 --- Returns a random fixed-point number between a and b.
----@param a fixed_t|integer
----@param b fixed_t|integer
+---@param a fixed_t
+---@param b fixed_t
 RSR.RandomFixedRange = function(a, b)
 	local diff = b - a
 	local result = FixedMul(diff, P_RandomFixed()) + a
@@ -173,7 +173,7 @@ end
 ---@param angle angle_t|nil Angle of the spawned missile.
 ---@param slope angle_t|nil Pitch of the spawned missile.
 ---@param reflected mobj_t|nil If set to an Object, this makes the spawned missile act as a reflected version using this Object's properties.
----@param speed fixed_t|integer|nil Sets the speed of the missile (default is missileType's Speed property).
+---@param speed fixed_t|nil Sets the speed of the missile (default is missileType's Speed property).
 ---@param sound integer|nil Determines what sound to use for the spawned missile (uses sfx_* constants).
 ---@param noPlayerSpeed boolean|nil If true, this prevents the player's speed from being accounted for.
 RSR.SpawnPlayerMissile = function(source, missileType, angle, slope, reflected, speed, sound, noPlayerSpeed)
@@ -283,9 +283,18 @@ RSR.SpawnReflectedMissile = function(source, missile)
 end
 
 --- Checks if friendlyfire is on or not.
+---@param player player_t
+---@param player2 player_t
 ---@return boolean
-RSR.CheckFriendlyFire = function()
-	if CV_FindVar("friendlyfire").value or (gametyperules & GTR_FRIENDLYFIRE) then return true end
+RSR.CheckFriendlyFire = function(player, player2)
+	if CV_FindVar("friendlyfire").value or (gametyperules & GTR_FRIENDLYFIRE) then
+		-- Don't let 2P bots harm each other or human players
+		if Valid(player) and Valid(player2) then
+			if player.bot == BOT_2PAI or player.bot == BOT_2PHUMAN then return false end
+			if player2.bot == BOT_2PAI or player2.bot == BOT_2PHUMAN then return false end
+		end
+		return true
+	end
 	return false
 end
 
@@ -360,10 +369,33 @@ RSR.GetRandomDamage = function(damage)
 	return damage
 end
 
+--- Checks if players can turn super in the current level and/or gametype.
+RSR.PlayersCanTurnSuper = function()
+	if RSR.GAMETYPE_INFO[gametype] and RSR.GAMETYPE_INFO[gametype].nosuper then return false end
+	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrnosuper then return false end
+	return true
+end
+
+--- Checks if players can use their weapon altfires in the current level and/or gametype.
+RSR.PlayersCanUseAltfires = function()
+	if RSR.GAMETYPE_INFO[gametype] and RSR.GAMETYPE_INFO[gametype].noaltfires then return false end
+	if mapheaderinfo[gamemap] and mapheaderinfo[gamemap].rsrnoaltfires then return false end
+	return true
+end
+
+--- Checks if given player has all of the emeralds in Singleplayer/Co-op and/or Match modes.
+---@param player player_t
+RSR.PlayerHasAllEmeralds = function(player)
+	if not Valid(player) then return false end
+	if not G_RingSlingerGametype() and All7Emeralds(emeralds) then return true end
+	if All7Emeralds(player.powers[pw_emeralds]) then return true end
+	return false
+end
+
 --- Causes a missile to explode when an enemy comes within a certain radius of it.
 ---@param mo mobj_t
 ---@param proxDist fixed_t Maximum distance to check for detonation if enemy walks within.
----@param proxCallback function Callback function to run when the radius check succeeds.
+---@param proxCallback function Callback function to run when the radius check succeeds. Must have two parameters: One for the "missile", and one for the "enemy".
 RSR.ProximityDetonate = function(mo, proxDist, proxCallback)
 	if not Valid(mo) then return end
 	if proxDist == nil then proxDist = 96*FRACUNIT end

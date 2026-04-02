@@ -294,6 +294,7 @@ end
 ---@param target mobj_t
 ---@param inflictor mobj_t
 ---@param source mobj_t
+---@param damage integer
 ---@param damagetype integer
 RSR.GetInflictorDamage = function(target, inflictor, source, damage, damagetype)
 	if not (Valid(target) and Valid(inflictor)) then return end
@@ -485,8 +486,8 @@ end
 ---@param damage integer
 ---@return integer damage Damage leftover after taking away armor.
 ---@return boolean hadArmor If true, the player had armor before this function.
----@return integer clientHurtSound Hurt sound to play for the local player.
----@return integer serverHurtSound Hurt sound to play for the rest of the server.
+---@return soundnum_t clientHurtSound Hurt sound to play for the local player.
+---@return soundnum_t serverHurtSound Hurt sound to play for the rest of the server.
 RSR.PlayerArmorDamage = function(player, inflictor, damage)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo) then return 1, false, sfx_rsrhrt, sfx_rsrpmp end
 	local rsrinfo = player.rsrinfo
@@ -575,8 +576,8 @@ end
 ---@param inflictor mobj_t|nil
 ---@param infInfo rsrmobjinfo_t|nil
 ---@param knockbackScale fixed_t
----@param hurtSound integer
----@param serverHurtSound integer
+---@param hurtSound soundnum_t
+---@param serverHurtSound soundnum_t
 RSR.PlayerShieldDamage = function(player, inflictor, infInfo, knockbackScale, hurtSound, serverHurtSound)
 	if not (Valid(player) and Valid(player.mo) and player.rsrinfo and (player.powers[pw_shield] & SH_NOSTACK)) then return knockbackScale, hurtSound, serverHurtSound end
 	local rsrinfo = player.rsrinfo
@@ -713,7 +714,9 @@ RSR.PlayerDamage = function(target, inflictor, source, damage, damagetype)
 	damage, hadArmor, hurtSound, serverHurtSound = RSR.PlayerArmorDamage(player, inflictor, damage)
 
 	RSR.PlayerDamageRewards(player, source, damage, damagetype)
-	rsrinfo.health = max($ - damage, 0) -- Make sure health doesn't go below 0
+	if not (player.bot == BOT_2PAI or player.bot == BOT_2PHUMAN) then -- TODO: Make bots fling backward like a melee attack eventually
+		rsrinfo.health = max($ - damage, 0) -- Make sure health doesn't go below 0
+	end
 
 	-- Tiered damage fades based on severity of damage taken
 	if damage < 16 then -- Hit by "standard" ring/melee attack
@@ -816,7 +819,7 @@ RSR.PlayerSourceShouldDamage = function(player, inflictor, source, damage, damag
 
 	if Valid(source.player) and RSR.PlayersAreTeammates(player, source.player) then
 		if (player == source.player and not (damagetype & DMG_CANHURTSELF)) -- If the player is not damaging themselves and friendly fire is disabled, don't deal damage
-		or (player ~= source.player and not RSR.CheckFriendlyFire()) then
+		or (player ~= source.player and not RSR.CheckFriendlyFire(player, source.player)) then
 			return false
 		else -- Otherwise, force damage and (possibly) death
 			return true
@@ -864,7 +867,7 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 				if hookEvent.typefor(player, v.typedef) == false then continue end
 			end
 			local result = RSR.tryRunHook(hookName, v, target, inflictor, source, damage, damagetype)
-			if result ~= nil then return end
+			if result then return end
 		end
 	end
 
@@ -952,7 +955,7 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 		if not (inflictor.rsrProjectile or inflictor.rsrRealDamage or Valid(inflictor.player)) and rsrinfo.hurtByEnemy then return false end
 		if Valid(inflictor.player) then
 			if rsrinfo.hurtByMelee then return false end
-			if RSR.PlayersAreTeammates(player, inflictor.player) and not RSR.CheckFriendlyFire() then return false end
+			if RSR.PlayersAreTeammates(player, inflictor.player) and not RSR.CheckFriendlyFire(player, inflictor.player) then return false end
 		end
 		if inflictor.rsrEnemyBlink then return false end
 		return RSR.PlayerSourceShouldDamage(player, inflictor, source, damage, damagetype)
@@ -1357,7 +1360,7 @@ RSR.PlayerMelee = function(pmo, pmo2)
 	---@type player_t
 	local player2 = pmo2.player
 
-	if RSR.PlayersAreTeammates(player, player2) and not RSR.CheckFriendlyFire() then return end -- Don't hurt teammates unless friendlyfire is on
+	if RSR.PlayersAreTeammates(player, player2) and not RSR.CheckFriendlyFire(player, player2) then return end -- Don't hurt teammates unless friendlyfire is on
 
 	-- Height check
 	if not (pmo.z <= pmo2.z + pmo2.height

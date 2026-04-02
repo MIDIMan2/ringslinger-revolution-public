@@ -12,13 +12,14 @@ end
 RSR.EmeraldTouchSpecial = function(special, toucher)
 	if not RSR.GamemodeActive() then return end -- Only run this code in RSR maps
 	if not (Valid(special) and Valid(toucher)) then return end
-	if not Valid(toucher.player) then return end
+	if not (Valid(toucher.player) and toucher.player.rsrinfo) then return end
+	local player = toucher.player ---@type player_t
 
-	if toucher.player.bot and toucher.player.bot ~= BOT_MPAI then return end
+	if player.bot and player.bot ~= BOT_MPAI then return end
 
 	if (special.threshold) then
-		toucher.player.powers[pw_emeralds] = $|special.info.speed
-		if toucher.player.powers[pw_emeralds] == 127 then toucher.player.rsrinfo.hype = RSR.TRIGGER_HYPE end
+		player.powers[pw_emeralds] = $|special.info.speed
+		if player.powers[pw_emeralds] == 127 then player.rsrinfo.hype = max($, RSR.TRIGGER_HYPE) end
 	else
 		return
 	end
@@ -89,3 +90,14 @@ addHook("MobjThinker", function(mo)
 	if not Valid(mo) then return end
 	if mo.fuse and mo.fuse < 2*TICRATE then mo.flags2 = $ ^^ MF2_DONTDRAW end
 end, MT_FLINGEMERALD)
+
+addHook("TouchSpecial", function(special, toucher)
+	if not RSR.GamemodeActive() then return end -- Only run this code in RSR maps
+	if not (Valid(toucher.player) and toucher.player.rsrinfo) then return end
+	local player = toucher.player ---@type player_t
+
+	if not RSR.PlayerHasAllEmeralds(player) then return end
+	RSR.GiveHealth(player, 50, nil, true)
+	RSR.GiveArmor(player, 50, nil, true)
+	player.rsrinfo.hype = max($, RSR.TRIGGER_HYPE)
+end, MT_TOKEN)

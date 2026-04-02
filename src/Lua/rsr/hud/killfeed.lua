@@ -169,7 +169,7 @@ end
 ---@param skincolor skincolornum_t|nil
 ---@param obituary string|nil Default is "$v died.".
 ---@param distance fixed_t|nil Distance between the victim and their attacker. Default is 0.
----@param assistors table|nil Table of player names who assisted in 
+---@param assistors table|nil Table of player names who assisted in the victim's death.
 RSR.KillfeedPrint = function(victimName, attackerName, inflictorPatch, infReflected, highlight, skincolor, obituary, distance, assistors)
 	if RSR.CV_Killfeed.value == RSR.CVKILLFEED_NONE then return end -- Don't display a message if the killfeed is disabled
 	if not victimName then return end -- We can't display a message if there is no victim!

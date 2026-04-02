@@ -7,7 +7,7 @@
 ---@param target mobj_t Object to draw the flag icon over.
 ---@param useBlueFlag boolean|nil
 RSR.HUDCTFFlagRadarTarget = function(v, player, thiscam, target, useBlueFlag)
-	if not (v and Valid(player) and Valid(player.realmo) and Valid(target)) then return end
+	if not (v and Valid(player) and Valid(player.realmo) and Valid(target)) then return false end
 
 	-- Shout-outs to Lunewulff, Skydusk, and MRCE for the (original) R_World2Screen3 function
 	local result = R_World2Screen3FPS(v, player, thiscam, {x = target.x, y = target.y, z = target.z + target.height/2})
@@ -16,7 +16,7 @@ RSR.HUDCTFFlagRadarTarget = function(v, player, thiscam, target, useBlueFlag)
 		if not P_CheckSight(player.realmo, target) then
 			minScale, maxScale = FRACUNIT/16, FRACUNIT/4
 		end
-		if result.scale > maxScale then return end
+		if result.scale > maxScale then return false end
 		local transScale = 0
 		if result.scale > minScale then
 			transScale = FixedDiv(result.scale - minScale, maxScale - minScale)

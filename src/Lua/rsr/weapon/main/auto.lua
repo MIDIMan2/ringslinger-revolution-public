@@ -28,7 +28,7 @@ RSR.AddWeapon("AUTO", {
 	states = {
 		draw = "S_AUTO_DRAW",
 		ready = "S_AUTO_READY",
-		holster = "S_AUTO_HOSLTER",
+		holster = "S_AUTO_HOLSTER",
 		attack = "S_AUTO_ATTACK",
 		attackalt = "S_AUTO_ATTACKALT"
 	}
