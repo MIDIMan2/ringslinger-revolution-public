@@ -143,6 +143,41 @@ mobjinfo[MT_RSR_POWERUP_INFINITY] = {
 
 states[S_RSR_POWERUP_INFINITY] =	{SPR_RSPI,	FF_ANIMATE|FF_GLOBALANIM,	-1,	nil,	15,	3,	S_NULL}
 
+mobjinfo[MT_RSR_VENDETTA_BOX] = {
+	--$Name Vendetta Monitor
+	--$Sprite TVVDA0
+	--$Category Ringslinger Revolution/Monitors
+	mapthingnum = 412,
+	spawnstate = S_RSR_VENDETTA_BOX,
+	spawnhealth = 1,
+	reactiontime = 8,
+	painstate = S_RSR_VENDETTA_BOX,
+	deathState = S_BOX_POP1,
+	deathSound = sfx_pop,
+	speed = 1,
+	radius = 18*FRACUNIT,
+	height = 40*FRACUNIT,
+	mass = 100,
+	damage = MT_RSR_VENDETTA_ICO,
+	flags = MF_SOLID|MF_SHOOTABLE|MF_MONITOR
+}
+
+mobjinfo[MT_RSR_VENDETTA_ICO] = {
+	mapthingnum = -1,
+	spawnstate = S_RSR_VENDETTA_ICON1,
+	spawnhealth = 1,
+	speed = 2*FRACUNIT,
+	radius = 8*FRACUNIT,
+	height = 14*FRACUNIT,
+	mass = 100,
+	damage = 62*FRACUNIT,
+	flags = MF_SOLID|MF_SHOOTABLE|MF_MONITOR
+}
+
+states[S_RSR_VENDETTA_BOX] =	{SPR_TVVD,	A,	2,	nil,	0,	0,	S_BOX_FLICKER}
+states[S_RSR_VENDETTA_ICO1] =	{SPR_TVVD,	FF_ANIMATE|C,	18,	nil,	3,	4,	S_RSR_VENDETTA_ICO2}
+states[S_RSR_VENDETTA_ICO2] =	{SPR_TVVD,	C,	18,	A_RSRVendettaPing,	0,	0,	S_NULL}
+
 addHook("MobjSpawn", RSR.HealthMobjSpawn, MT_RSR_POWERUP_INFINITY)
 addHook("MapThingSpawn", RSR.ItemMapThingSpawn, MT_RSR_POWERUP_INFINITY)
 addHook("MobjThinker", function(mo)
