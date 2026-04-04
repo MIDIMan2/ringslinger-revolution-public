@@ -176,7 +176,7 @@ mobjinfo[MT_RSR_VENDETTA_ICO] = {
 
 states[S_RSR_VENDETTA_BOX] =	{SPR_TVVD,	A,	2,	nil,	0,	0,	S_BOX_FLICKER}
 states[S_RSR_VENDETTA_ICO1] =	{SPR_TVVD,	FF_ANIMATE|C,	18,	nil,	3,	4,	S_RSR_VENDETTA_ICO2}
-states[S_RSR_VENDETTA_ICO2] =	{SPR_TVVD,	C,	18,	A_RSRVendettaPing,	0,	0,	S_NULL}
+states[S_RSR_VENDETTA_ICO2] =	{SPR_TVVD,	C,	18,	A_RSRVendettaPing,	3,	TICRATE,	S_NULL}
 
 addHook("MobjSpawn", RSR.HealthMobjSpawn, MT_RSR_POWERUP_INFINITY)
 addHook("MapThingSpawn", RSR.ItemMapThingSpawn, MT_RSR_POWERUP_INFINITY)

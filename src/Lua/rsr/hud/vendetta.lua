@@ -34,6 +34,7 @@ RSR.HUDVendettaPing = function(v, player, thiscam, target)
 	if RSR_DOVENDETTA > 0 then
 		if RSR_VENDETTATICKER < 1 then
 			S_StartSound(player.mo, sfx_buzz3, player)
+			RSR_DOVENDETTA = $ - 1
 			RSR_VENDETTATICKER = RSR_VENDETTADELAY
 			RSR_PINGTABLE = {}
 			RSR_VDTRESULTS = {}
@@ -80,5 +81,11 @@ RSR.HUDVendettaPing = function(v, player, thiscam, target)
 				end
 			end
 		end
+	else
+		RSR_DOVENDETTA = 0
+		RSR_VENDETTADELAY = 0
+		RSR_VENDETTATICKER = 0
+		RSR_PINGTABLE = {}
+		RSR_VDTRESULTS = {}
 	end
 end
