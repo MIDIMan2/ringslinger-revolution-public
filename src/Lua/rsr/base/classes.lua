@@ -225,6 +225,7 @@
 ---@field rsrRailCantPierce boolean|nil If true, stop the rail ring's piercing.
 ---@field rsrStrongBoxIcon mobj_t|nil Icon to display for the strong random monitor.
 ---@field rsrInfernoFire boolean|nil Used by the player's spindust to check if they have a Flame Shield.
+---@field rsrBounceInvDamage boolean|nil Used by the Boucne ring to determine whether the bounce ring's damage value is inverted or not.
 
 ---@class mapheader_t
 ---@field ringslingerrev string If true, the map is a Ringslinger Revolution map.

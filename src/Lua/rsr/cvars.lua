@@ -65,9 +65,9 @@ RSR.CV_ScreenEffects = CV_RegisterVar({
 	flags = CV_SAVE,
 	PossibleValue = {
 		None = RSR.CVSCREENEFFECTS_NONE,
-		Speed = RSR.CVKILLFEED_SPEED,
-		Inv = RSR.CVKILLFEED_INV,
-		Both = RSR.CVKILLFEED_BOTH
+		Speed = RSR.CVSCREENEFFECTS_SPEED,
+		Inv = RSR.CVSCREENEFFECTS_INV,
+		Both = RSR.CVSCREENEFFECTS_BOTH
 	}
 })
 

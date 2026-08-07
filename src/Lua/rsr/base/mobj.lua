@@ -51,8 +51,7 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 -- 		if dist < 0 then dist = 0 end
 
 		-- Don't destroy monitors with splash damage
-		if dontBombDamage then return
-		elseif not (enemy.info.flags & MF_MONITOR) then
+		if not (dontBombDamage or (enemy.info.flags & MF_MONITOR)) then
 			if dist <= bombDist then
 				local damage = bombDamage * min(FixedDiv(bombDist - dist, max(bombDist - fullDist, mo.scale)), FRACUNIT) / FRACUNIT
 				if damage > 0 then P_DamageMobj(enemy, bomb, source, damage, damagetype) end
