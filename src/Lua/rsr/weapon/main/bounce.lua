@@ -86,6 +86,14 @@ states[S_RSR_PROJECTILE_BOUNCE] =	{SPR_RSWB,	FF_ANIMATE|FF_FULLBRIGHT,	-1,	nil,	
 A_BounceMegaBomb = function(actor, var1, var2)
 	if not Valid(actor) then return end
 
+	searchBlockmap("objects", function(bomb, enemy) -- Cause pain in those players who are hit by a Goldburster
+		if (not Valid(bomb)) and (Valid(enemy)) then return end
+		if not Valid(enemy.player) then return end
+		P_DoPlayerPain(enemy)
+	end, actor, actor.x-32*FRACUNIT, actor.x+32*FRACUNIT, actor.y-32*FRACUNIT, actor.y+32*FRACUNIT)
+
+	RSR.Explode(actor, 48*FRACUNIT, 64*FRACUNIT, 1, 48*FRACUNIT, 24, false, true) -- Blast enemies away!
+
 	P_StartQuake(96*FRACUNIT, 12, {x = actor.x, y = actor.y, z = actor.z + actor.height/2}, 192*actor.scale)
 	for i = -2, 2 do
 		for j = 0, 3 do
@@ -117,6 +125,11 @@ RSR.BounceIncrementCount = function(mo)
 
 	-- Use threshold as a "bounce count" of sorts
 	mo.threshold = $+1
+	if mo.rsrBounceInvDamage then -- The first impact deals increased damage per bounce
+		mo.rsrDamage = mo.info.damage + (2*mo.threshold)
+	else -- ...but all subsequent ricochets deal decreased damage per bounce
+		mo.rsrDamage = min(1,mo.info.damage - (2*mo.threshold))
+	end
 	mo.rsrDamage = max(1, $-2) -- Don't let the damage value go lower than 1
 	if mo.threshold > mo.info.painchance then
 		P_ExplodeMissile(mo)
@@ -132,6 +145,7 @@ RSR.BounceSpawn = function(mo)
 	if not Valid(mo) then return end
 	RSR.ProjectileSpawn(mo)
 	mo.rsrDamage = mo.info.damage
+	mo.rsrBounceInvDamage = 1
 end
 
 --- MobjThinker hook code for the Bounce Ring.
@@ -225,11 +239,20 @@ RSR.BounceMoveBlocked = function(mo, _, line)
 	return true
 end
 
+RSR.DoBounceInversion = function(collider, blocker)
+	if not (Valid(collider) and Valid(blocker)) then return end
+	if not collider.rsrBounceInvDamage then return end
+
+	collider.rsrBounceInvDamage = 0
+end
+
 addHook("MobjSpawn", RSR.BounceSpawn, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjThinker", RSR.BounceThinker, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOUNCE)
+addHook("MobjMoveCollide", RSR.DoBounceInversion, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjMoveBlocked", RSR.BounceMoveBlocked, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjSpawn", RSR.BounceSpawn, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
+addHook("MobjSpawn", RSR.DoBounceInversion, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 addHook("MobjThinker", RSR.BounceThinker, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 addHook("MobjMoveBlocked", RSR.BounceMoveBlocked, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)

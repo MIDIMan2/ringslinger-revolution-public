@@ -9,7 +9,8 @@
 ---@param fullDist fixed_t|nil Maximum radius from the splash center to deal full damage (Default is 0.375x the bombDist).
 ---@param thrustDamage integer|nil Maximum thrust dealt to the Object from splash damage (Default is 20).
 ---@param aimThrust boolean|nil Makes mo's target get thrusted in the direction its aiming (used for the Explosion ring's altfire).
-RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDamage, aimThrust)
+---@param dontBombDamage boolean|nil Prevents explosions from dealing damage (used to make Goldbursters knockback targets).
+RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDamage, aimThrust, dontBombDamage)
 	if not Valid(mo) then return end
 	if bombDist == nil then bombDist = 128*FRACUNIT end
 	if thrustDist == nil then thrustDist = 6*bombDist/5 end
@@ -50,7 +51,8 @@ RSR.Explode = function(mo, bombDist, thrustDist, bombDamage, fullDist, thrustDam
 -- 		if dist < 0 then dist = 0 end
 
 		-- Don't destroy monitors with splash damage
-		if not (enemy.info.flags & MF_MONITOR) then
+		if dontBombDamage then return
+		elseif not (enemy.info.flags & MF_MONITOR) then
 			if dist <= bombDist then
 				local damage = bombDamage * min(FixedDiv(bombDist - dist, max(bombDist - fullDist, mo.scale)), FRACUNIT) / FRACUNIT
 				if damage > 0 then P_DamageMobj(enemy, bomb, source, damage, damagetype) end
