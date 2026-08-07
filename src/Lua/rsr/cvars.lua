@@ -53,12 +53,22 @@ RSR.CV_Killfeed = CV_RegisterVar({
 	}
 })
 
+RSR.CVSCREENEFFECTS_NONE = 0
+RSR.CVSCREENEFFECTS_SPEED = 1
+RSR.CVSCREENEFFECTS_INV = 2
+RSR.CVSCREENEFFECTS_BOTH = 3 -- Should be the previous two combined
+
 -- Lets the player disable screen effects (for accessibility).
 RSR.CV_ScreenEffects = CV_RegisterVar({
 	name = "rsr_screeneffects",
-	defaultvalue = "On",
+	defaultvalue = "Both",
 	flags = CV_SAVE,
-	PossibleValue = CV_OnOff
+	PossibleValue = {
+		None = RSR.CVSCREENEFFECTS_NONE,
+		Speed = RSR.CVKILLFEED_SPEED,
+		Inv = RSR.CVKILLFEED_INV,
+		Both = RSR.CVKILLFEED_BOTH
+	}
 })
 
 -- --------------------------------

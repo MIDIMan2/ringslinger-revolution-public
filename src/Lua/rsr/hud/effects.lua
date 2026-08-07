@@ -9,7 +9,7 @@ RSR.HUDEffects = function(v, player)
 	if not (v and Valid(player) and player.rsrinfo) then return end
 
     -- Speed lines for the "Super Sneakers" powerup
-    if RSR.HasPowerup(player, RSR.POWERUP_SPEED) then
+    if RSR.HasPowerup(player, RSR.POWERUP_SPEED) and not (RSR.CV_ScreenEffects.value == 2) then
 		local scale = FixedDiv(v.height(), 200)
 		local xOffset = min(0, (v.width()*FRACUNIT - 320*scale)/2) -- Make sure the graphics don't overlap each other, but also don't display a gap from the edge of the screen on non-green resolutions
         local vFlags = V_PERPLAYER|V_NOSCALESTART|V_NOSCALEPATCH|V_ADD|V_HUDTRANSHALF
@@ -20,7 +20,7 @@ RSR.HUDEffects = function(v, player)
 	end
 
     -- Sparkles for the "Invincibility" powerup
-    if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) then
+    if RSR.HasPowerup(player, RSR.POWERUP_INVINCIBILITY) and not (RSR.CV_ScreenEffects.value == 1) then
         local vFlags = V_SNAPTOBOTTOM|V_PERPLAYER|V_HUDTRANSHALF|V_ADD
         -- Draw 4 sparkles in a zig-zag pattern on each side of the screen, offsetting each sparkle's animation frame by 1
         local frame = 0
