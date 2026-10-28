@@ -149,8 +149,6 @@ RSR.ConvertMapItem = function(mo, convertTable, altType)
 	end
 
 	local origDamage = mo.info.damage
-	-- TODO: Apparently, there's a bug where the blockmap isn't refreshed when mo.radius is set, but only when mo.scale is set
-	-- Set mo.scale here, or wait until 2.2.16 comes out (if it fixes this...)
 	local moType = moInfo.motype
 	if altType and moInfo[altType] then moType = moInfo[altType] end
 	if not moType then return end
@@ -164,8 +162,6 @@ RSR.ConvertMapItem = function(mo, convertTable, altType)
 		mo.type = moType
 	end
 
-	-- TODO: Apparently, there's a bug where the blockmap isn't refreshed when mo.radius is set, but only when mo.scale is set
-	-- Set mo.scale here, or wait until 2.2.16 comes out (if it fixes this...)
 	if Valid(mo.spawnpoint) then
 		mo.radius = FixedMul(mo.info.radius, mo.spawnpoint.scale)
 		mo.height = FixedMul(mo.info.height, mo.spawnpoint.scale)

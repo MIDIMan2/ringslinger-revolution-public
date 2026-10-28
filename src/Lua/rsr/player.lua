@@ -61,7 +61,6 @@ RSR.PlayerInit = function(player)
 	rsrinfo.lastbuttons = player.lastbuttons
 	rsrinfo.lastexiting = player.exiting
 	rsrinfo.lastemeralds = player.powers[pw_emeralds]
-	rsrinfo.lastflag = player.gotflag
 
 	RSR.PlayerHealthInit(player)
 	RSR.PlayerWeaponsInit(player)
@@ -307,7 +306,6 @@ RSR.PlayerThink = function(player)
 	player.rsrinfo.lastbuttons = player.cmd.buttons
 	player.rsrinfo.lastexiting = player.exiting
 	player.rsrinfo.lastemeralds = player.powers[pw_emeralds]
-	player.rsrinfo.lastflag = player.gotflag -- TODO: Remove this variable when 2.2.16 comes out
 
 	if player.playerstate == PST_LIVE then
 		player.mo.rsrPrevMomX = player.mo.momx

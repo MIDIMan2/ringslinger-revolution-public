@@ -40,7 +40,7 @@ RSR.WavesMapLoad = function()
 		if waveCount ~= nil then
 			-- Don't let the wave count be lower than 1 or higher than the hard limit
 			if waveCount > RSR.WAVE_NUM_HARDLIMIT then
-				print("\x82WARNING:\x80 RSRWavesCount parameter is set too high! Setting to 10...") -- TODO: Change the number if the hard limit increases
+				print("\x82WARNING:\x80 RSRWavesCount parameter is set too high! Setting to "..tostring(RSR.WAVE_NUM_HARDLIMIT).."...")
 			elseif waveCount <= 0 then
 				print("\x82WARNING:\x80 RSRWavesCount parameter must be greater than 0! Setting to 1...")
 			end

@@ -1,6 +1,5 @@
 ---@diagnostic disable: missing-fields
 -- Ringslinger Revolution - Grenade Weapon
--- TODO: Use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
 
 RSR.GRENADE_FUSE = TICRATE
 RSR.STICKYBOMB_CHARGE_MAX = 3*TICRATE/2
@@ -63,6 +62,7 @@ mobjinfo[MT_RSR_PROJECTILE_GRENADE] = {
 states[S_RSR_PROJECTILE_GRENADE] =	{SPR_RSBG,	FF_ANIMATE|FF_FULLBRIGHT,	-1,	nil,	17,	2,	S_NULL}
 
 --- Activates the Grenade Ring's fuse.
+---@param mo mobj_t
 RSR.GrenadeActivate = function(mo)
 	if not Valid(mo) then return end
 	if mo.fuse then return end -- Don't activate again!
@@ -87,40 +87,47 @@ addHook("MobjThinker", function(mo)
 	-- 	S_StartSound(mo, mo.info.attacksound)
 	-- end
 
-	local hitFloor = mo.z + mo.momz <= mo.floorz
-	if P_MobjFlip(mo) == 1 and (Valid(mo.standingslope)) then hitFloor = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
-	local hitCeiling = mo.z + mo.height + mo.momz >= mo.ceilingz
-	if P_MobjFlip(mo) == -1 and (Valid(mo.standingslope)) then hitCeiling = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
-
-	if hitFloor or hitCeiling then
-		if Valid(mo.subsector) and Valid(mo.subsector.sector) then
-			local curSector = mo.subsector.sector
-			if (hitFloor and curSector.floorpic == "F_SKY1" and curSector.floorheight == mo.floorz)
-			or (hitCeiling and curSector.ceilingpic == "F_SKY1" and curSector.ceilingheight == mo.ceilingz) then
-				P_RemoveMobj(mo)
-				return
-			end
-		end
-	end
-
-	if mo.threshold < 3 then
-		if (hitFloor and P_MobjFlip(mo) == 1)
-		or (hitCeiling and P_MobjFlip(mo) == -1) then
-			mo.threshold = $+1
-			RSR.GrenadeActivate(mo)
-			mo.momx = 3*$/5
-			mo.momy = 3*$/5
--- 			mo.momz = -2*$/3
-		end
-
-		return
-	elseif mo.threshold < 4 then
+	if mo.threshold == 3 then
 		mo.threshold = $+1
 		mo.momx = 0
 		mo.momy = 0
 		mo.momz = 0
 		return
 	end
+end, MT_RSR_PROJECTILE_GRENADE)
+
+--- Makes the Grenade bounce off a plane.
+---@param mo mobj_t
+---@param checkCeil boolean?
+RSR.GrenadeHitPlane = function(mo, checkCeil)
+	if Valid(mo.subsector) and Valid(mo.subsector.sector) then
+		local curSector = mo.subsector.sector
+		if (not checkCeil and curSector.floorpic == "F_SKY1" and curSector.floorheight == mo.floorz)
+		or (checkCeil and curSector.ceilingpic == "F_SKY1" and curSector.ceilingheight == mo.ceilingz) then
+			P_RemoveMobj(mo)
+			return
+		end
+	end
+
+	if mo.threshold < 3
+	and ((not checkCeil and P_MobjFlip(mo) == 1)
+ 	or (checkCeil and P_MobjFlip(mo) == -1)) then
+		mo.threshold = $+1
+		RSR.GrenadeActivate(mo)
+		mo.momx = 3*$/5
+		mo.momy = 3*$/5
+		-- mo.momz = -2*$/3
+	end
+end
+
+---@param mo mobj_t
+addHook("MobjHitFloor", function(mo)
+	return RSR.GrenadeHitPlane(mo)
+end, MT_RSR_PROJECTILE_GRENADE)
+
+---@param mo mobj_t
+addHook("MobjHitCeiling", function(mo)
+	return RSR.GrenadeHitPlane(mo, true)
 end, MT_RSR_PROJECTILE_GRENADE)
 
 -- Explode the Grenade 1 second after impacting a surface
@@ -254,40 +261,51 @@ addHook("MobjThinker", function(mo)
 			end
 		end
 	end
+end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
 
-	local hitFloor = mo.z + mo.momz <= mo.floorz
-	if P_MobjFlip(mo) == 1 and (Valid(mo.standingslope)) then hitFloor = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
-	local hitCeiling = mo.z + mo.height + mo.momz >= mo.ceilingz
-	if P_MobjFlip(mo) == -1 and (Valid(mo.standingslope)) then hitCeiling = true end -- Temporary fix for certain slope angles until 2.2.16 comes out
+--- Makes the stickybomb "stick" to the plane it hits.
+---@param mo mobj_t
+---@param checkCeil boolean?
+RSR.GrenadeStickybombHitPlane = function(mo, checkCeil)
+	if not (mo.flags & MF_STICKY) then return end
 
-	if (mo.flags & MF_STICKY) and (hitFloor or hitCeiling) then
-		if Valid(mo.subsector) and Valid(mo.subsector.sector) then
-			local curSector = mo.subsector.sector
-			if (hitFloor and (curSector.floorpic == "F_SKY1" or curSector.damagetype == SD_DEATHPITNOTILT or curSector.damagetype == SD_DEATHPITTILT) and curSector.floorheight == mo.floorz)
-			or (hitCeiling and (curSector.ceilingpic == "F_SKY1" or curSector.damagetype == SD_DEATHPITNOTILT or curSector.damagetype == SD_DEATHPITTILT) and curSector.ceilingheight == mo.ceilingz) then
-				P_RemoveMobj(mo)
-				return
-			end
-		end
-
-		RSR.GrenadeStickyBombActivate(mo)
-		mo.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND
-
-		-- Make the stickybomb stick to the plane it hits and flip it as necessary
-		if hitFloor then
-			mo.z = mo.floorz
-			if P_MobjFlip(mo) == -1 then
-				mo.eflags = $ & ~MFE_VERTICALFLIP
-				mo.flags2 = $ & ~MF2_OBJECTFLIP
-			end
-		else
-			mo.z = mo.ceilingz - mo.height
-			if P_MobjFlip(mo) == 1 then
-				mo.eflags = $|MFE_VERTICALFLIP
-				mo.flags2 = $|MF2_OBJECTFLIP
-			end
+	if Valid(mo.subsector) and Valid(mo.subsector.sector) then
+		local curSector = mo.subsector.sector
+		if (not checkCeil and curSector.floorpic == "F_SKY1" and curSector.floorheight == mo.floorz)
+		or (checkCeil and curSector.ceilingpic == "F_SKY1" and curSector.ceilingheight == mo.ceilingz) then
+			P_RemoveMobj(mo)
+			return
 		end
 	end
+
+	RSR.GrenadeStickyBombActivate(mo)
+	mo.state = S_RSR_PROJECTILE_GRENADE_STICKYBOMBGROUND
+
+	-- Make the stickybomb stick to the plane it hits and flip it as necessary
+	if not checkCeil then
+		mo.z = mo.floorz
+		if P_MobjFlip(mo) == -1 then
+			mo.eflags = $ & ~MFE_VERTICALFLIP
+			mo.flags2 = $ & ~MF2_OBJECTFLIP
+		end
+	else
+		mo.z = mo.ceilingz - mo.height
+		if P_MobjFlip(mo) == 1 then
+			mo.eflags = $|MFE_VERTICALFLIP
+			mo.flags2 = $|MF2_OBJECTFLIP
+		end
+	end
+	return false
+end
+
+---@param mo mobj_t
+addHook("MobjHitFloor", function(mo)
+	return RSR.GrenadeStickybombHitPlane(mo)
+end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
+
+---@param mo mobj_t
+addHook("MobjHitCeiling", function(mo)
+	return RSR.GrenadeStickybombHitPlane(mo, true)
 end, MT_RSR_PROJECTILE_GRENADE_STICKYBOMB)
 
 -- Function that arms/detonates Stickybombs when fuse runs out

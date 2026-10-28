@@ -9,7 +9,7 @@
 
 
 -- Attempt at optimalization by Sky Dusk
--- Edited by MIDIMan to fix first person issues until 2.2.16
+-- Edited by MIDIMan to fix flipcam
 
 local A270 = ANGLE_270
 local A90 = ANGLE_90
@@ -70,12 +70,6 @@ local function R_World2Screen3FPS(v, player, cam, point, reverse)
 	local viewangle = cam.angle
 	local viewx, viewy = cam.x, cam.y
 	local viewz = cam.z
-	-- TODO: Remove this if statement when 2.2.16 comes out
-	if not cam.chase and player.realmo and player.realmo.valid then
-		viewangle = player.realmo.angle
-		viewx, viewy = player.realmo.x, player.realmo.y
-		viewz = player.viewz
-	end
 	local result = {}
 
 	result.x = 0

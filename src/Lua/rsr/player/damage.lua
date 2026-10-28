@@ -38,13 +38,14 @@ RSR.MINOR_COOLDOWN = TICRATE/2
 
 RSR.ATTACKER_TIMER_MAX = 10*TICRATE
 
-addHook("MobjThinker", function(mo)
-	if not Valid(mo) then return end
+addHook("MobjHitFloor", function(mo)
+	mo.momz = -$
+	return false
+end, MT_RSR_DAMAGE_SPLATTER)
 
-	-- TODO: Rewrite this to use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
-	if mo.z + mo.momz <= mo.floorz or mo.z + mo.height + mo.momz >= mo.ceilingz then
-		mo.momz = -$
-	end
+addHook("MobjHitCeiling", function(mo)
+	mo.momz = -$
+	return false
 end, MT_RSR_DAMAGE_SPLATTER)
 
 addHook("MobjMoveBlocked", function(mo)
@@ -1008,31 +1009,6 @@ RSR.PlayerReplenishPowerups = function(player)
 	end
 end
 
--- TODO: Remove this function when 2.2.16 comes out
-
---- Cancels out the points awarded for hurting yourself when DMG_CANHURTSELF is applied (pre-2.2.16 bug).
----@param player player_t
----@param sourcePlayer player_t
----@param damagetype integer|nil
-RSR.CancelHurtSelfPoints = function(player, sourcePlayer, damagetype)
-	if not (Valid(player) and Valid(sourcePlayer)) then return end
-	damagetype = $ or 0
-	if not (player == sourcePlayer and (damagetype & DMG_CANHURTSELF)) then return end
-
-	local totalScore = 0
-	if (gametyperules & GTR_TEAMFLAGS) and (player.rsrinfo.lastflag & (GF_REDFLAG|GF_BLUEFLAG)) then -- player.gotflag gets reset before the MobjDeath hook, so check lastflag instead
-		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and sourcePlayer ~= player) then
-			totalScore = $ + 25
-		end
-	end
-	if not player.powers[pw_super] then
-		if not G_GametypeHasTeams() or not (sourcePlayer.ctfteam == player.ctfteam and sourcePlayer ~= player) then
-			totalScore = $ + 100
-		end
-	end
-	P_AddPlayerScore(player, -totalScore)
-end
-
 --- Lua implementation of the Tag gametype "suicide cases" code in P_KillMobj, but only for DMG_CANHURTSELF.
 ---@param player player_t
 ---@param source mobj_t
@@ -1191,8 +1167,6 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 					P_AddPlayerScore(info.player, 50)
 				end
 			end
-
-			if Valid(source) then RSR.CancelHurtSelfPoints(player, source.player, damagetype) end
 
 			rsrinfo.attackerInfo = {} -- Clear attackerInfo since we've already died
 		end

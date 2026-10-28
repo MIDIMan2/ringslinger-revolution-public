@@ -1,6 +1,5 @@
 ---@diagnostic disable: missing-fields
 -- Ringslinger Revolution - Scatter Weapon
--- TODO: Use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
 
 RSR.AddAmmo("SCATTER", {
 	amount = 20,
