@@ -247,7 +247,6 @@ addHook("MobjMoveBlocked", function(mo, thing, line)
 
 	if Valid(line) then
 		-- Don't bounce against the sky
-		-- TODO: It still happens in that one Scatter ring alcove in Jade Valley, because MobjMoveBlocked is buggy.
 		if P_CheckSkyHit(mo, line) then
 			P_RemoveMobj(mo)
 			return true

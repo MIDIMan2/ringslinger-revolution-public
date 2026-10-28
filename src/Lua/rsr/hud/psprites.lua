@@ -88,7 +88,6 @@ RSR.HUDPSprites = function(v, player, thiscam)
 	local xOffset = (v.width()*FRACUNIT - 320*scale)/2
 	local yOffset = 32*scale
 	local vFlags = V_NOSCALESTART|V_NOSCALEPATCH|V_SNAPTOBOTTOM|V_PERPLAYER
-	-- if viewmodelSetting == RSR.CVVIEWMODEL_LEFT then vFlags = $|V_FLIP end -- TODO: V_FLIP doesn't work in v.drawCropped yet, working on an MR to fix that
 
 	for _, pspr in ipairs(player.psprites) do
 		if not pspr then continue end
@@ -137,8 +136,9 @@ RSR.HUDPSprites = function(v, player, thiscam)
 
 		if not hasOrientSprite then
 			if viewmodelSetting == RSR.CVVIEWMODEL_LEFT then
-				-- x = 320*FRACUNIT - $ -- TODO: Use this when my MR fixing V_FLIP for drawCropped gets merged
-				x = (patch.leftoffset)*FRACUNIT - $
+				vFlags = $|V_FLIP
+				x = 320*FRACUNIT - $
+				-- x = (patch.leftoffset)*FRACUNIT - $
 			elseif viewmodelSetting == RSR.CVVIEWMODEL_CENTER then
 				x = $ - 113*FRACUNIT
 			end
