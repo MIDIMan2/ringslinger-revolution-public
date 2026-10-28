@@ -12,8 +12,10 @@ RSR.CVVIEWMODEL_CENTER = 3
 -- Lets the player set their viewmodel's orientation.
 RSR.CV_Viewmodel = CV_RegisterVar({
 	name = "rsr_viewmodel",
+	displayname = "Viewmodel",
+	category = "RSR HUD Options",
 	defaultvalue = "Right",
-	flags = CV_SAVE,
+	flags = CV_SAVE|CV_MENU,
 	PossibleValue = {
 		Off = RSR.CVVIEWMODEL_NONE,
 		Right = RSR.CVVIEWMODEL_RIGHT,
@@ -25,8 +27,10 @@ RSR.CV_Viewmodel = CV_RegisterVar({
 -- Lets the second player set their viewmodel's orientation.
 RSR.CV_Viewmodel2 = CV_RegisterVar({
 	name = "rsr_viewmodel2",
+	displayname = "Viewmodel (P2)",
+	category = "RSR HUD Options",
 	defaultvalue = "Right",
-	flags = CV_SAVE,
+	flags = CV_SAVE|CV_MENU,
 	PossibleValue = {
 		Off = RSR.CVVIEWMODEL_NONE,
 		Right = RSR.CVVIEWMODEL_RIGHT,
@@ -43,8 +47,10 @@ RSR.CVKILLFEED_BOTH = 3 -- Should be the previous two combined
 -- Lets the player set how the killfeed should be displayed.
 RSR.CV_Killfeed = CV_RegisterVar({
 	name = "rsr_killfeed",
+	displayname = "Killfeed",
+	category = "RSR HUD Options",
 	defaultvalue = "Both",
-	flags = CV_SAVE,
+	flags = CV_SAVE|CV_MENU,
 	PossibleValue = {
 		Off = RSR.CVKILLFEED_NONE,
 		Text = RSR.CVKILLFEED_TEXT,
@@ -61,8 +67,10 @@ RSR.CVSCREENEFFECTS_BOTH = 3 -- Should be the previous two combined
 -- Lets the player disable screen effects (for accessibility).
 RSR.CV_ScreenEffects = CV_RegisterVar({
 	name = "rsr_screeneffects",
+	displayname = "Screen Effects",
+	category = "RSR HUD Options",
 	defaultvalue = "Both",
-	flags = CV_SAVE,
+	flags = CV_SAVE|CV_MENU,
 	PossibleValue = {
 		None = RSR.CVSCREENEFFECTS_NONE,
 		Speed = RSR.CVSCREENEFFECTS_SPEED,
@@ -78,16 +86,20 @@ RSR.CV_ScreenEffects = CV_RegisterVar({
 -- Lets homing rings target and kill spectators.
 RSR.CV_Ghostbusters = CV_RegisterVar({
 	name = "rsr_ghostbusters",
+	displayname = "Ghostbusters",
+	category = "RSR Mutators",
 	defaultvalue = "False",
-	flags = CV_NETVAR|CV_SHOWMODIF,
+	flags = CV_NETVAR|CV_SHOWMODIF|CV_MENU,
 	PossibleValue = CV_TrueFalse
 })
 
 -- Lets non-IT players use weapons in Tag.
 RSR.CV_LaserTag = CV_RegisterVar({
 	name = "rsr_lasertag",
+	displayname = "Lasertag",
+	category = "RSR Mutators",
 	defaultvalue = "True",
-	flags = CV_NETVAR|CV_SHOWMODIF,
+	flags = CV_NETVAR|CV_SHOWMODIF|CV_MENU,
 	PossibleValue = CV_TrueFalse
 })
 

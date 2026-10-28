@@ -60,7 +60,9 @@ RSR.PlayerStarpostDataSpawn = function(player)
 	if data.weapons ~= nil then rsrinfo.weapons = RSR.DeepCopy(data.weapons) end
 	if data.readyWeapon ~= nil then
 		rsrinfo.readyWeapon = data.readyWeapon
-		PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[rsrinfo.readyWeapon].states.ready)
+		if RSR.CheckAmmo(player, RSR.WEAPON_INFO[rsrinfo.readyWeapon].ammotype) then
+			PSprites.SetPSpriteState(player, PSprites.PSPR_WEAPON, RSR.WEAPON_INFO[rsrinfo.readyWeapon].states.ready)
+		end
 	end
 	if data.shields ~= nil then
 -- 		player.powers[pw_shield] = data.shields
