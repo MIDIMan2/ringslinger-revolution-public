@@ -23,36 +23,7 @@ RSR.HUDWavesEnemyRadar = function(v, player, thiscam)
 	if #RSR.WAVE_ENEMIES then
 		for _, enemy in ipairs(RSR.WAVE_ENEMIES) do
 			if not Valid(enemy) then continue end
-			-- Shout-outs to Lunewulff, Skydusk, and MRCE for the (original) R_World2Screen3 function
-			local result = R_World2Screen3FPS(v, player, thiscam, {x = enemy.x, y = enemy.y, z = enemy.z + enemy.height/2})
-			local minScale, maxScale = FRACUNIT/32, FRACUNIT/8
-			if result and result.onScreen then
-				if not P_CheckSight(player.realmo, enemy) then
-					minScale, maxScale = FRACUNIT/16, FRACUNIT/4
-				end
-				if result.scale > maxScale then continue end
-				local transScale = 0
-				if result.scale > minScale then
-					transScale = FixedDiv(result.scale - minScale, maxScale - minScale)
-				end
-				-- R_World2Screen3 automatically adjusts for splitscreen, so roughly undo the adjustments
-				if splitscreen then result.y = $*2 + (v.height()/v.dupy() - 200)*FRACUNIT/2 end
-				local transFlag = FixedMul(9, min(transScale, FRACUNIT))*V_10TRANS
-				local eggmanPatch = v.cachePatch("RSREGGM")
-				v.drawCropped(
-					result.x - 64*result.scale,
-					result.y - 64*result.scale,
-					8*max(FRACUNIT/32, result.scale),
-					8*max(FRACUNIT/32, result.scale),
-					eggmanPatch,
-					V_PERPLAYER|transFlag,
-					nil,
-					0,
-					0,
-					eggmanPatch.width*FRACUNIT,
-					eggmanPatch.height*FRACUNIT
-				)
-			end
+			RSR.HUDRadarTarget(v, player, thiscam, "RSREGGM", enemy, 8*FRACUNIT)
 		end
 	end
 end
