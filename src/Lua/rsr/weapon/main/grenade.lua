@@ -109,6 +109,18 @@ RSR.GrenadeHitPlane = function(mo, checkCeil)
 		end
 	end
 
+	RSR.ReverseQuantizeMomentumToSlope(mo, mo.standingslope)
+	if not checkCeil and (P_MobjFlip(mo)*mo.momz < 0) then
+		mo.momz = -$/2
+		S_StartSound(mo, mo.info.activesound)
+	elseif checkCeil and P_MobjFlip(mo)*mo.momz >= 0 then
+		mo.momz = -$
+		S_StartSound(mo, mo.info.activesound)
+	end
+
+	-- For some reason, this gets called twice in the source code
+	if Valid(mo.standingslope) then RSR.QuantizeMomentumToSlope(mo, mo.standingslope, mo.standingslope.zangle) end
+
 	if mo.threshold < 3
 	and ((not checkCeil and P_MobjFlip(mo) == 1)
  	or (checkCeil and P_MobjFlip(mo) == -1)) then
@@ -118,6 +130,8 @@ RSR.GrenadeHitPlane = function(mo, checkCeil)
 		mo.momy = 3*$/5
 		-- mo.momz = -2*$/3
 	end
+
+	return false
 end
 
 ---@param mo mobj_t

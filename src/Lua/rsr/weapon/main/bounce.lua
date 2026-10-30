@@ -1,6 +1,5 @@
 ---@diagnostic disable: missing-fields
 -- Ringslinger Revolution - Bounce Weapon
--- TODO: Use MobjHitFloor and MobjHitCeiling when 2.2.16 comes out
 
 RSR.AddAmmo("BOUNCE", {
 	amount = 16,
@@ -167,34 +166,31 @@ RSR.BounceThinker = function(mo)
 	-- to make them stop when they hit the ground while their vertical momentum is less than their scale.
 	-- This code attempts to prevent that from happening by setting the bounce ring's momentum to its previous momentum.
 	-- A hack to prevent another hack. How interesting...
-	if not (mo.momx or mo.momy or mo.momz) then
-		mo.momx = mo.rsrPrevMomX
-		mo.momy = mo.rsrPrevMomY
-		mo.momz = mo.rsrPrevMomZ
-	end
+	-- Code has been removed, but I'm leaving this comment here because it's funny
+end
 
-	local hitFloor = mo.z + mo.momz <= mo.floorz
-	local hitCeiling = mo.z + mo.height + mo.momz >= mo.ceilingz
-	if hitFloor or hitCeiling then
-		RSR.BounceIncrementCount(mo)
-
-		if P_MobjFlip(mo)*mo.momz < 0 then
-			mo.momz = $*2 -- Try to cancel out the division by 2 done on MF_GRENADEBOUNCE objects
-		end
-
-		if Valid(mo.subsector) and Valid(mo.subsector.sector) then
-			local curSector = mo.subsector.sector
-			if (hitFloor and curSector.floorpic == "F_SKY1" and curSector.floorheight == mo.floorz)
-			or (hitCeiling and curSector.ceilingpic == "F_SKY1" and curSector.ceilingheight == mo.ceilingz) then
-				P_RemoveMobj(mo)
-				return
-			end
+--- Makes the Bounce ring bounce off a plane.
+---@param mo mobj_t
+---@param checkCeil boolean?
+RSR.BounceHitPlane = function(mo, checkCeil)
+	if Valid(mo.subsector) and Valid(mo.subsector.sector) then
+		local curSector = mo.subsector.sector
+		if (not checkCeil and curSector.floorpic == "F_SKY1" and curSector.floorheight == mo.floorz)
+		or (checkCeil and curSector.ceilingpic == "F_SKY1" and curSector.ceilingheight == mo.ceilingz) then
+			P_RemoveMobj(mo)
+			return
 		end
 	end
 
-	mo.rsrPrevMomX = mo.momx
-	mo.rsrPrevMomY = mo.momy
-	mo.rsrPrevMomZ = mo.momz
+	RSR.ReverseQuantizeMomentumToSlope(mo, mo.standingslope)
+	mo.momz = -$
+
+	-- For some reason, this gets called twice in the source code
+	if Valid(mo.standingslope) then RSR.QuantizeMomentumToSlope(mo, mo.standingslope, mo.standingslope.zangle) end
+
+	RSR.BounceIncrementCount(mo)
+
+	return false
 end
 
 -- Bounce Ring object impact code
@@ -247,12 +243,24 @@ addHook("MobjSpawn", RSR.BounceSpawn, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjThinker", RSR.BounceThinker, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjMoveBlocked", RSR.BounceMoveBlocked, MT_RSR_PROJECTILE_BOUNCE)
+addHook("MobjHitFloor", function(mo)
+	return RSR.BounceHitPlane(mo)
+end, MT_RSR_PROJECTILE_BOUNCE)
+addHook("MobjHitCeiling", function(mo)
+	return RSR.BounceHitPlane(mo, true)
+end, MT_RSR_PROJECTILE_BOUNCE)
 addHook("MobjSpawn", function(mo)
-	RSR.BounceSpawn(mo, true)
+	return RSR.BounceSpawn(mo, true)
 end, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 addHook("MobjThinker", RSR.BounceThinker, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 addHook("MobjMoveBlocked", RSR.BounceMoveBlocked, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
+addHook("MobjHitFloor", function(mo)
+	return RSR.BounceHitPlane(mo)
+end, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
+addHook("MobjHitCeiling", function(mo)
+	return RSR.BounceHitPlane(mo, true)
+end, MT_RSR_PROJECTILE_BOUNCE_MEGABOMB_SUBMUNITION)
 
 -- --------------------------------
 -- ALTFIRE PROJECTILE

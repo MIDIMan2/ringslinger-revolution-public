@@ -407,3 +407,61 @@ RSR.ProximityDetonate = function(mo, proxDist, proxCallback)
 		return true -- Stop the blockmap search
 	end, mo, mo.x - proxDist, mo.x + proxDist, mo.y - proxDist, mo.y + proxDist)
 end
+
+--- Port of P_QuantizeMomentumToSlope.
+---@param mo mobj_t
+---@param slope pslope_t
+---@param zangle angle_t
+RSR.QuantizeMomentumToSlope = function(mo, slope, zangle)
+	local axis = {x = 0, y = 0, z = 0}
+
+	if (slope.flags & SL_NOPHYSICS) then return end -- No physics, no quantizing.
+
+	axis.x = -slope.d.y
+	axis.y = slope.d.x
+	axis.z = 0
+
+	-- TODO: Make this use a rotate function from the vector library (if it gets implemented)
+	local ux = FixedMul(axis.x, mo.momx)
+	local uy = FixedMul(axis.x, mo.momy)
+	local uz = FixedMul(axis.x, mo.momz)
+	local vx = FixedMul(axis.y, mo.momx)
+	local vy = FixedMul(axis.y, mo.momy)
+	local vz = FixedMul(axis.y, mo.momz)
+	local wx = FixedMul(axis.z, mo.momx)
+	local wy = FixedMul(axis.z, mo.momy)
+	local wz = FixedMul(axis.z, mo.momz)
+	local sa = sin(zangle)
+	local ca = cos(zangle)
+	local ua = ux+vy+wz
+	local ax = FixedMul(axis.x, ua)
+	local ay = FixedMul(axis.y, ua)
+	local az = FixedMul(axis.z, ua)
+	local xs = FixedMul(axis.x, axis.x)
+	local ys = FixedMul(axis.y, axis.y)
+	local zs = FixedMul(axis.z, axis.z)
+	local bx = FixedMul(mo.momx, ys+zs)
+	local by = FixedMul(mo.momy, xs+zs)
+	local bz = FixedMul(mo.momz, xs+ys)
+	local cx = FixedMul(axis.x, vy+wz)
+	local cy = FixedMul(axis.y, ux+wz)
+	local cz = FixedMul(axis.z, ux+vy)
+	local dx = FixedMul(bx-cx, ca)
+	local dy = FixedMul(by-cy, ca)
+	local dz = FixedMul(bz-cz, ca)
+	local ex = FixedMul(vz-wy, sa)
+	local ey = FixedMul(wx-uz, sa)
+	local ez = FixedMul(uy-vx, sa)
+
+	mo.momx = ax+dx+ex
+	mo.momy = ay+dy+ey
+	mo.momz = az+dz+ez
+end
+
+--- Port of P_ReverseQuantizeMomentumToSlope.
+---@param mo mobj_t
+---@param slope pslope_t
+RSR.ReverseQuantizeMomentumToSlope = function(mo, slope)
+	if not Valid(slope) then return end
+	RSR.QuantizeMomentumToSlope(mo, slope, InvAngle(slope.zangle))
+end

@@ -348,7 +348,7 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	elseif victim.rsrinfo and (victim.rsrinfo.deathFlags & RSR.DEATH_SWITCHEDTEAMS) then
 		inflictorPatch = "RSRSWTCH"
 		if Valid(attacker) and not RSR.PlayersAreTeammates(victim, attacker) then
-			obituary = "$a joined $v's cause."
+			obituary = "$v joined $a's cause."
 		else
 			local teamRandInt = P_RandomKey(3)
 			if teamRandInt == 2 then

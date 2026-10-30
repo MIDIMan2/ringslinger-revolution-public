@@ -38,6 +38,7 @@ RSR.MINOR_COOLDOWN = TICRATE/2
 
 RSR.ATTACKER_TIMER_MAX = 10*TICRATE
 
+-- Don't bother with slope physics here
 addHook("MobjHitFloor", function(mo)
 	mo.momz = -$
 	return false

@@ -182,7 +182,7 @@ RSR.VANILLA_HUD_ITEMS = {
 RSR.HUD_ITEMS = {
 	{"rsr_wavesenemyradar", RSR.HUDWavesEnemyRadar, 0},
 	{"rsr_effects", RSR.HUDEffects, 0},
-	
+
 	{"rsr_scope", RSR.HUDScope, 1},
 	{"rsr_psprites", RSR.HUDPSprites, 2},
 
