@@ -265,9 +265,9 @@ addHook("MobjThinker", function(mo)
 				spark.momx = RSR.RandomFixedRange(spark.scale, 3*spark.scale)
 				spark.momy = RSR.RandomFixedRange(spark.scale, 3*spark.scale)
 				spark.momz = RSR.RandomFixedRange(0, 3*spark.scale)
-				if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
-				if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
-				if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+				if random.chance(FRACUNIT/2) then spark.momx = -$ end
+				if random.chance(FRACUNIT/2) then spark.momy = -$ end
+				if random.chance(FRACUNIT/2) then spark.momz = -$ end
 				-- Make the smoke shrink to scale 0 in roughly 2 seconds
 				spark.scalespeed = spark.scale/70
 				spark.destscale = 0

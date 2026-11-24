@@ -41,7 +41,7 @@ end
 ---@param b fixed_t
 RSR.RandomFixedRange = function(a, b)
 	local diff = b - a
-	local result = FixedMul(diff, P_RandomFixed()) + a
+	local result = FixedMul(diff, random.fixed()) + a
 	return result
 end
 
@@ -413,13 +413,9 @@ end
 ---@param slope pslope_t
 ---@param zangle angle_t
 RSR.QuantizeMomentumToSlope = function(mo, slope, zangle)
-	local axis = {x = 0, y = 0, z = 0}
-
 	if (slope.flags & SL_NOPHYSICS) then return end -- No physics, no quantizing.
 
-	axis.x = -slope.d.y
-	axis.y = slope.d.x
-	axis.z = 0
+	local axis = Vector3D.new(-slope.d.y, slope.d.x, 0)
 
 	-- TODO: Make this use a rotate function from the vector library (if it gets implemented)
 	local ux = FixedMul(axis.x, mo.momx)

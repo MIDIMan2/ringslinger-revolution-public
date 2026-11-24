@@ -23,9 +23,9 @@ RSR.P_DustRing = function(mobjtype, div, x, y, z, radius, speed, initscale, scal
 
 		dust.angle = ang*i + ANGLE_90
 		P_SetScale(dust, FixedMul(initscale, scale), true)
-		dust.destscale = FixedMul(4*FRACUNIT + P_RandomFixed(), scale)
+		dust.destscale = FixedMul(4*FRACUNIT + random.fixed(), scale)
 		dust.scalespeed = scale/24
-		P_Thrust(dust, ang*i, speed + FixedMul(P_RandomFixed(), scale))
+		P_Thrust(dust, ang*i, speed + FixedMul(random.fixed(), scale))
 		dust.momz = P_SignedRandom()*scale/64
 	end
 end
@@ -267,7 +267,7 @@ A_RecyclePowers = function(actor, var1, var2)
 		while j < numplayers do
 			local tempint = 0
 
-			i = j + ((P_RandomByte() + leveltime) % (numplayers - j))
+			i = j + ((random.byte() + leveltime) % (numplayers - j))
 			tempint = postscramble[j+1]
 			postscramble[j+1] = postscramble[i+1]
 			postscramble[i+1] = tempint

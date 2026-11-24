@@ -164,9 +164,9 @@ A_RSRRingExplode = function(mo, var1, var2)
 				spark.momx = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
 				spark.momy = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
 				spark.momz = RSR.RandomFixedRange(3*spark.scale/4, 4*spark.scale/3)
-				if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
-				if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
-				if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+				if random.chance(FRACUNIT/2) then spark.momx = -$ end
+				if random.chance(FRACUNIT/2) then spark.momy = -$ end
+				if random.chance(FRACUNIT/2) then spark.momz = -$ end
 
 				-- Make the spark shrink to scale 0 in roughly 3 seconds
 				spark.scalespeed = FRACUNIT/18

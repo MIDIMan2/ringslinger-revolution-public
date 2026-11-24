@@ -126,7 +126,7 @@ RSR.HealthMobjSpawn = function(mo)
 	if not Valid(mo) then return end
 
 	mo.shadowscale = 2*FRACUNIT/3
-	mo.rsrFloatOffset = FixedAngle(P_RandomKey(360)*FRACUNIT)
+	mo.rsrFloatOffset = FixedAngle(random.key(360)*FRACUNIT)
 
 	if not (netgame or multiplayer) then
 		mo.flags2 = $|MF2_DONTRESPAWN

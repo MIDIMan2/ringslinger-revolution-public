@@ -542,9 +542,9 @@ RSR.WeaponPickupThinker = function(mo)
 		if (leveltime % 4) == 0 and mo.rsrDontDespawn then
 			local ghost = P_SpawnGhostMobj(mo)
 			if Valid(ghost) then
-				ghost.momx = P_RandomRange(-2, 2)*mo.scale
-				ghost.momy = P_RandomRange(-2, 2)*mo.scale
-				ghost.momz = P_RandomRange(-2, 2)*mo.scale
+				ghost.momx = random.range(-2, 2)*mo.scale
+				ghost.momy = random.range(-2, 2)*mo.scale
+				ghost.momz = random.range(-2, 2)*mo.scale
 				ghost.fuse = TICRATE/4
 				ghost.blendmode = AST_ADD
 			end

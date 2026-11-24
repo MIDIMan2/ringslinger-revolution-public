@@ -212,8 +212,8 @@ RSR.PlayerDeathTick = function(player)
 	player.mo.flags = $|MF_NOCLIP|MF_NOCLIPHEIGHT
 	if player.mo.fuse < TICRATE then
 		if (player.rsrinfo.deathFlags & RSR.DEATH_USEDEXPLODECMD) then
-			player.mo.spritexoffset = P_RandomRange(-8, 8)*FRACUNIT
-			player.mo.spriteyoffset = P_RandomRange(-8, 8)*FRACUNIT
+			player.mo.spritexoffset = random.range(-8, 8)*FRACUNIT
+			player.mo.spriteyoffset = random.range(-8, 8)*FRACUNIT
 		else
 			player.mo.flags2 = $ ^^ MF2_DONTDRAW
 		end
@@ -343,7 +343,7 @@ RSR.PlayerMobjFuse = function(mo)
 			if Valid(explosion2) then
 				explosion2.scale = $ * 2
 			end
-			if P_RandomRange(1,100) == 58 then
+			if random.range(1,100) == 58 then
 				S_StartSound(mo, sfx_asplod)
 			else
 				S_StartSound(mo, sfx_cvxpld)
@@ -352,13 +352,13 @@ RSR.PlayerMobjFuse = function(mo)
 			for d = 0, 15 do
 				P_SpawnParaloop(mo.x, mo.y, mo.z + mo.height/2, FixedMul(192*FRACUNIT, mo.scale), 16, MT_THUNDERCOIN_SPARK, d * ANGLE_22h, S_THUNDERCOIN_SPARK, true)
 			end
-			if P_RandomRange(1,100) == 51 then
+			if random.range(1,100) == 51 then
 				S_StartSound(mo, sfx_binted)
 			else
 				S_StartSound(mo, sfx_cowmgl)
 			end
 		else -- One in one hundred deaths go flying for no reason.
-			if P_RandomRange(1,100) == 69 then
+			if random.range(1,100) == 69 then
 				mo.momx = $ * 4
 				mo.momy = $ * 4
 				mo.momz = $ * 4

@@ -203,7 +203,7 @@ RSR.ConvertMapItem = function(mo, convertTable, altType)
 			mo.z = $ + FixedMul(moInfo.zoffset, zScale)
 		end
 	end
-	if moInfo.floatoffset then mo.rsrFloatOffset = FixedAngle(P_RandomKey(360)*FRACUNIT) end
+	if moInfo.floatoffset then mo.rsrFloatOffset = FixedAngle(random.key(360)*FRACUNIT) end
 	mo.shadowscale = 2*FRACUNIT/3
 end
 

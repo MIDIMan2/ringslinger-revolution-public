@@ -276,10 +276,10 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 	-- local obituary = "$a caused the mysterious disappearance of $v." -- How do you get this to happen. Indicates error if seen! (keeping this line as a comment, because it's funny -MIDIMan)
 	local obituary = nil
 	local meleeRandInt = 0
-	if P_RandomRange(1,100) == 42 then
+	if random.range(1,100) == 42 then
 		meleeRandInt = 5
 	else
-		meleeRandInt = P_RandomRange(1,4)
+		meleeRandInt = random.range(1,4)
 	end
 	local infReflected = false
 	local attackerName = nil
@@ -350,7 +350,7 @@ RSR.KillfeedAdd = function(victim, inflictor, attacker, damagetype)
 		if Valid(attacker) and not RSR.PlayersAreTeammates(victim, attacker) then
 			obituary = "$v joined $a's cause."
 		else
-			local teamRandInt = P_RandomKey(3)
+			local teamRandInt = random.key(3)
 			if teamRandInt == 2 then
 				obituary = "$v went AWOL."
 			elseif teamRandInt == 1 then

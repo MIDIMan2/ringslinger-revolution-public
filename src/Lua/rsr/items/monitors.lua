@@ -148,7 +148,7 @@ RSR.GetWeakOrStrongMonitor = function(mo)
 		end
 	end
 
-	return spawnchance[P_RandomKey(numchoices)]
+	return spawnchance[random.key(numchoices)]
 end
 
 --- Lua port of P_MonitorFuseThink using special values for RSR.

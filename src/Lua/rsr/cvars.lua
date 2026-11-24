@@ -165,7 +165,7 @@ COM_AddCommand("rsr_killallplayers", function()
 		if not (Valid(player) and RSR.CanUseKillCMD(player, true)) then continue end
 		if player.rsrinfo then
 			player.rsrinfo.deathFlags = $|RSR.DEATH_REMOVEDEATHMASK
-			local randomValue = P_RandomRange(1, 3)
+			local randomValue = random.range(1, 3)
 			if randomValue == 3 then
 				player.rsrinfo.deathFlags = $|RSR.DEATH_USEDDISINTEGRATECMD
 			elseif randomValue == 2 then

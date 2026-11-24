@@ -78,7 +78,7 @@ RSR.EnemyDecrementHealth = function(target, source, damage, healthScale)
 		target.health = $ - 1
 		if painChance == -1 then triggerPainState = true end
 	end
-	if painChance ~= -1 and P_RandomByte() < painChance and not (target.flags2 & MF2_SKULLFLY) then triggerPainState = true end
+	if painChance ~= -1 and random.byte() < painChance and not (target.flags2 & MF2_SKULLFLY) then triggerPainState = true end
 
 	return painChance, triggerPainState
 end

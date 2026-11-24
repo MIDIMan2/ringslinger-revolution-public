@@ -15,9 +15,9 @@ RSR.SuperFlingSpark = function(mo)
 			spark.momx = RSR.RandomFixedRange(spark.scale, 5*spark.scale)
 			spark.momy = RSR.RandomFixedRange(spark.scale, 5*spark.scale)
 			spark.momz = RSR.RandomFixedRange(0, 5*spark.scale)
-			if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
-			if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
-			if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+			if random.chance(FRACUNIT/2) then spark.momx = -$ end
+			if random.chance(FRACUNIT/2) then spark.momy = -$ end
+			if random.chance(FRACUNIT/2) then spark.momz = -$ end
 
 			-- Make the spark shrink to scale 0 in roughly 1 second
 			spark.scalespeed = spark.scale/25

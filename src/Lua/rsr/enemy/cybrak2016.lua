@@ -170,7 +170,7 @@ A_RSRCybrakRandomAttack = function(actor, var1, var2)
 
 	local attackMax = 5
 
-	local attackNum = P_RandomRange(1, attackMax)
+	local attackNum = random.range(1, attackMax)
 	-- Make Cybrak always use his rocket attack first
 	if not actor.rsrCybrakRocket then
 		attackNum = 1
@@ -217,7 +217,7 @@ A_RSRCybrakDashSides = function(actor, var1, var2)
 	A_PlaySound(actor, sfx_zoom, 0+1<<16)
 	P_SpawnGhostMobj(actor)
 
-	if P_RandomChance(FRACUNIT/2) then
+	if random.chance(FRACUNIT/2) then
 		P_Thrust(actor, actor.angle - ANGLE_90, 40*actor.scale)
 		return
 	end

@@ -92,7 +92,7 @@ RSR.SpawnDamageSplatter = function(target, damage)
 		if Valid(bleed) then
 			bleed.dontdrawforviewmobj = target -- Prevents the splatter from obscuring the player's view in first-person
 			bleed.color = target.color -- Make the splatter's color match that of its source
--- 			if tensScale <= 4 or P_RandomKey(1) then
+-- 			if tensScale <= 4 or random.key(1) then
 -- 				bleed.scale = $/2
 -- 			end
 
@@ -111,9 +111,9 @@ RSR.SpawnDamageSplatter = function(target, damage)
 			bleed.momx = RSR.RandomFixedRange(bleed.scale, 5*bleed.scale)
 			bleed.momy = RSR.RandomFixedRange(bleed.scale, 5*bleed.scale)
 			bleed.momz = RSR.RandomFixedRange(0, 5*bleed.scale)
-			if P_RandomChance(FRACUNIT/2) then bleed.momx = -$ end
-			if P_RandomChance(FRACUNIT/2) then bleed.momy = -$ end
-			if P_RandomChance(FRACUNIT/2) then bleed.momz = -$ end
+			if random.chance(FRACUNIT/2) then bleed.momx = -$ end
+			if random.chance(FRACUNIT/2) then bleed.momy = -$ end
+			if random.chance(FRACUNIT/2) then bleed.momz = -$ end
 
 			-- Make the splatter shrink to scale 0 in roughly 3 seconds
 			bleed.scalespeed = bleed.scale/64
@@ -488,9 +488,9 @@ RSR.PlayerArmorDamage = function(player, inflictor, damage)
 					spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
 					spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
 					spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
-					if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
-					if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
-					if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+					if random.chance(FRACUNIT/2) then spark.momx = -$ end
+					if random.chance(FRACUNIT/2) then spark.momy = -$ end
+					if random.chance(FRACUNIT/2) then spark.momz = -$ end
 
 					-- Make the spark shrink to scale 0 in roughly 1/3rd of a second
 					spark.scalespeed = spark.scale/12
@@ -828,9 +828,9 @@ RSR.PlayerShouldDamage = function(target, inflictor, source, damage, damagetype)
 						spark.momx = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
 						spark.momy = RSR.RandomFixedRange(spark.scale, 16*spark.scale)
 						spark.momz = RSR.RandomFixedRange(0, 16*spark.scale)
-						if P_RandomChance(FRACUNIT/2) then spark.momx = -$ end
-						if P_RandomChance(FRACUNIT/2) then spark.momy = -$ end
-						if P_RandomChance(FRACUNIT/2) then spark.momz = -$ end
+						if random.chance(FRACUNIT/2) then spark.momx = -$ end
+						if random.chance(FRACUNIT/2) then spark.momy = -$ end
+						if random.chance(FRACUNIT/2) then spark.momz = -$ end
 					end
 				end
 			elseif Valid(inflictor.player) and inflictor.player.powers[pw_invulnerability]
@@ -1083,7 +1083,7 @@ RSR.PlayerDeath = function(target, inflictor, source, damagetype)
 	if FixedHypot(player.mo.momx, player.mo.momy) > FixedMul(RSR.DEATHCAM_SPEED_MAX, player.mo.scale) then
 		rsrinfo.deathCamPos = {x = target.x, y = target.y, z = target.z + target.height/2}
 	end
-	if P_RandomKey(2) then rsrinfo.deathFlags = $|RSR.DEATH_FLIPSPRITEROLL end
+	if random.key(2) then rsrinfo.deathFlags = $|RSR.DEATH_FLIPSPRITEROLL end
 	rsrinfo.critCooldown = 0
 	RSR.PlayerEHPFlashInit(player)
 

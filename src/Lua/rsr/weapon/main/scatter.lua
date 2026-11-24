@@ -61,7 +61,7 @@ addHook("MobjMoveCollide", RSR.ProjectileMoveCollide, MT_RSR_PROJECTILE_SCATTER)
 ---@param actor mobj_t
 A_ScatterFlakCannonXpldSound = function(actor, var1, var2)
 	if not Valid(actor) then return end
-	if P_RandomRange(1,2) == 1 then
+	if random.range(1,2) == 1 then
 		S_StartSound(actor, sfx_scatx1)
 	else
 		S_StartSound(actor, sfx_scatx2)
@@ -173,8 +173,8 @@ A_ScatterFlakCannon = function(actor, var1, var2)
 	local flakSpeed = FixedHypot(FixedHypot(actor.rsrPrevMomX or 0, actor.rsrPrevMomY or 0), actor.rsrPrevMomZ or 0)
 
 	for i = 0, 11 do
-		local flakAngleOffset = FixedAngle(P_RandomRange(13, -13)*FRACUNIT/4) -- Random horizontal spread between 6.5 and -6.5 degrees
-		local flakPitchOffset = FixedAngle(P_RandomRange(11, -11)*FRACUNIT/4) -- Random vertical spread between 5.5 and -5.5 degrees
+		local flakAngleOffset = FixedAngle(random.range(13, -13)*FRACUNIT/4) -- Random horizontal spread between 6.5 and -6.5 degrees
+		local flakPitchOffset = FixedAngle(random.range(11, -11)*FRACUNIT/4) -- Random vertical spread between 5.5 and -5.5 degrees
 		local flakShot = P_SpawnMobjFromMobj(actor, 0, 0, actor.info.height/2, MT_RSR_PROJECTILE_SCATTER_FLAKCANNON_SUBMUNITION)
 		if Valid(flakShot) then
 			if actor.rsrOrigScale then flakShot.scale = actor.rsrOrigScale end
@@ -182,10 +182,10 @@ A_ScatterFlakCannon = function(actor, var1, var2)
 			flakShot.pitch = actor.pitch + (flakPitchOffset)
 			flakShot.target = actor.target -- Don't let players hurt themselves with a Mass Scrambler
 			flakShot.rsrProjectile = true
-			flakShot.rsrSoundTimer = P_RandomRange(1, 12) -- Randomize travelling sound timer so the sounds don't overlap each other and pierce the player's eardrums
+			flakShot.rsrSoundTimer = random.range(1, 12) -- Randomize travelling sound timer so the sounds don't overlap each other and pierce the player's eardrums
 			-- Make it smaller
-			local flakRandomMod = P_RandomRange(4, 7) -- Randomise scale between each bomblet a bit
-			local flakVMod = P_RandomRange(2, 4) -- Randomise scale between each bomblet a bit
+			local flakRandomMod = random.range(4, 7) -- Randomise scale between each bomblet a bit
+			local flakVMod = random.range(2, 4) -- Randomise scale between each bomblet a bit
 			flakShot.rsrOrigScale = flakShot.scale
 			flakShot.scalespeed = flakShot.scale
 			flakShot.destscale = flakShot.scale*2/flakRandomMod

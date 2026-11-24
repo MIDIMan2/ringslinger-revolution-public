@@ -241,8 +241,8 @@ RSR.tryRunHook = function(hooktype, v, ...)
 	elseif (not v.errored) then
 		v.errored = true
 
-        RSR.hook_error("Hook " .. hooktype .. " handler #" .. i .. " error:", sfx_lose)
-		print(unpack(results))
+        RSR.hook_error("Hook " .. hooktype .. " handler #" .. i .. " error:\n" .. unpack(results), sfx_lose)
+		-- print(unpack(results))
 	end
 
 	if override == nil then return nil; end

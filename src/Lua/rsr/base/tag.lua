@@ -46,7 +46,7 @@ RSR.TagCheckSurvivors = function(player)
 		end
 
 		if survivors then
-			if not survivorIndex then survivorIndex = P_RandomKey(survivors) + 1 end
+			if not survivorIndex then survivorIndex = random.key(survivors) + 1 end
 			local newTagger = survivorArray[survivorIndex]
 
 			print(players[newTagger].name.." is now IT!") -- Tell everyone who is it!
@@ -79,7 +79,7 @@ RSR.TagCheckSurvivors = function(player)
 		local taggedOne = false
 		while taggers < numTaggers do -- Turn some survivors into taggers
 			if not survivorIndex or taggedOne then
-				survivorIndex = P_RandomKey(survivors) + 1
+				survivorIndex = random.key(survivors) + 1
 				taggedOne = true
 			end
 			local newTagger = survivorArray[survivorIndex]
@@ -121,7 +121,7 @@ RSR.TagMapLoad = function()
 
 	local numTaggers = (numPlayers - 1) / RSR.TAG_HIDERRATIO -- For every 6 players, there should be 1 tagger.
 	while numTaggers > 0 do
-		local randomIndex = P_RandomKey(#survivorsActive) + 1
+		local randomIndex = random.key(#survivorsActive) + 1
 		players[survivorsActive[randomIndex]].pflags = $|PF_TAGIT
 		table.remove(survivorsActive, randomIndex)
 		numTaggers = $-1
